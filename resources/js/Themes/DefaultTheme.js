@@ -21,6 +21,10 @@ const dark = {
         "secondary-tonal": "#FFD700", //gold
         "accent-tonal": "#31C469", //green
         "error-tonal": "#F44336", //red
+        "primary-tonal-alert": "#1184f0",
+        "secondary-tonal-alert": "#FFD700", //gold
+        "accent-tonal-alert": "#31C469", //green
+        "error-tonal-alert": "#F44336", //red
     },
 };
 
