@@ -46,12 +46,6 @@ const copyText = async () => {
         notificationMessage.value = "Error while copying!";
     } finally {
         toggleNotification();
-
-        // Reset the notification after 3 seconds
-        setTimeout(() => {
-            notificationMessage.value = null;
-            notificationColor.value = null;
-        }, 3000);
     }
 };
 </script>
