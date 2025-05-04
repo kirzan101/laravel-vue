@@ -4,7 +4,8 @@
         :icon="computedIcon"
         variant="text"
         density="compact"
-        v-tooltip:bottom="computedTitle"
+        v-tooltip:bottom="computedDescription"
+        v-bind="$attrs"
     ></v-btn>
 </template>
 
@@ -12,14 +13,14 @@
 import { computed } from "vue";
 const props = defineProps({
     icon: String,
-    title: String,
+    description: String,
 });
 
 const computedIcon = computed(() => {
     return props.icon || "mdi-home";
 });
 
-const computedTitle = computed(() => {
-    return props.title || "Home";
+const computedDescription = computed(() => {
+    return props.description || "Home";
 });
 </script>

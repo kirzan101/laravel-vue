@@ -4,7 +4,7 @@
         color="primary"
         size="x-small"
         @click="copyText"
-        title="copy"
+        description="copy"
     >
     </c-btn-icon>
     <snack-bar
