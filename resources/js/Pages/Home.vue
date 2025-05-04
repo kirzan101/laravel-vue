@@ -62,9 +62,9 @@ import CSearchField from "../Components/Customs/Inputs/CSearchField.vue";
 import CNumberField from "../Components/Customs/Inputs/CNumberField.vue";
 import CDecimalField from "../Components/Customs/Inputs/CDecimalField.vue";
 import CCard from "../Components/Customs/Cards/CCard.vue";
-import Loading from "../Components/utilities/Loading.vue";
-import SnackBar from "../Components/utilities/SnackBar.vue";
-import CopyText from "../Components/utilities/CopyText.vue";
+import Loading from "../Components/Utilities/Loading.vue";
+import SnackBar from "../Components/Utilities/SnackBar.vue";
+import CopyText from "../Components/Utilities/CopyText.vue";
 import { computed, ref } from "vue";
 
 const props = defineProps({
