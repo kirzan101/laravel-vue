@@ -1,5 +1,11 @@
 <template>
-    <v-btn variant="tonal" size="small" :color="computedColor" v-bind="$attrs">
+    <v-btn
+        class="ma-1"
+        variant="tonal"
+        size="small"
+        :color="computedColor"
+        v-bind="$attrs"
+    >
         <slot />
     </v-btn>
 </template>

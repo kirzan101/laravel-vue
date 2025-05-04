@@ -1,5 +1,6 @@
 <template>
     <v-btn
+        class="ma-1"
         variant="text"
         size="small"
         :color="computedColor"
