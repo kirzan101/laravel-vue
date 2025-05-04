@@ -1,5 +1,5 @@
 <template>
-    <c-alert icon="mdi-alert" :color="computedColor" v-bind="$attrs">
+    <c-alert icon="mdi-alert-circle" :color="computedColor" v-bind="$attrs">
         <slot />
     </c-alert>
 </template>
