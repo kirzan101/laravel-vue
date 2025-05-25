@@ -10,6 +10,12 @@
                     <c-search-field v-model="search" />
                     <c-number-field v-model="numberInput" />
                     <c-decimal-field v-model="decimalInput" />
+                    <c-date-field v-model="dateInput" />
+                    <c-date-range-field
+                        v-model="dateRangeInput"
+                        @dateRangeValues="getDateRangeValue"
+                    />
+                    {{ dateRangeInputValue }}
                 </div>
                 <div>
                     <c-alert-notice
@@ -65,6 +71,9 @@ import CCard from "../Components/Customs/Cards/CCard.vue";
 import Loading from "../Components/Utilities/Loading.vue";
 import SnackBar from "../Components/Utilities/SnackBar.vue";
 import CopyText from "../Components/Utilities/CopyText.vue";
+import CDateField from "../Components/Customs/Inputs/CDateField.vue";
+import CDateRangeField from "../Components/Customs/Inputs/CDateRangeField.vue";
+
 import { computed, ref } from "vue";
 
 const props = defineProps({
@@ -88,6 +97,16 @@ const pageTitle = computed(() => {
 const search = ref(null);
 const numberInput = ref(null);
 const decimalInput = ref(null);
+const dateInput = ref(null);
+const dateRangeInput = ref(null);
+// const dateRangeInput = ref(["2025-05-05", "2025-05-10"]);
+const dateRangeInputValue = ref(null);
+
+const getDateRangeValue = (value) => {
+    if (Array.isArray(value) && value.length > 0) {
+        dateRangeInputValue.value = value;
+    }
+};
 
 const snackBarRef = ref(null);
 const toggleSnackBar = () => {
