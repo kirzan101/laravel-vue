@@ -1,5 +1,11 @@
 <template>
-    <v-footer app color="transparent" class="d-flex justify-center" height="54">
+    <v-footer
+        app
+        color="transparent"
+        :absolute="true"
+        class="d-flex justify-center"
+        height="54"
+    >
         <span class="white--text"
             >&copy; {{ `${new Date().getFullYear()} ${appName}` }}</span
         >

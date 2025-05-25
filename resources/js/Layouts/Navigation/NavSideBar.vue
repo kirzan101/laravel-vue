@@ -30,11 +30,19 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import NavBar from "./NavBar.vue";
 import { usePage } from "@inertiajs/vue3";
+import { useDisplay } from "vuetify";
 
 const drawer = ref(false);
+
+const { mobile } = useDisplay();
+onMounted(() => {
+    if (!mobile.value) {
+        drawer.value = true;
+    }
+});
 
 const toggleDrawer = () => {
     drawer.value = !drawer.value;
