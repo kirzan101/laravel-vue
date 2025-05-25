@@ -35,8 +35,8 @@ const props = defineProps({
 
 const snackBar = ref(false);
 
-const toggleNotification = () => {
-    snackBar.value = true;
+const toggleNotification = (value = true) => {
+    snackBar.value = value;
 };
 
 defineExpose({
