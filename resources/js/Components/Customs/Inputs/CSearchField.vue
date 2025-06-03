@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-import { watch, defineProps, defineEmits, computed } from "vue";
+import { watch, computed } from "vue";
 import CTextFieldSolo from "./CTextFieldSolo.vue";
 
 // Define props

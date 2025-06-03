@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import { watch, defineProps, defineEmits } from "vue";
+import { watch } from "vue";
 import CTextFieldOutlined from "./CTextFieldOutlined.vue";
 
 const props = defineProps({
