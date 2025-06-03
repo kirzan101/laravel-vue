@@ -12,7 +12,7 @@ const light = {
 const dark = {
     dark: true,
     colors: {
-        background: "#1E1E1E",
+        background: "#252525",
         primary: "#08457e", //blue
         secondary: "#b08521", //gold
         accent: "#185D33", //green
