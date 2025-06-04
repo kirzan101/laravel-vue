@@ -1,7 +1,14 @@
 <template>
-    <v-btn class="ma-1" size="small" v-bind="$attrs">
+    <v-btn class="ma-1" :size="size" v-bind="$attrs">
         <slot />
     </v-btn>
 </template>
 
-<script setup></script>
+<script setup>
+const props = defineProps({
+    size: {
+        type: String,
+        default: "small",
+    },
+});
+</script>
