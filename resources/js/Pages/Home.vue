@@ -41,6 +41,9 @@
                     <c-btn @click="toggleSnackBar">Notification</c-btn>
                     <copy-text textValue="Lalatina" />
                 </div>
+                <div>
+                <c-chip-file fileType="jpeg" color="primary">Img</c-chip-file>
+                </div>
             </c-card>
         </v-container>
         <snack-bar ref="snackBarRef" />
@@ -73,6 +76,7 @@ import SnackBar from "../Components/Utilities/SnackBar.vue";
 import CopyText from "../Components/Utilities/CopyText.vue";
 import CDateField from "../Components/Customs/Inputs/CDateField.vue";
 import CDateRangeField from "../Components/Customs/Inputs/CDateRangeField.vue";
+import CChipFile from "../Components/Customs/Chips/CChipFile.vue";
 
 import { computed, ref } from "vue";
 

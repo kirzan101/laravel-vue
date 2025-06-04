@@ -1,6 +1,6 @@
 <template>
     <c-chip prepend-icon="mdi-account-circle" v-bind="$attrs">
-        <v-slot />
+        <slot />
     </c-chip>
 </template>
 
