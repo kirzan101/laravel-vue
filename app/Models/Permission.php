@@ -9,6 +9,6 @@ class Permission extends Model
     protected $fillable = [
         'module',
         'type',
-        'isActive',
+        'is_active',
     ];
 }

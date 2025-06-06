@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('module');
             $table->string('type');
-            $table->boolean('isActive')->default(true);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

@@ -24,7 +24,13 @@ class GenerateModulePermissions extends Command
     {
         DB::transaction(function () {
             $originalModelName = $this->argument('model');
-            $modelName = Str::snake($originalModelName);
+            $singularName = Str::snake($originalModelName);
+
+            // Try to pluralize the word
+            $pluralName = Str::plural($singularName);
+
+            // Fallback if pluralization didn’t change anything (likely no plural form)
+            $modelName = $pluralName !== $singularName ? $pluralName : $singularName;
 
             $types = [
                 'create' => $this->option('create') ?? true,
@@ -38,7 +44,7 @@ class GenerateModulePermissions extends Command
             foreach ($types as $type => $isActive) {
                 $permission = Permission::firstOrCreate(
                     ['module' => $modelName, 'type' => $type],
-                    ['isActive' => $isActive]
+                    ['is_active' => $isActive]
                 );
 
                 $createdPermissions[] = $permission->id;
@@ -52,7 +58,7 @@ class GenerateModulePermissions extends Command
                             'permission_id' => $permissionId,
                         ],
                         [
-                            'isActive' => false, // default to inactive, but can be updated later
+                            'is_active' => false, // default to inactive, but can be updated later
                         ]
                     );
                 }

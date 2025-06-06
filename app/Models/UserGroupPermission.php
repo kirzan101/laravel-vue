@@ -10,7 +10,7 @@ class UserGroupPermission extends Model
     protected $fillable = [
         'user_group_id',
         'permission_id',
-        'isActive'
+        'is_active'
     ];
 
     /**

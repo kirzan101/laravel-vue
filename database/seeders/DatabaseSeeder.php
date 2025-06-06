@@ -13,11 +13,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // \App\Models\User::factory(10)->create();
 
-        User::factory()->create([
-            'username' => 'admin',
-            'email' => 'admin@example.com',
+        $this->call([
+            ProfileSeeder::class,
+            PermissionSeeder::class,
+            UserGroupSeeder::class,
+            ProfileUserGroupSeeder::class,
         ]);
+
+        // Uncomment the line below to generate module permissions
+        // $this->call(GenerateModulePermissions::class, ['model' => 'ExampleModel']);
     }
 }

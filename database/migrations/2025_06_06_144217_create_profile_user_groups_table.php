@@ -11,19 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_group_permissions', function (Blueprint $table) {
+        Schema::create('profile_user_groups', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('profile_id')->index();
             $table->unsignedBigInteger('user_group_id')->index();
-            $table->unsignedBigInteger('permission_id')->index();
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            $table->foreign('profile_id')
+                ->references('id')
+                ->on('profiles');
 
             $table->foreign('user_group_id')
                 ->references('id')
                 ->on('user_groups');
-            $table->foreign('permission_id')
-                ->references('id')
-                ->on('permissions');
         });
     }
 
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_group_permissions');
+        Schema::dropIfExists('profile_user_groups');
     }
 };
