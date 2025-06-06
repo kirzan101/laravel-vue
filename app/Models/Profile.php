@@ -27,7 +27,7 @@ class Profile extends Model
     /**
      * Get the user that owns the profile.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -37,7 +37,7 @@ class Profile extends Model
     /**
      * Get the profile that created this profile.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function createdBy(): BelongsTo
     {
@@ -47,7 +47,7 @@ class Profile extends Model
     /**
      * Get the profile that last updated this profile.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function updatedBy(): BelongsTo
     {

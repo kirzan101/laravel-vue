@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserGroup extends Model
@@ -16,4 +18,46 @@ class UserGroup extends Model
         'created_by',
         'updated_by',
     ];
+
+    /**
+     * Get the profile that created this profile.
+     *
+     * @return BelongsTo
+     */
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(Profile::class, 'created_by');
+    }
+
+    /**
+     * Get the profile that last updated this profile.
+     *
+     * @return BelongsTo
+     */
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(Profile::class, 'updated_by');
+    }
+
+    /**
+     * Get the permissions associated with the user group.
+     *
+     * @return HasMany
+     */
+    public function userGroupPermissions(): HasMany
+    {
+        return $this->hasMany(UserGroupPermission::class);
+    }
+
+    /**
+     * Get the permission list of the user group.
+     *
+     * @return array
+     */
+    public function getPermissions(): array
+    {
+        return $this->userGroupPermissions->map(function ($userGroupPermission) {
+            return $userGroupPermission->permission;
+        })->toArray();
+    }
 }
