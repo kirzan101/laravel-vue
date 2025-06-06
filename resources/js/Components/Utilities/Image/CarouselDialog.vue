@@ -8,11 +8,11 @@
                 v-bind="activatorProps"
                 :closable="closable"
             >
-                {{ selectedImage.file_name }}
+                {{ selectedAttachment.file_name }}
                 <template v-if="closable" #close>
                     <delete-image
-                        :selectedImage="selectedImage"
-                        :attachmentLink="downloadLink"
+                        :selectedAttachment="selectedAttachment"
+                        :attachmentLink="attachmentLink"
                     ></delete-image>
                 </template>
             </c-chip>
@@ -33,7 +33,7 @@
                             @keydown.right="navigateCarousel(1)"
                         >
                             <v-carousel-item
-                                v-for="(attachment, index) in attachmentItem"
+                                v-for="(attachment, index) in attachments"
                                 :key="index"
                                 cover
                             >
@@ -85,7 +85,7 @@ const props = defineProps({
         default: "600",
         type: String,
     },
-    selectedImage: {
+    selectedAttachment: {
         default: () => ({
             id: null,
             file_name: "Image",
@@ -95,12 +95,12 @@ const props = defineProps({
         }),
         type: Object,
     },
-    downloadLink: String,
+    attachmentLink: String,
     closable: {
         default: false,
         type: Boolean,
     },
-    attachmentItem: {
+    attachments: {
         type: Object,
         required: true,
     },
@@ -112,13 +112,13 @@ const currentAttachmentName = ref(""); // Ref to store the current attachment na
 
 watch(dialog, (newDialogValue) => {
     if (newDialogValue) {
-        // Find the index of the selectedImage
-        const index = props.attachmentItem.findIndex(
-            (attachment) => attachment.id === props.selectedImage.id
+        // Find the index of the selectedAttachment
+        const index = props.attachments.findIndex(
+            (attachment) => attachment.id === props.selectedAttachment.id
         );
         carouselIndex.value = index !== -1 ? index : 0;
         // Set the initial name
-        currentAttachmentName.value = props.selectedImage.file_name;
+        currentAttachmentName.value = props.selectedAttachment.file_name;
     } else {
         carouselIndex.value = 0;
         currentAttachmentName.value = "";
@@ -126,17 +126,17 @@ watch(dialog, (newDialogValue) => {
 });
 
 const navigateCarousel = (direction) => {
-    if (props.attachmentItem && props.attachmentItem.length > 0) {
+    if (props.attachments && props.attachments.length > 0) {
         carouselIndex.value =
-            (carouselIndex.value + direction + props.attachmentItem.length) %
-            props.attachmentItem.length;
+            (carouselIndex.value + direction + props.attachments.length) %
+            props.attachments.length;
     }
 };
 
 // Watch for changes in the carousel index to update the dialog title
 watch(carouselIndex, (newIndex) => {
-    if (props.attachmentItem && props.attachmentItem.length > 0) {
-        currentAttachmentName.value = props.attachmentItem[newIndex].file_name;
+    if (props.attachments && props.attachments.length > 0) {
+        currentAttachmentName.value = props.attachments[newIndex].file_name;
     }
 });
 </script>

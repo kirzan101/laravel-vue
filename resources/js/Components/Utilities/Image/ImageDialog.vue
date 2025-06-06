@@ -8,25 +8,28 @@
                 v-bind="activatorProps"
                 :closable="closable"
             >
-                {{ selectedImage.file_name }}
+                {{ selectedAttachment.file_name }}
                 <template v-if="closable" #close>
                     <delete-image
-                        :selectedImage="selectedImage"
-                        :attachmentLink="downloadLink"
+                        :selectedAttachment="selectedAttachment"
+                        :attachmentLink="attachmentLink"
                     ></delete-image>
                 </template>
             </c-chip>
         </template>
 
         <template v-slot:default="{ isActive }">
-            <v-card prepend-icon="mdi-image" :title="selectedImage.file_name">
+            <v-card
+                prepend-icon="mdi-image"
+                :title="selectedAttachment.file_name"
+            >
                 <v-container fluid fill-height>
                     <v-row align="center" justify="center">
                         <v-col cols="auto">
                             <v-img
                                 :width="width"
                                 :height="height"
-                                :src="selectedImage.file_link"
+                                :src="selectedAttachment.file_link"
                             >
                                 <template v-slot:placeholder>
                                     <div
@@ -70,7 +73,7 @@ const props = defineProps({
         default: "600",
         type: String,
     },
-    selectedImage: {
+    selectedAttachment: {
         default: {
             id: null,
             file_name: "Image",
@@ -80,7 +83,7 @@ const props = defineProps({
         },
         type: Object,
     },
-    downloadLink: String,
+    attachmentLink: String,
     closable: {
         default: false,
         type: Boolean,

@@ -32,8 +32,8 @@
                                     countdown
                                 }}</span>
                             </template>
-                        </v-progress-circular></span
-                    >
+                        </v-progress-circular>
+                    </span>
                 </template>
             </v-hover>
         </template>
@@ -58,7 +58,23 @@ const props = defineProps({
     },
 });
 
-const snackBar = ref(false);
+const notificationMessage = ref(props.message);
+const notificationColor = ref(props.color);
+watch(
+    () => props.message,
+    (val) => {
+        notificationMessage.value = val;
+    }
+);
+
+watch(
+    () => props.color,
+    (val) => {
+        notificationColor.value = val;
+    }
+);
+
+//start countdown from timeout
 const countdown = ref(Math.ceil(props.timeout / 1000));
 let timer = null;
 
@@ -75,7 +91,9 @@ const startCountdown = () => {
         }
     }, 1000);
 };
+// end countdown
 
+const snackBar = ref(false);
 watch(snackBar, (val) => {
     if (val) {
         startCountdown();
@@ -91,9 +109,6 @@ onUnmounted(() => {
 const toggleNotification = (value = true) => {
     snackBar.value = value;
 };
-
-const notificationMessage = ref(props.message);
-const notificationColor = ref(props.color);
 
 const showNotification = (message = "Notification?", color = "primary") => {
     notificationMessage.value = message;
