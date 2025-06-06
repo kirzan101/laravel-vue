@@ -1,10 +1,10 @@
 <template>
     <v-snackbar
         v-model="snackBar"
-        :color="props.color"
-        :timeout="props.timeout"
+        :color="notificationColor"
+        :timeout="timeout"
     >
-        {{ props.message }}
+        {{ notificationMessage }}
 
         <template v-slot:actions="{ attrs }">
             <v-hover v-bind="attrs">
@@ -92,7 +92,17 @@ const toggleNotification = (value = true) => {
     snackBar.value = value;
 };
 
+const notificationMessage = ref(props.message);
+const notificationColor = ref(props.color);
+
+const showNotification = (message = "Notification?", color = "primary") => {
+    notificationMessage.value = message;
+    notificationColor.value = color;
+    snackBar.value = true;
+};
+
 defineExpose({
     toggleNotification,
+    showNotification,
 });
 </script>

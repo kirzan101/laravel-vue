@@ -15,7 +15,7 @@ const props = defineProps({
     },
     density: {
         type: String,
-        default: "comfortable",
+        default: "comfortable", // Options: "comfortable", "compact", "default"
     },
 });
 

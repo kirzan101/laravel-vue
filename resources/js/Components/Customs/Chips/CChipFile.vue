@@ -1,5 +1,5 @@
 <template>
-    <c-chip :prepend-icon="computedFileTypeIcon" v-bind="$attrs">
+    <c-chip :prepend-icon="computedFileTypeIcon" :density="density" v-bind="$attrs">
         <slot />
     </c-chip>
 </template>
@@ -10,6 +10,10 @@ import CChip from "./CChip.vue";
 
 const props = defineProps({
     fileType: String,
+    density: {
+        type: String,
+        default: "compact", // Options: "comfortable", "compact", "default"
+    },
 });
 
 const computedFileTypeIcon = computed(() => {

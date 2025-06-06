@@ -5,6 +5,7 @@
             max-width="1000"
             :prepend-icon="prependIcon"
             :title="title"
+            :text="text"
         >
             <slot />
             <template v-slot:actions>
@@ -30,6 +31,7 @@ defineProps({
         type: String,
         default: "Dialog",
     },
+    text: String,
     prependIcon: {
         type: String,
         default: "mdi-update",
