@@ -49,7 +49,7 @@ class UserGroupSeeder extends Seeder
                     UserGroupPermission::create([
                         'user_group_id' => $createdUserGroup->id,
                         'permission_id' => $permission->id,
-                        'is_active' => $permission->is_active, // ✅ snake_case
+                        'is_active' => ($userGroup['code'] === 'ADMIN') ? true : false,
                     ]);
                 }
             }
