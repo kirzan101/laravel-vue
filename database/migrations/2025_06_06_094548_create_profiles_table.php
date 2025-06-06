@@ -30,7 +30,6 @@ return new class extends Migration
                 ->on('users')
                 ->onDelete('cascade');
 
-
             $table->foreign('created_by')
                 ->references('id')
                 ->on('profiles');
