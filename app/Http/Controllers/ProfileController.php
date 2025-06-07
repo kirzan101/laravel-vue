@@ -2,11 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
+use App\Interfaces\ActivityLogInterface;
+use App\Interfaces\FetchInterfaces\ProfileFetchInterface;
+use App\Interfaces\ProfileInterface;
 use App\Models\Profile;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
+    public function __construct(
+        private ProfileInterface $profile,
+        private ProfileFetchInterface $profileFetch,
+        private ActivityLogInterface $activityLog
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -16,35 +27,24 @@ class ProfileController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
-    }
+        [
+            'code' => $code,
+            'status' => $status,
+            'message' => $message
+        ] = $this->profile->storeProfile($request->all());
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Profile $profile)
-    {
-        //
-    }
+        if ($status === Helper::ERROR) {
+            return Inertia::render('Error', [
+                'code' => $code,
+                'message' => $message
+            ]);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Profile $profile)
-    {
-        //
+        return redirect()->back()->with($status, $message);
     }
 
     /**

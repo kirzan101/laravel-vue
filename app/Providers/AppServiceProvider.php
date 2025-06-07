@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Interfaces\ActivityLogInterface;
+use App\Interfaces\FetchInterfaces\ActivityLogFetchInterface;
 use App\Interfaces\FetchInterfaces\ProfileFetchInterface;
 use App\Interfaces\FetchInterfaces\UserFetchInterface;
 use App\Interfaces\ProfileInterface;
 use App\Interfaces\UserInterface;
+use App\Services\ActivityLogService;
+use App\Services\FetchServices\ActivityLogFetchService;
 use App\Services\FetchServices\ProfileFetchService;
 use App\Services\FetchServices\UserFetchService;
 use App\Services\ProfileService;
@@ -24,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserFetchInterface::class, UserFetchService::class);
         $this->app->bind(ProfileInterface::class, ProfileService::class);
         $this->app->bind(ProfileFetchInterface::class, ProfileFetchService::class);
+        $this->app->bind(ActivityLogInterface::class, ActivityLogService::class);
+        $this->app->bind(ActivityLogFetchInterface::class, ActivityLogFetchService::class);
     }
 
     /**

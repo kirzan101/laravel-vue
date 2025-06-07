@@ -5,10 +5,16 @@
         :text="text"
         :image="computedImage"
     >
+        <Link href="/">
+            <c-btn prepend-icon="mdi-home">Home</c-btn>
+        </Link>
     </v-empty-state>
 </template>
 
 <script setup>
+import { Link } from "@inertiajs/vue3";
+import CBtn from "../Customs/Buttons/CBtn.vue";
+
 defineProps({
     code: {
         type: Number,

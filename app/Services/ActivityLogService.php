@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\Helper;
+use App\Interfaces\ActivityLogInterface;
 use App\Models\ActivityLog;
 use App\Services\FetchServices\BaseFetchService;
 use App\Traits\HttpErrorCodeTrait;
@@ -11,7 +12,7 @@ use App\Traits\ReturnModelTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class ActivityLogService
+class ActivityLogService implements ActivityLogInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
