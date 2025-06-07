@@ -30,12 +30,19 @@ defineProps({
     },
 });
 
+const theme = useTheme();
+const isDarkMode = computed(() => theme.global.name.value === "dark");
+
 const computedImage = computed(() => {
     const defaultErrors = [401, 404, 500];
     if (defaultErrors.includes(props.code)) {
-        return `/images/errors/error_${props.code}.svg`;
+        return isDarkMode.value
+            ? `/images/errors/error_${props.code}_dark.svg`
+            : `/images/errors/error_${props.code}_light.svg`;
     }
 
-    return `/images/errors/error_500.svg`;
+    return isDarkMode.value
+        ? "/images/errors/error_500_dark.svg"
+        : "/images/errors/error_500_light.svg";
 });
 </script>

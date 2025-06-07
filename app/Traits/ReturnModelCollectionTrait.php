@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 trait ReturnModelCollectionTrait
 {
@@ -12,14 +13,14 @@ trait ReturnModelCollectionTrait
      * @param int|null $code
      * @param string|null $status
      * @param string|null $message
-     * @param Collection|null $data
+     * @param Collection|LengthAwarePaginator|null $data
      * @return array
      */
     public function returnModelCollection(
         ?int $code = null,
         ?string $status = null,
         ?string $message = null,
-        ?Collection $data = null
+        Collection|LengthAwarePaginator|null $data = null
     ): array {
         return [
             'code' => $code,
