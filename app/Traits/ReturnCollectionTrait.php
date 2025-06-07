@@ -12,20 +12,20 @@ trait ReturnCollectionTrait
      * @param int|null $code
      * @param string|null $status
      * @param string|null $message
-     * @param AnonymousResourceCollection|null $results
+     * @param AnonymousResourceCollection|null $data
      * @return array
      */
     public function returnCollection(
         ?int $code = null,
         ?string $status = null,
         ?string $message = null,
-        ?AnonymousResourceCollection $results = null
+        ?AnonymousResourceCollection $data = null
     ): array {
         return [
             'code' => $code,
             'status' => $status,
             'message' => $message,
-            'results' => $results,
+            'data' => $data,
         ];
     }
 }

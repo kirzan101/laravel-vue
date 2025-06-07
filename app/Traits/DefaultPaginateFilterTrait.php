@@ -8,24 +8,45 @@ trait DefaultPaginateFilterTrait
      * Set default filters for pagination.
      *
      * @param array $request
+     * @param array $allowedSortFields
      * @return array
      */
-    public function paginateFilter(array $request): array
+    public function paginateFilter(array $request, array $allowedSortFields = []): array
     {
-        $perPage = isset($request['per_page']) && $request['per_page'] !== null
+        // Validate per_page with a safe default and upper limit
+        $perPage = isset($request['per_page']) && is_numeric($request['per_page']) && $request['per_page'] > 0
             ? (int) $request['per_page']
             : 10;
-
-        // Limit perPage to a maximum of 100
         $perPage = min($perPage, 100);
 
-        $sortBy = $request['sort_by'] ?? 'id';
-        $sortDirection = $request['sort_direction'] ?? 'desc';
+        // Merge default sortable fields and user-defined ones (without duplicates)
+        $allowedSortFields = $this->resolveSortableFields($allowedSortFields);
+
+        // Validate and set sort_by
+        $sortBy = isset($request['sort_by']) && in_array($request['sort_by'], $allowedSortFields, true)
+            ? $request['sort_by']
+            : $allowedSortFields[0];
+
+        // Validate and normalize sort_direction
+        $sortDirection = strtolower($request['sort_direction'] ?? 'desc');
+        $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'desc';
 
         return [
             'per_page' => $perPage,
             'sort_by' => $sortBy,
             'sort' => $sortDirection,
         ];
+    }
+
+    /**
+     * Merge default sortable fields with user-defined ones.
+     *
+     * @param array $customFields
+     * @return array
+     */
+    private function resolveSortableFields(array $customFields): array
+    {
+        $defaultFields = ['id', 'created_at', 'updated_at'];
+        return array_unique(array_merge($defaultFields, $customFields));
     }
 }

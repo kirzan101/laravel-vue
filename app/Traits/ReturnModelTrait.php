@@ -12,23 +12,23 @@ trait ReturnModelTrait
      * @param int|null $code
      * @param string|null $status
      * @param string|null $message
+     * @param Model|null $data
      * @param int|null $lastId
-     * @param Model|null $result
      * @return array
      */
     public function returnModel(
         ?int $code = null,
         ?string $status = null,
         ?string $message = null,
-        ?int $lastId = null,
-        ?Model $result = null
+        ?Model $data = null,
+        ?int $lastId = null
     ): array {
         return [
             'code' => $code,
             'status' => $status,
             'message' => $message,
             'last_id' => $lastId,
-            'result' => $result,
+            'data' => $data,
         ];
     }
 }

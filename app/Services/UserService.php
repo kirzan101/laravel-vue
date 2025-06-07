@@ -3,65 +3,24 @@
 namespace App\Services;
 
 use App\Helpers\Helper;
+use App\Interfaces\UserInterface;
 use App\Models\User;
+use App\Services\FetchServices\BaseFetchService;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
 use Illuminate\Support\Facades\DB;
 
-class UserService
+class UserService implements UserInterface
 {
-    use HttpErrorCodeTrait, ReturnModelCollectionTrait, ReturnModelTrait;
+    use HttpErrorCodeTrait,
+        ReturnModelCollectionTrait,
+        ReturnModelTrait;
 
-    public string $module = 'users';
-
-    /**
-     * Fetch a list of users with optional search functionality.
-     *
-     * @param array $request
-     * @return array
-     */
-    public function indexUsers(array $request = []): array
-    {
-        try {
-            $query = User::query();
-
-            if (!empty($request['search'])) {
-                $search = $request['search'];
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                });
-            }
-
-            $users = $query->get();
-
-            return $this->returnModelCollection(200, Helper::SUCCESS, 'Successfully fetched!', $users);
-        } catch (\Throwable $th) {
-            $code = $this->httpCode($th);
-
-            return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
-        }
-    }
-
-    /**
-     * Fetch a single user by ID.
-     *
-     * @param integer $id
-     * @return array
-     */
-    public function showUser(int $userId): array
-    {
-        try {
-            $user = User::findOrFail($userId);
-
-            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $user);
-        } catch (\Throwable $th) {
-            $code = $this->httpCode($th);
-
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
-        }
-    }
+    public function __construct(
+        private BaseService $service,
+        private BaseFetchService $fetchService
+    ) {}
 
     /**
      * Store a new user in the database.
@@ -77,20 +36,18 @@ class UserService
             // Hash password if provided
             $password = bcrypt($request['username'] ?? 'q');
 
-            if (array_key_exists('password', $request) && !empty($request['password'])) {
-                $password = bcrypt($request['password']);
-            }
-
-            $user = User::create([
-                'username' => $request['username'],
-                'email' => $request['email'],
+            $user = $this->service->store(User::class, [
+                'username' => $request['username'] ?? null,
+                'email' => $request['email'] ?? null,
                 'password' => $password,
+                'status' => $request['status'] ?? Helper::ACCOUNT_STATUS_ACTIVE,
                 'is_admin' => $request['is_admin'] ?? false,
+                'is_first_login' => $request['is_first_login'] ?? true,
             ]);
 
             DB::commit();
 
-            return $this->returnModel(201, Helper::SUCCESS, 'User created successfully!', $user->id, $user);
+            return $this->returnModel(201, Helper::SUCCESS, 'User created successfully!', $user, $user->id);
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -107,23 +64,25 @@ class UserService
      * @param array $request
      * @return array
      */
-    public function updateUser(int $userId, array $request): array
+    public function updateUser(array $request, int $userId): array
     {
         try {
             DB::beginTransaction();
 
-            $user = User::findOrFail($userId);
+            $user = $this->fetchService->showQuery(User::class, $userId)->firstOrFail();
 
-            $user->update([
+            $user = $this->service->update($user, [
                 'username' => $request['username'] ?? $user->username,
                 'email' => $request['email'] ?? $user->email,
                 'password' => isset($request['password']) ? bcrypt($request['password']) : $user->password,
                 'is_admin' => $request['is_admin'] ?? $user->is_admin,
+                'status' => $request['status'] ?? $user->status,
+                'is_first_login' => $request['is_first_login'] ?? $user->is_first_login,
             ]);
 
             DB::commit();
 
-            return $this->returnModel(200, Helper::SUCCESS, 'User updated successfully!', $userId, $user);
+            return $this->returnModel(200, Helper::SUCCESS, 'User updated successfully!', $user, $userId);
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -144,12 +103,13 @@ class UserService
         try {
             DB::beginTransaction();
 
-            $user = User::findOrFail($userId);
-            $user->delete();
+            $user = $this->fetchService->showQuery(User::class, $userId)->firstOrFail();
+
+            $this->service->delete($user);
 
             DB::commit();
 
-            return $this->returnModel(204, Helper::SUCCESS, 'User deleted successfully!', $userId);
+            return $this->returnModel(204, Helper::SUCCESS, 'User deleted successfully!', null, $userId);
         } catch (\Throwable $th) {
             DB::rollBack();
 
