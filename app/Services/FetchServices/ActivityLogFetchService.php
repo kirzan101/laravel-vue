@@ -29,12 +29,23 @@ class ActivityLogFetchService extends BaseFetchService implements ActivityLogFet
         try {
             $query = $this->indexQuery(ActivityLog::class);
 
-            if (!empty($request['search'])) {
+            if (isset($request['search']) && !empty($request['search'])) {
                 $search = $request['search'];
                 $query->where(function ($q) use ($search) {
                     $q->where('module', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%");
                 });
+            }
+
+            if (!empty($request['status'])) {
+                $status = $request['status'];
+                $query->where('status', $status);
+            }
+
+
+            if (!empty($request['type'])) {
+                $type = $request['type'];
+                $query->where('type', $type);
             }
 
             if ($isPaginated) {
