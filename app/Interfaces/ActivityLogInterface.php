@@ -16,16 +16,16 @@ interface ActivityLogInterface
      * update an existing activity log in the database.
      *
      * @param array $request
-     * @param integer $id
+     * @param integer $activityLogId
      * @return array
      */
-    public function updateActivityLog(array $request, int $id): array;
+    public function updateActivityLog(array $request, int $activityLogId): array;
 
     /**
      * delete a activity log from the database.
      *
-     * @param integer $id
+     * @param integer $activityLogId
      * @return array
      */
-    public function deleteActivityLog(int $id): array;
+    public function deleteActivityLog(int $activityLogId): array;
 }

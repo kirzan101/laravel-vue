@@ -12,7 +12,7 @@ use App\Traits\ReturnModelTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class UserGroupService
+class UserGroupService implements UserGroupInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
@@ -20,7 +20,9 @@ class UserGroupService
 
     public function __construct(
         private BaseService $service,
-        private BaseFetchService $fetchService
+        private BaseFetchService $fetchService,
+        private PermissionService $permission,
+        private UserGroupPermissionService $userGroupPermission,
     ) {}
 
     /**
@@ -41,6 +43,18 @@ class UserGroupService
                 'created_by' => Auth::user()->profile->id ?? 1,
                 'updated_by' => Auth::user()->profile->id ?? 1,
             ]);
+
+            // Store user group permissions
+            $permissions = $request['permissions'] ?? [];
+            [
+                'status' => $status,
+                'message' => $message,
+            ] = $this->userGroupPermission->storeMultipleUserGroupPermission($permissions, $userGroup->id);
+
+            // Throw an exception if there is an error
+            if ($status === Helper::ERROR) {
+                throw new \RuntimeException($message);
+            }
 
             DB::commit();
 
@@ -74,6 +88,18 @@ class UserGroupService
                 'description' => $request['description'] ?? $userGroup->description,
                 'updated_by' => Auth::user()->profile->id ?? 1,
             ]);
+
+            // update user group permissions
+            $permissions = $request['permissions'] ?? [];
+            [
+                'status' => $status,
+                'message' => $message,
+            ] = $this->userGroupPermission->updateMultipleUserGroupPermission($permissions, $userGroup->id);
+
+            // Throw an exception if there is an error
+            if ($status === Helper::ERROR) {
+                throw new \RuntimeException($message);
+            }
 
             DB::commit();
 

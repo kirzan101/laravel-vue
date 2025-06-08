@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class Helper
 {
@@ -15,6 +16,20 @@ class Helper
      * set default error status
      */
     const ERROR = 'error';
+
+    /**
+     * Action types for user permissions.
+     */
+    const ACTION_TYPES = [
+        'create',
+        'update',
+        'delete',
+        'view',
+    ];
+    const ACTION_TYPE_CREATE = 'create';
+    const ACTION_TYPE_UPDATE = 'update';
+    const ACTION_TYPE_DELETE = 'delete';
+    const ACTION_TYPE_VIEW = 'view';
 
     /**
      * Normalize name: remove accents and convert ñ to n.
@@ -97,6 +112,29 @@ class Helper
 
         // Combine for email
         return $first . '.' . $last . '@mail.com';
+    }
+
+    /**
+     * Get the module name from the request and convert it to snake_case.
+     *
+     * @param array $request
+     * @return string
+     */
+    public static function getModuleName(?string $originalModuleName): ?string
+    {
+        // If the module name is empty or null, return null
+        if (empty($originalModuleName)) {
+            return null;
+        }
+
+        // Convert the module name to snake_case
+        $singularName = Str::snake($originalModuleName);
+
+        // Try to pluralize the snake_case version of the name
+        $pluralName = Str::plural($singularName);
+
+        // Return the plural name if it differs from the singular, otherwise return the singular
+        return ($pluralName === $singularName) ? $singularName : $pluralName;
     }
 
     /**

@@ -18,7 +18,7 @@ class ActivityLogFetchService extends BaseFetchService implements ActivityLogFet
         DefaultPaginateFilterTrait;
 
     /**
-     * Fetch a list of users with optional search functionality.
+     * Fetch a list of activity logs with optional search functionality.
      *
      * @param array $request
      * @param bool $isPaginated
@@ -72,7 +72,7 @@ class ActivityLogFetchService extends BaseFetchService implements ActivityLogFet
     }
 
     /**
-     * Fetch a single user by ID.
+     * Fetch a single activity log by ID.
      *
      * @param integer $id
      * @return array

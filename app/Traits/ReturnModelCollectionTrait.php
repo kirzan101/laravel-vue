@@ -10,11 +10,18 @@ trait ReturnModelCollectionTrait
     /**
      * Set model results in a standardized response format.
      *
-     * @param int|null $code
-     * @param string|null $status
-     * @param string|null $message
-     * @param Collection|LengthAwarePaginator|null $data
-     * @return array
+     * @param int|null $code       The HTTP status code (e.g., 200 for success, 400 for error).
+     * @param string|null $status  The status of the request, typically 'success' or 'error'.
+     * @param string|null $message A descriptive message, often used for success or error details.
+     * @param Collection|LengthAwarePaginator|null $data The actual data being returned, which can either be a Laravel `Collection` or a `LengthAwarePaginator` (for paginated results).
+     *
+     * @return array Returns an array with the structure:
+     *               [
+     *                  'code' => $code,
+     *                  'status' => $status,
+     *                  'message' => $message,
+     *                  'data' => $data,
+     *               ]
      */
     public function returnModelCollection(
         ?int $code = null,

@@ -16,16 +16,16 @@ interface UserInterface
      * update an existing user in the database.
      *
      * @param array $request
-     * @param integer $id
+     * @param integer $userId
      * @return array
      */
-    public function updateUser(array $request, int $id): array;
+    public function updateUser(array $request, int $userId): array;
 
     /**
      * delete a user from the database.
      *
-     * @param integer $id
+     * @param integer $userId
      * @return array
      */
-    public function deleteUser(int $id): array;
+    public function deleteUser(int $userId): array;
 }

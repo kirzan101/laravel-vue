@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\Helper;
 use App\Models\Permission;
 use App\Models\UserGroup;
 use App\Models\UserGroupPermission;
@@ -24,13 +25,8 @@ class GenerateModulePermissions extends Command
     {
         DB::transaction(function () {
             $originalModelName = $this->argument('model');
-            $singularName = Str::snake($originalModelName);
 
-            // Try to pluralize the word
-            $pluralName = Str::plural($singularName);
-
-            // Fallback if pluralization didn’t change anything (likely no plural form)
-            $modelName = $pluralName !== $singularName ? $pluralName : $singularName;
+            $modelName = Helper::getModuleName($originalModelName);
 
             $types = [
                 'create' => $this->option('create') ?? true,

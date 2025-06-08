@@ -1,61 +1,149 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Vue 3 Template
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern full-stack boilerplate combining **Laravel 12**, **Vue 3**, **Inertia.js**, and **Vuetify 3**.  
+Built for rapid development with clean architecture, SOLID principles, and the Repository Design Pattern.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   Laravel 12 (PHP 8.2)
+-   Vue 3 + Inertia.js (SPA architecture)
+-   Vuetify 3 for beautiful Material Design components
+-   Vite for fast frontend builds
+-   Repository pattern for clean separation of concerns
+-   SOLID principles for maintainable code
+-   Modular and scalable project structure
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## ⚙️ Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Make sure your environment meets these requirements:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+-   **PHP**: ^8.2
+-   **Composer**
+-   **Node.js**: >= 18.15
+-   **MariaDB** or **MySQL**
+-   PHP Extensions:
+    -   `bcmath`
+    -   `intl`
+    -   `gd`
+    -   `xml`
+    -   `zip`
+    -   `mbstring`
+    -   `pdo`
+    -   `mysql`
+    -   `curl`
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🛠️ Installation & Setup
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 1. Clone the repository
 
-### Premium Partners
+```bash
+git clone https://github.com/your-username/laravel-vue3-template.git
+cd laravel-vue3-template
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+### 2. Set up environment
 
-## Contributing
+```bash
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Install PHP dependencies
 
-## Code of Conduct
+```bash
+composer install
+php artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+#Optional: Run database migrations and seeders (if applicable):
+php artisan migrate:fresh --seed
+```
 
-## Security Vulnerabilities
+### 4. Install JavaScript dependencies
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+npm install
+```
 
-## License
+### 5. Start development servers
+Open **two terminal windows or tabs** (one for the backend and one for the frontend):
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+# Terminal 1: Start Laravel backend
+php artisan serve
+
+# Terminal 2: Start Vite frontend (Vue + Inertia.js)
+npm run dev
+```
+> 💡 VS Code Tip: Use `Ctrl + Shift + ``` to open a new terminal tab inside VS Code.
+
+---
+
+## 📁 Project Structure Highlights
+
+├── app/
+│   ├── Http/
+│   ├── Models/
+│   ├── Interfaces/
+│   │   └── FetchInterface/         # Fetch interfaces
+│   └── Services/                   # Business logic layer
+│       └── FetchServices/         # Fetch services (index & show)
+│
+├── resources/
+│   └── js/                         # Vue 3 + Inertia frontend
+│       ├── Components/
+│       │   ├── Customs/            # Customized Vuetify components
+│       │   ├── Errors/             # Error display components
+│       │   ├── Pages/              # Vue module pages
+│       │   └── Utilities/          # Reusable utility components
+│       ├── Layouts/                # Application layout (e.g., blank, main)
+│       └── Pages/                  # Laravel + Inertia page components
+│
+├── routes/
+│   └── web.php                     # Inertia-based web routes
+│
+├── database/
+│   ├── migrations/                 # DB schema definitions
+│   └── seeders/                    # DB seed data
+
+---
+
+## 🧩 Technology Stack
+
+### Backend
+* Laravel ^12.0
+* Inertia.js Laravel Adapter ^2.0
+* PHP ^8.2
+
+### Frontend
+* Vue ^3.5.13
+* Vuetify ^3.8.3
+* @inertiajs/vue3 ^2.0.8
+* Vite
+* @mdi/font ^7.4.47
+
+## 📦 Production Build
+```bash
+npm run build
+```
+
+---
+
+## 📝 License
+This project is open-source under the [MIT license](https://opensource.org/licenses/MIT).
+
+---
+
+## 🙌 Contributing
+Contributions are welcome! Feel free to open issues, fork the repo, or submit pull requests.
+
+---
+
+## 📫 Contact
+For questions, feedback, or support, contact:
+ckimescamilla@gmail.com or open an issue in the repository.
+

@@ -16,16 +16,16 @@ interface ProfileInterface
      * update an existing profile in the database.
      *
      * @param array $request
-     * @param integer $id
+     * @param integer $profileId
      * @return array
      */
-    public function updateProfile(array $request, int $id): array;
+    public function updateProfile(array $request, int $profileId): array;
 
     /**
      * delete a profile from the database.
      *
-     * @param integer $id
+     * @param integer $profileId
      * @return array
      */
-    public function deleteProfile(int $id): array;
+    public function deleteProfile(int $profileId): array;
 }
