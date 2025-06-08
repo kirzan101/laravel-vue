@@ -92,7 +92,7 @@ npm run dev
 │   ├── Interfaces/
 │   │   └── FetchInterface/         # Fetch interfaces
 │   └── Services/                   # Business logic layer
-│       └── FetchServices/         # Fetch services (index & show)
+│       └── FetchServices/          # Fetch services (index & show)
 │
 ├── resources/
 │   └── js/                         # Vue 3 + Inertia frontend
