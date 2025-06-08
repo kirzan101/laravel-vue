@@ -79,7 +79,7 @@ php artisan serve
 # Terminal 2: Start Vite frontend (Vue + Inertia.js)
 npm run dev
 ```
-> 💡 VS Code Tip: Use `Ctrl + Shift + ``` to open a new terminal tab inside VS Code.
+> 💡 VS Code Tip: Use "Ctrl + Shift + `" to open a new terminal tab inside VS Code.
 
 ---
 
