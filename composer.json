@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel vue3 template",
+    "name": "kirzan101/laravel-vue3-template",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "A modern full-stack boilerplate combining Laravel 12, Vue 3, Inertia.js, and Vuetify 3",
     "keywords": [
         "laravel",
         "framework"
