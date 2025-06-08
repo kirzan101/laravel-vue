@@ -43,7 +43,7 @@ Make sure your environment meets these requirements:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/laravel-vue3-template.git
+git clone https://github.com/kirzan101/laravel-vue.git
 cd laravel-vue3-template
 ```
 
@@ -85,6 +85,7 @@ npm run dev
 
 ## 📁 Project Structure Highlights
 
+```plaintext 
 ├── app/
 │   ├── Http/
 │   ├── Models/
@@ -109,6 +110,7 @@ npm run dev
 ├── database/
 │   ├── migrations/                 # DB schema definitions
 │   └── seeders/                    # DB seed data
+```
 
 ---
 
