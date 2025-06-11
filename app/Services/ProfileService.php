@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\Helper;
+use App\Interfaces\AuthInterface;
 use App\Interfaces\ProfileInterface;
 use App\Models\Profile;
 use App\Services\FetchServices\BaseFetchService;
@@ -21,7 +22,8 @@ class ProfileService implements ProfileInterface
     public function __construct(
         private BaseService $service,
         private BaseFetchService $fetchService,
-        private UserService $userService
+        private UserService $userService,
+        private AuthInterface $auth,
     ) {}
 
     /**
@@ -34,6 +36,7 @@ class ProfileService implements ProfileInterface
     {
         try {
             DB::beginTransaction();
+            $profileId = $this->auth->getProfileId();
 
             [
                 'userId' => $userId,
@@ -55,8 +58,8 @@ class ProfileService implements ProfileInterface
                 'type' => $request['type'] ?? null,
                 'contact_numbers' => $request['contact_numbers'] ?? [],
                 'user_id' => $userId,
-                'created_by' => Auth::user()->profile->id ?? 1,
-                'updated_by' => Auth::user()->profile->id ?? 1,
+                'created_by' => $profileId,
+                'updated_by' => $profileId,
             ]);
 
             DB::commit();
@@ -82,6 +85,7 @@ class ProfileService implements ProfileInterface
     {
         try {
             DB::beginTransaction();
+            $profileId = $this->auth->getProfileId();
 
             $profile = $this->fetchService->showQuery(Profile::class, $profileId)->firstOrFail();
 
@@ -101,7 +105,7 @@ class ProfileService implements ProfileInterface
                 'nickname' => $request['nickname'] ?? $profile->nickname,
                 'type' => $request['type'] ?? $profile->type,
                 'contact_numbers' => $request['contact_numbers'] ?? $profile->contact_numbers,
-                'updated_by' => Auth::user()->profile->id ?? 1,
+                'updated_by' => $profileId,
             ]);
 
             DB::commit();
@@ -126,6 +130,7 @@ class ProfileService implements ProfileInterface
     {
         try {
             DB::beginTransaction();
+            $authProfileId = $this->auth->getProfileId();
 
             $profile = $this->fetchService->showQuery(Profile::class, $profileId)->firstOrFail();
 
@@ -135,7 +140,7 @@ class ProfileService implements ProfileInterface
 
             //instead of deleting, we will just update the user status to inactive
             $this->service->update($profile, [
-                'updated_by' => Auth::user()->profile->id ?? 1, //added to track who updated the profile
+                'updated_by' => $authProfileId, //added to track who updated the profile
             ]);
 
             $this->userService->updateUser([

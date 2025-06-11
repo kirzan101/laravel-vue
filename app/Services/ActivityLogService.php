@@ -5,11 +5,12 @@ namespace App\Services;
 use App\Helpers\Helper;
 use App\Interfaces\ActivityLogInterface;
 use App\Models\ActivityLog;
-use App\Services\FetchServices\BaseFetchService;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
-use Illuminate\Support\Facades\Auth;
+use App\Interfaces\AuthInterface;
+use App\Interfaces\BaseInterface;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use Illuminate\Support\Facades\DB;
 
 class ActivityLogService implements ActivityLogInterface
@@ -19,95 +20,89 @@ class ActivityLogService implements ActivityLogInterface
         ReturnModelTrait;
 
     public function __construct(
-        private BaseService $service,
-        private BaseFetchService $fetchService
+        private BaseInterface $base,
+        private BaseFetchInterface $baseFetch,
+        private AuthInterface $auth,
     ) {}
 
+    /**
+     * Store a new activity log in the database.
+     * @param array $request
+     * @return array
+     * @throws \Throwable
+     */
     public function storeActivityLog(array $request): array
     {
         try {
-            DB::beginTransaction();
+            return DB::transaction(function () use ($request) {
+                $profileId = $this->auth->getProfileId();
 
-            $activityLog = $this->service->store(ActivityLog::class, [
-                'module' => $request['module'] ?? null,
-                'description' => $request['description'] ?? null,
-                'status' => $request['status'] ?? null,
-                'type' => $request['type'] ?? null,
-                'properties' => $request['properties'] ?? [],
-                'created_by' => Auth::user()->profile->id,
-                'updated_by' => Auth::user()->profile->id,
-            ]);
+                $activityLog = $this->base->store(ActivityLog::class, [
+                    'module' => $request['module'] ?? null,
+                    'description' => $request['description'] ?? null,
+                    'status' => $request['status'] ?? null,
+                    'type' => $request['type'] ?? null,
+                    'properties' => $request['properties'] ?? [],
+                    'created_by' => $profileId,
+                    'updated_by' => $profileId,
+                ]);
 
-            DB::commit();
-
-            return $this->returnModel(201, Helper::SUCCESS, 'Activity log created successfully!', $activityLog, $activityLog->id);
+                return $this->returnModel(201, Helper::SUCCESS, 'Activity log created successfully!', $activityLog, $activityLog->id);
+            });
         } catch (\Throwable $th) {
-            DB::rollBack();
-
             $code = $this->httpCode($th);
-
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
         }
     }
 
     /**
-     * update an existing activity log in the database.
-     *
+     * Update an existing activity log in the database.
      * @param array $request
-     * @param integer $activityLogId
+     * @param int $activityLogId
      * @return array
+     * @throws \Throwable
      */
     public function updateActivityLog(array $request, int $activityLogId): array
     {
         try {
-            DB::beginTransaction();
+            return DB::transaction(function () use ($request, $activityLogId) {
+                $activityLog = $this->baseFetch->showQuery(ActivityLog::class, $activityLogId)->firstOrFail();
 
-            $activityLog = $this->fetchService->showQuery(ActivityLog::class, $activityLogId)->firstOrFail();
+                $activityLog = $this->base->update($activityLog, [
+                    'module' => $request['module'] ?? $activityLog->module,
+                    'description' => $request['description'] ?? $activityLog->description,
+                    'status' => $request['status'] ?? $activityLog->status,
+                    'type' => $request['type'] ?? $activityLog->type,
+                    'properties' => $request['properties'] ?? $activityLog->properties,
+                    'updated_by' => $this->auth->getProfileId(),
+                ]);
 
-            $activityLog = $this->service->update($activityLog, [
-                'module' => $request['module'] ?? $activityLog->module,
-                'description' => $request['description'] ?? $activityLog->description,
-                'status' => $request['status'] ?? $activityLog->status,
-                'type' => $request['type'] ?? $activityLog->type,
-                'properties' => $request['properties'] ?? $activityLog->properties,
-                'updated_by' => Auth::user()->profile->id,
-            ]);
-
-            DB::commit();
-
-            return $this->returnModel(200, Helper::SUCCESS, 'Activity log updated successfully!', $activityLog, $activityLogId);
+                return $this->returnModel(200, Helper::SUCCESS, 'Activity log updated successfully!', $activityLog, $activityLogId);
+            });
         } catch (\Throwable $th) {
-            DB::rollBack();
-
             $code = $this->httpCode($th);
-
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
         }
     }
 
     /**
      * Delete an existing activity log from the database.
-     *
      * @param int $activityLogId
      * @return array
+     * @throws \Throwable
      */
     public function deleteActivityLog(int $activityLogId): array
     {
         try {
-            DB::beginTransaction();
+            return DB::transaction(function () use ($activityLogId) {
+                $activityLog = $this->baseFetch->showQuery(ActivityLog::class, $activityLogId)->firstOrFail();
 
-            $activityLog = $this->fetchService->showQuery(ActivityLog::class, $activityLogId)->firstOrFail();
+                $this->base->delete($activityLog);
 
-            $this->service->delete($activityLog);
-
-            DB::commit();
-
-            return $this->returnModel(200, Helper::SUCCESS, 'Activity log deleted successfully!', null, $activityLogId);
+                return $this->returnModel(200, Helper::SUCCESS, 'Activity log deleted successfully!', null, $activityLogId);
+            });
         } catch (\Throwable $th) {
-            DB::rollBack();
-
             $code = $this->httpCode($th);
-
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
         }
     }

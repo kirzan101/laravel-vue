@@ -2,10 +2,11 @@
 
 namespace App\Services;
 
+use App\Interfaces\BaseInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 
-class BaseService
+class BaseService implements BaseInterface
 {
     /**
      * Create a new record.

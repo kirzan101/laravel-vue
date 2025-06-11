@@ -2,11 +2,12 @@
 
 namespace App\Services\FetchServices;
 
+use App\Interfaces\FetchInterfaces\BaseDbFetchInterface;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-class BaseDbFetchService
+class BaseDbFetchService implements BaseDbFetchInterface
 {
     /**
      * Fetch a list of records from the given table.

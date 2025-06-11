@@ -2,10 +2,11 @@
 
 namespace App\Services\FetchServices;
 
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
-class BaseFetchService
+class BaseFetchService implements BaseFetchInterface
 {
     /**
      * Fetch a list of records from the given model.
