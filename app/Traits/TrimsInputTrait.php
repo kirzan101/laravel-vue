@@ -17,10 +17,6 @@ trait TrimsInputTrait
                 return trim($value);
             }
 
-            if (is_numeric($value)) {
-                return trim($value);
-            }
-
             if (is_array($value)) {
                 return $this->trimInputs($value); // Handle nested arrays
             }
