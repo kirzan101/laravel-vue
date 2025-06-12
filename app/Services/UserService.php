@@ -3,9 +3,10 @@
 namespace App\Services;
 
 use App\Helpers\Helper;
+use App\Interfaces\BaseInterface;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\UserInterface;
 use App\Models\User;
-use App\Services\FetchServices\BaseFetchService;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
@@ -18,8 +19,8 @@ class UserService implements UserInterface
         ReturnModelTrait;
 
     public function __construct(
-        private BaseService $service,
-        private BaseFetchService $fetchService
+        private BaseInterface $base,
+        private BaseFetchInterface $fetch
     ) {}
 
     /**
@@ -36,7 +37,7 @@ class UserService implements UserInterface
                 // Hash password if provided
                 $password = bcrypt($request['username'] ?? 'q');
 
-                $user = $this->service->store(User::class, [
+                $user = $this->base->store(User::class, [
                     'username' => $request['username'] ?? null,
                     'email' => $request['email'] ?? null,
                     'password' => $password,
@@ -63,9 +64,9 @@ class UserService implements UserInterface
     {
         try {
             return DB::transaction(function () use ($request, $userId) {
-                $user = $this->fetchService->showQuery(User::class, $userId)->firstOrFail();
+                $user = $this->fetch->showQuery(User::class, $userId)->firstOrFail();
 
-                $user = $this->service->update($user, [
+                $user = $this->base->update($user, [
                     'username' => $request['username'] ?? $user->username,
                     'email' => $request['email'] ?? $user->email,
                     'password' => isset($request['password']) ? bcrypt($request['password']) : $user->password,
@@ -93,9 +94,9 @@ class UserService implements UserInterface
         try {
             return DB::transaction(function () use ($userId) {
 
-                $user = $this->fetchService->showQuery(User::class, $userId)->firstOrFail();
+                $user = $this->fetch->showQuery(User::class, $userId)->firstOrFail();
 
-                $this->service->delete($user);
+                $this->base->delete($user);
 
                 return $this->returnModel(204, Helper::SUCCESS, 'User deleted successfully!', null, $userId);
             });

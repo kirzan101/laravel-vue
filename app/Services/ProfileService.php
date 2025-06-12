@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Helpers\Helper;
 use App\Interfaces\AuthInterface;
+use App\Interfaces\BaseInterface;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\ProfileInterface;
 use App\Models\Profile;
 use App\Services\FetchServices\BaseFetchService;
@@ -19,9 +21,8 @@ class ProfileService implements ProfileInterface
         ReturnModelTrait;
 
     public function __construct(
-        private BaseService $service,
-        private BaseFetchService $fetchService,
-        private UserService $userService,
+        private BaseInterface $base,
+        private BaseFetchInterface $fetch,
         private AuthInterface $auth,
     ) {}
 
@@ -37,7 +38,7 @@ class ProfileService implements ProfileInterface
             return DB::transaction(function () use ($request) {
                 $profileId = $this->auth->getProfileId();
 
-                $profile = $this->service->store(Profile::class, [
+                $profile = $this->base->store(Profile::class, [
                     'avatar' => $request['avatar'] ?? null,
                     'first_name' => $request['first_name'] ?? null,
                     'middle_name' => $request['middle_name'] ?? null,
@@ -71,10 +72,10 @@ class ProfileService implements ProfileInterface
             return DB::transaction(function () use ($request, $profileId) {
                 $authProfileId = $this->auth->getProfileId();
 
-                $profile = $this->fetchService->showQuery(Profile::class, $profileId)->firstOrFail();
+                $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
 
                 // Update the profile with the provided data
-                $profile = $this->service->update($profile, [
+                $profile = $this->base->update($profile, [
                     'avatar' => $request['avatar'] ?? $profile->avatar,
                     'first_name' => $request['first_name'] ?? $profile->first_name,
                     'middle_name' => $request['middle_name'] ?? $profile->middle_name,
@@ -106,13 +107,13 @@ class ProfileService implements ProfileInterface
             return DB::transaction(function () use ($profileId) {
                 $authProfileId = $this->auth->getProfileId();
 
-                $profile = $this->fetchService->showQuery(Profile::class, $profileId)->firstOrFail();
+                $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
 
-                $this->service->update($profile, [
+                $this->base->update($profile, [
                     'updated_by' => $authProfileId, // record who deleted the profile
                 ]);
 
-                $this->service->delete($profile);
+                $this->base->delete($profile);
 
                 return $this->returnModel(204, Helper::SUCCESS, 'Profile deleted successfully!', null, $profileId);
             });
