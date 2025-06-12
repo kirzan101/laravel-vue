@@ -31,28 +31,23 @@ class UserService implements UserInterface
     public function storeUser(array $request): array
     {
         try {
-            DB::beginTransaction();
+            return DB::transaction(function () use ($request) {
 
-            // Hash password if provided
-            $password = bcrypt($request['username'] ?? 'q');
+                // Hash password if provided
+                $password = bcrypt($request['username'] ?? 'q');
 
-            $user = $this->service->store(User::class, [
-                'username' => $request['username'] ?? null,
-                'email' => $request['email'] ?? null,
-                'password' => $password,
-                'status' => $request['status'] ?? Helper::ACCOUNT_STATUS_ACTIVE,
-                'is_admin' => $request['is_admin'] ?? false,
-                'is_first_login' => $request['is_first_login'] ?? true,
-            ]);
-
-            DB::commit();
-
-            return $this->returnModel(201, Helper::SUCCESS, 'User created successfully!', $user, $user->id);
+                $user = $this->service->store(User::class, [
+                    'username' => $request['username'] ?? null,
+                    'email' => $request['email'] ?? null,
+                    'password' => $password,
+                    'status' => $request['status'] ?? Helper::ACCOUNT_STATUS_ACTIVE,
+                    'is_admin' => $request['is_admin'] ?? false,
+                    'is_first_login' => $request['is_first_login'] ?? true,
+                ]);
+                return $this->returnModel(201, Helper::SUCCESS, 'User created successfully!', $user, $user->id);
+            });
         } catch (\Throwable $th) {
-            DB::rollBack();
-
             $code = $this->httpCode($th);
-
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
         }
     }
@@ -67,27 +62,22 @@ class UserService implements UserInterface
     public function updateUser(array $request, int $userId): array
     {
         try {
-            DB::beginTransaction();
+            return DB::transaction(function () use ($request, $userId) {
+                $user = $this->fetchService->showQuery(User::class, $userId)->firstOrFail();
 
-            $user = $this->fetchService->showQuery(User::class, $userId)->firstOrFail();
+                $user = $this->service->update($user, [
+                    'username' => $request['username'] ?? $user->username,
+                    'email' => $request['email'] ?? $user->email,
+                    'password' => isset($request['password']) ? bcrypt($request['password']) : $user->password,
+                    'is_admin' => $request['is_admin'] ?? $user->is_admin,
+                    'status' => $request['status'] ?? $user->status,
+                    'is_first_login' => $request['is_first_login'] ?? $user->is_first_login,
+                ]);
 
-            $user = $this->service->update($user, [
-                'username' => $request['username'] ?? $user->username,
-                'email' => $request['email'] ?? $user->email,
-                'password' => isset($request['password']) ? bcrypt($request['password']) : $user->password,
-                'is_admin' => $request['is_admin'] ?? $user->is_admin,
-                'status' => $request['status'] ?? $user->status,
-                'is_first_login' => $request['is_first_login'] ?? $user->is_first_login,
-            ]);
-
-            DB::commit();
-
-            return $this->returnModel(200, Helper::SUCCESS, 'User updated successfully!', $user, $userId);
+                return $this->returnModel(200, Helper::SUCCESS, 'User updated successfully!', $user, $userId);
+            });
         } catch (\Throwable $th) {
-            DB::rollBack();
-
             $code = $this->httpCode($th);
-
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
         }
     }
@@ -101,20 +91,16 @@ class UserService implements UserInterface
     public function deleteUser(int $userId): array
     {
         try {
-            DB::beginTransaction();
+            return DB::transaction(function () use ($userId) {
 
-            $user = $this->fetchService->showQuery(User::class, $userId)->firstOrFail();
+                $user = $this->fetchService->showQuery(User::class, $userId)->firstOrFail();
 
-            $this->service->delete($user);
+                $this->service->delete($user);
 
-            DB::commit();
-
-            return $this->returnModel(204, Helper::SUCCESS, 'User deleted successfully!', null, $userId);
+                return $this->returnModel(204, Helper::SUCCESS, 'User deleted successfully!', null, $userId);
+            });
         } catch (\Throwable $th) {
-            DB::rollBack();
-
             $code = $this->httpCode($th);
-
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
         }
     }

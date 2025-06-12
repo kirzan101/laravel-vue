@@ -13,6 +13,7 @@ use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 use RuntimeException;
 
 class AuthService implements AuthInterface
@@ -70,7 +71,7 @@ class AuthService implements AuthInterface
                 ]);
 
                 // Ensure user creation was successful
-                $this->ensureSuccess($userResult, 'User creation failed.');
+                $this->ensureSuccess($userResult, 'User creation failed!');
 
                 $userId = $userResult['lastId'] ?? null;
 
@@ -89,12 +90,80 @@ class AuthService implements AuthInterface
                 ]);
 
                 // Ensure profile creation was successful
-                $this->ensureSuccess($profileResult, 'Profile creation failed.');
+                $this->ensureSuccess($profileResult, 'Profile creation failed!');
 
                 $profile = $profileResult['data'];
 
-                return $this->returnModel(201, Helper::SUCCESS, 'Registration successful', $profile, $profile->id);
+                return $this->returnModel(201, Helper::SUCCESS, 'Profile registration successfully!', $profile, $profile->id);
             });
+        } catch (\Throwable $th) {
+            $code = $this->httpCode($th);
+            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+        }
+    }
+
+    /**
+     * Log in a user using either username or email.
+     *
+     * @param array $request
+     * @return array<string, mixed>
+     */
+    public function login(array $request): array
+    {
+        try {
+            $isLoggedIn = false;
+
+            if (filter_var($request['username'], FILTER_VALIDATE_EMAIL)) {
+                // Attempt authentication using email
+                $isLoggedIn = Auth::attempt([
+                    'email' => $request['username'],
+                    'password' => $request['password'],
+                ]);
+            } else {
+                // Attempt authentication using username
+                $isLoggedIn = Auth::attempt([
+                    'username' => $request['username'],
+                    'password' => $request['password'],
+                ]);
+            }
+
+            if ($isLoggedIn) {
+                if (Auth::user()->status !== Helper::ACCOUNT_STATUS_ACTIVE) {
+                    Auth::logout();
+                    return $this->returnModel(403, Helper::ERROR, 'Account is inactive.');
+                }
+
+                Auth::getSession()->regenerate();
+
+                return $this->returnModel(200, Helper::SUCCESS, 'Logged in successfully!', Auth::user(), Auth::id());
+            }
+
+            return $this->returnModel(422, Helper::ERROR, 'Login failed!');
+        } catch (\Throwable $th) {
+            $code = $this->httpCode($th);
+            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+        }
+    }
+
+    /**
+     * Log out the currently authenticated user.
+     *
+     * @return array<string, mixed>
+     */
+    public function logout(): array
+    {
+        try {
+            if (Auth::check()) {
+                Auth::logout();
+
+                // Use the facade for testability
+                Session::invalidate();
+                Session::regenerateToken();
+
+                return $this->returnModel(200, Helper::SUCCESS, 'Logged out successfully!');
+            }
+
+            return $this->returnModel(401, Helper::ERROR, 'No authenticated user to log out.');
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
