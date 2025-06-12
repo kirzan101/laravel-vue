@@ -2,7 +2,8 @@
 
 namespace App\Services;
 
-use App\Services\FetchServices\BaseFetchService;
+use App\Interfaces\BaseInterface;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
@@ -19,8 +20,8 @@ class PermissionService implements PermissionInterface
         ReturnModelTrait;
 
     public function __construct(
-        private BaseService $service, // must use interface
-        private BaseFetchService $fetchService, // must use interface
+        private BaseInterface $base, // must use interface
+        private BaseFetchInterface $fetch, // must use interface
         private ModuleNameResolverInterface $moduleResolver,
     ) {}
 
@@ -30,7 +31,7 @@ class PermissionService implements PermissionInterface
             return DB::transaction(function () use ($request) {
                 $module = $this->moduleResolver->resolve($request['module'] ?? null);
 
-                $permission = $this->service->store(Permission::class, [
+                $permission = $this->base->store(Permission::class, [
                     'module' => $module,
                     'type' => $request['type'] ?? null,
                     'is_active' => $request['is_active'] ?? true,
@@ -48,7 +49,7 @@ class PermissionService implements PermissionInterface
     {
         try {
             return DB::transaction(function () use ($request, $permissionId) {
-                $permission = $this->fetchService->showQuery(Permission::class, $permissionId)->firstOrFail();
+                $permission = $this->fetch->showQuery(Permission::class, $permissionId)->firstOrFail();
 
                 $module = $permission->module;
                 $newModule = $this->moduleResolver->resolve($request['module'] ?? null);
@@ -57,7 +58,7 @@ class PermissionService implements PermissionInterface
                     $module = $newModule;
                 }
 
-                $permission = $this->service->update($permission, [
+                $permission = $this->base->update($permission, [
                     'module' => $module,
                     'type' => $request['type'] ?? $permission->type,
                     'is_active' => $request['is_active'] ?? $permission->is_active,
@@ -75,9 +76,9 @@ class PermissionService implements PermissionInterface
     {
         try {
             return DB::transaction(function () use ($permissionId) {
-                $permission = $this->fetchService->showQuery(Permission::class, $permissionId)->firstOrFail();
+                $permission = $this->fetch->showQuery(Permission::class, $permissionId)->firstOrFail();
 
-                $this->service->delete($permission);
+                $this->base->delete($permission);
 
                 return $this->returnModel(204, 'success', 'Permission deleted successfully!', null, $permissionId);
             });

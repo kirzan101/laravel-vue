@@ -3,9 +3,10 @@
 namespace App\Services;
 
 use App\Helpers\Helper;
+use App\Interfaces\BaseInterface;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\UserGroupInterface;
 use App\Models\UserGroup;
-use App\Services\FetchServices\BaseFetchService;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
@@ -19,8 +20,8 @@ class UserGroupService implements UserGroupInterface
         ReturnModelTrait;
 
     public function __construct(
-        private BaseService $service,
-        private BaseFetchService $fetchService,
+        private BaseInterface $base,
+        private BaseFetchInterface $fetch,
         private PermissionService $permission,
         private UserGroupPermissionService $userGroupPermission,
     ) {}
@@ -36,7 +37,7 @@ class UserGroupService implements UserGroupInterface
         try {
             DB::beginTransaction();
 
-            $userGroup = $this->service->store(UserGroup::class, [
+            $userGroup = $this->base->store(UserGroup::class, [
                 'name' => $request['name'] ?? null,
                 'code' => $request['code'] ?? null,
                 'description' => $request['description'] ?? null,
@@ -80,9 +81,9 @@ class UserGroupService implements UserGroupInterface
         try {
             DB::beginTransaction();
 
-            $userGroup = $this->fetchService->showQuery(UserGroup::class, $userGroupId)->firstOrFail();
+            $userGroup = $this->fetch->showQuery(UserGroup::class, $userGroupId)->firstOrFail();
 
-            $userGroup = $this->service->update($userGroup, [
+            $userGroup = $this->base->update($userGroup, [
                 'name' => $request['name'] ?? $userGroup->name,
                 'code' => $request['code'] ?? $userGroup->code,
                 'description' => $request['description'] ?? $userGroup->description,
@@ -124,9 +125,9 @@ class UserGroupService implements UserGroupInterface
         try {
             DB::beginTransaction();
 
-            $userGroup = $this->fetchService->showQuery(UserGroup::class, $userGroupId)->firstOrFail();
+            $userGroup = $this->fetch->showQuery(UserGroup::class, $userGroupId)->firstOrFail();
 
-            $this->service->delete($userGroup);
+            $this->base->delete($userGroup);
 
             DB::commit();
 
