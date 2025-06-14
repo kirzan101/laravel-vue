@@ -1,19 +1,15 @@
 <template>
-    <main-layout> </main-layout>
+    <main-layout>
+        <user-group-content :errors="errors" :flash="flash" :can="can" />
+    </main-layout>
 </template>
 
 <script setup>
 import MainLayout from "../../Layouts/MainLayout.vue";
+import UserGroupContent from "../../Components/Pages/System/UserGroup/UserGroupContent.vue";
+import TableUserGroup from "../../Components/Pages/System/UserGroup/Tables/TableUserGroup.vue";
 
 defineProps({
-    userGroups: Array,
-    per_page: Number,
-    current_page: Number,
-    total: Number,
-    last_page: Number,
-    search: String,
-    sort_by: String,
-    sort_direction: String,
     errors: Object,
     flash: Object,
     can: Array,
