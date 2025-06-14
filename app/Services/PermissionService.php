@@ -20,11 +20,17 @@ class PermissionService implements PermissionInterface
         ReturnModelTrait;
 
     public function __construct(
-        private BaseInterface $base, // must use interface
-        private BaseFetchInterface $fetch, // must use interface
+        private BaseInterface $base,
+        private BaseFetchInterface $fetch,
         private ModuleNameResolverInterface $moduleResolver,
     ) {}
 
+    /**
+     * Store a new permission in the database.
+     *
+     * @param array $request
+     * @return array
+     */
     public function storePermission(array $request): array
     {
         try {
@@ -45,6 +51,13 @@ class PermissionService implements PermissionInterface
         }
     }
 
+    /**
+     * Update an existing permission in the database.
+     *
+     * @param array $request
+     * @param int $permissionId
+     * @return array
+     */
     public function updatePermission(array $request, int $permissionId): array
     {
         try {
@@ -72,6 +85,12 @@ class PermissionService implements PermissionInterface
         }
     }
 
+    /**
+     * Delete a permission from the database.
+     *
+     * @param int $permissionId
+     * @return array
+     */
     public function deletePermission(int $permissionId): array
     {
         try {

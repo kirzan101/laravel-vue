@@ -57,11 +57,13 @@ class PermissionServiceTest extends TestCase
         $resolvedModule = 'equipment_management';
 
         $mockPermission = new Permission([
-            'id' => 1,
             'module' => $resolvedModule,
             'type' => 'read',
             'is_active' => true,
         ]);
+
+        $mockPermission->id = 1;
+        $mockPermission->exists = true;
 
         $this->moduleResolver
             ->shouldReceive('resolve')
@@ -81,6 +83,13 @@ class PermissionServiceTest extends TestCase
 
         $result = $this->service->storePermission($request);
 
+        // Assert if values are as expected
+        $this->assertEquals(1, $result['data']->id);
+        $this->assertEquals($resolvedModule, $result['data']->module);
+        $this->assertEquals('read', $result['data']->type);
+        $this->assertTrue($result['data']->is_active);
+
+        // Assert standard response structure
         $this->assertEquals(201, $result['code']);
         $this->assertEquals('success', $result['status']);
         $this->assertEquals('Permission created successfully!', $result['message']);
