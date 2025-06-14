@@ -165,6 +165,49 @@ And internally:
 - Entries are inserted or reused from the `permissions` table.
 - Every `user_group` gets each of those permissions inserted into `user_group_permissions` with `is_active = false`.
 
+### 3. 📦 Generate API Controller
+This custom Artisan command simplifies the creation of API controllers under the App\Http\Controllers\API namespace with predefined RESTful (API-only) methods.
+
+🧾 **Usage**
+
+```bash
+php artisan make:api-controller {ControllerName} {--model=ModelName}
+```
+
+🧾 **Arguments & Options**
+```plaintext
+| Argument / Option   | Description                                                        |
+| ------------------- | ------------------------------------------------------------------ |
+| `ControllerName`    | **(Required)** The name of the controller (e.g., `UserController`) |
+| `--model=ModelName` | **(Optional)** Binds a model to the controller (e.g., `User`)      |
+```
+
+📦 **Output**
+
+```bash
+app/Http/Controllers/API/{ControllerName}.php
+```
+
+With the following API methods:
+- `index()`
+- `store()`
+- `show($id)`
+- `update(Request $request, $id)`
+- `destroy($id)`
+
+🧪 **Examples**
+➤ **Generate a basic API controller**
+```bash
+php artisan make:api-controller ProductController
+```
+> Creates: `app/Http/Controllers/API/ProductController.php`
+
+➤ **Generate an API controller with model binding**
+```bash
+php artisan make:api-controller ProductController --model=Product
+```
+> Binds `App\Models\Product` to the controller resource routes
+
 ---
 
 ## 📁 Project Structure Highlights

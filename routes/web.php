@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserGroupController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -19,3 +20,5 @@ Route::get('/errors', function () {
         'message' => 'Page not found'
     ]);
 });
+
+Route::get('/user-groups', [UserGroupController::class, 'index']);
