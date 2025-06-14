@@ -79,18 +79,25 @@ php artisan serve
 # Terminal 2: Start Vite frontend (Vue + Inertia.js)
 npm run dev
 ```
-> 💡 VS Code Tip: Use " Ctrl + Shift + ` " to open a new terminal tab inside VS Code.
+> 💡 VS Code Tip: Open a new terminal to run this command.
+> - "Windows/Linux: Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>`</kbd> (backtick)"
+> - "Mac: Press <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>`</kbd> (backtick)".
+>   
+> This opens a new terminal tab inside Visual Studio Code.
 
 ### 6. Generate Service & Interface
 This custom command generates a new **Service class** and its corresponding **Interface**. Use the model-style name (PascalCase) when calling the command.
 
-🧪 Example
+🧪 **Example**
 If you run:
 ```bash
 php artisan make:service UserGroup 
 ```
+> 💡 VS Code Tip: Open your third terminal tab in VS Code to run this command.
+> - "Windows/Linux: Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>`</kbd> (backtick)"
+> - "Mac: Press <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>`</kbd> (backtick)".
 
-Will generate:
+It will generate:
 ```bash
 Interface [app/Interfaces/UserGroupInterface.php] created successfully.
 Service [app/Services/UserGroupService.php] created successfully.
