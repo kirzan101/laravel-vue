@@ -182,8 +182,9 @@ php artisan make:api-controller {ControllerName} {--model=ModelName}
 | `--model=ModelName` | **(Optional)** Binds a model to the controller (e.g., `User`)      |
 ```
 
-📦 **Output**
+📁 **Output**
 
+This command creates a controller at:
 ```bash
 app/Http/Controllers/API/{ControllerName}.php
 ```
@@ -196,6 +197,7 @@ With the following API methods:
 - `destroy($id)`
 
 🧪 **Examples**
+
 ➤ **Generate a basic API controller**
 ```bash
 php artisan make:api-controller ProductController
