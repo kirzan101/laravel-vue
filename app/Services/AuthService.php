@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Helpers\Helper;
 use App\Interfaces\AuthInterface;
 use App\Interfaces\BaseInterface;
-use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\ProfileInterface;
+use App\Interfaces\ProfileUserGroupInterface;
 use App\Interfaces\UserInterface;
 use App\Traits\EnsureSuccessTrait;
 use App\Traits\HttpErrorCodeTrait;
@@ -24,9 +24,9 @@ class AuthService implements AuthInterface
 
     public function __construct(
         private BaseInterface $base,
-        private BaseFetchInterface $baseFetch,
         private UserInterface $user,
         private ProfileInterface $profile,
+        private ProfileUserGroupInterface $profileUserGroup,
         private AuthInterface $auth
     ) {}
 
@@ -93,6 +93,17 @@ class AuthService implements AuthInterface
                 $this->ensureSuccess($profileResult, 'Profile creation failed!');
 
                 $profile = $profileResult['data'];
+
+                // create profile user group
+                if (!empty($request['user_group_id'])) {
+                    $profileUserGroupResult = $this->profileUserGroup->storeProfileUserGroup([
+                        'profile_id' => $profile->id,
+                        'user_group_id' => $request['user_group_id']
+                    ]);
+
+                    // Ensure profile user group creation was successful
+                    $this->ensureSuccess($profileUserGroupResult, 'Profile user group creation failed!');
+                }
 
                 return $this->returnModel(201, Helper::SUCCESS, 'Profile registration successfully!', $profile, $profile->id);
             });

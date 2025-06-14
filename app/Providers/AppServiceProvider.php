@@ -15,6 +15,7 @@ use App\Interfaces\FetchInterfaces\UserGroupPermissionFetchInterface;
 use App\Interfaces\ModuleNameResolverInterface;
 use App\Interfaces\PermissionInterface;
 use App\Interfaces\ProfileInterface;
+use App\Interfaces\ProfileUserGroupInterface;
 use App\Interfaces\UserGroupInterface;
 use App\Interfaces\UserGroupPermissionInterface;
 use App\Interfaces\UserInterface;
@@ -30,6 +31,7 @@ use App\Services\FetchServices\UserGroupFetchService;
 use App\Services\FetchServices\UserGroupPermissionFetchService;
 use App\Services\ModuleNameResolverService;
 use App\Services\ProfileService;
+use App\Services\ProfileUserGroupService;
 use App\Services\UserGroupPermissionService;
 use App\Services\UserGroupService;
 use App\Services\UserService;
@@ -62,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PermissionFetchInterface::class, PermissionFetchService::class);
         $this->app->bind(UserGroupPermissionInterface::class, UserGroupPermissionService::class);
         $this->app->bind(UserGroupPermissionFetchInterface::class, UserGroupPermissionFetchService::class);
+        $this->app->bind(ProfileUserGroupInterface::class, ProfileUserGroupService::class);
     }
 
     /**

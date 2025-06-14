@@ -29,7 +29,7 @@ class BaseFetchService implements BaseFetchInterface
      * @param string|null $columnName
      * @return Builder
      */
-    public function showQuery(string $modelClass, int|string $id, ?string $columnName = 'id'): Builder
+    public function showQuery(string $modelClass, int|string $id, string $columnName = 'id'): Builder
     {
         $this->validateModelClass($modelClass);
 

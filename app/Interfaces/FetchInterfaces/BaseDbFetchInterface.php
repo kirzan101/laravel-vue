@@ -2,6 +2,8 @@
 
 namespace App\Interfaces\FetchInterfaces;
 
+use Illuminate\Database\Query\Builder;
+
 interface BaseDbFetchInterface
 {
     /**
@@ -10,7 +12,7 @@ interface BaseDbFetchInterface
      * @param string $tableName
      * @return \Illuminate\Database\Query\Builder
      */
-    public function indexQuery(string $tableName): \Illuminate\Database\Query\Builder;
+    public function indexQuery(string $tableName): Builder;
 
     /**
      * Return a query builder filtered by a column (default: id) for further chaining.
@@ -20,5 +22,5 @@ interface BaseDbFetchInterface
      * @param string|null $columnName
      * @return \Illuminate\Database\Query\Builder
      */
-    public function showQuery(string $tableName, int|string $id, ?string $columnName = 'id'): \Illuminate\Database\Query\Builder;
+    public function showQuery(string $tableName, int|string $id, string $columnName = 'id'): Builder;
 }
