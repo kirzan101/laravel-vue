@@ -7,5 +7,5 @@ namespace App\Interfaces;
  */
 interface ModuleNameResolverInterface
 {
-    public function resolve(?string $module): string;
+    public function resolve(?string $module): ?string;
 }

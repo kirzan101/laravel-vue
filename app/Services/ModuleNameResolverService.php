@@ -13,7 +13,7 @@ class ModuleNameResolverService implements ModuleNameResolverInterface
      * @param string|null $module
      * @return string
      */
-    public function resolve(?string $module): string
+    public function resolve(?string $module): ?string
     {
         return Helper::getModuleName($module);
     }
