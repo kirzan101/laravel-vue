@@ -154,6 +154,7 @@ This will:
 > - "`create`"
 > - "`view`"
 > - "`update`"
+>   
 > `delete` is excluded by default for safety.
 
 📦 **Output**
