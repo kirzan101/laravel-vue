@@ -84,11 +84,15 @@ npm run dev
 > - "Mac: Press <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>`</kbd> (backtick)".
 >   
 > This opens a new terminal tab inside Visual Studio Code.
+---
 
-### 6. Generate Service & Interface
+## 🧑‍💻 Development
+
+### 1. Generate Service & Interface
 This custom command generates a new **Service class** and its corresponding **Interface**. Use the model-style name (PascalCase) when calling the command.
 
 🧪 **Example**
+
 If you run:
 ```bash
 php artisan make:service UserGroup 
@@ -102,9 +106,10 @@ It will generate:
 Interface [app/Interfaces/UserGroupInterface.php] created successfully.
 Service [app/Services/UserGroupService.php] created successfully.
 ```
-These files will be placed in:
-- app/Interfaces/UserGroupInterface.php
-- app/Services/UserGroupService.php
+
+🗂️ **Generated files**
+- `app/Interfaces/UserGroupInterface.php`
+- `app/Services/UserGroupService.php`
 ---
 
 ## 📁 Project Structure Highlights
