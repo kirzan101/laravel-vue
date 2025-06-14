@@ -28,12 +28,27 @@ class GenerateModulePermissions extends Command
 
             $modelName = Helper::getModuleName($originalModelName);
 
-            $types = [
-                'create' => $this->option('create') ?? true,
-                'view'   => $this->option('view') ?? true,
-                'update' => $this->option('update') ?? true,
-                'delete' => $this->option('delete') ?? false,
-            ];
+            //if no arguments are provided, default to all permissions
+            if (
+                !$this->option('create') &&
+                !$this->option('view') &&
+                !$this->option('update') &&
+                !$this->option('delete')
+            ) {
+                $types = [
+                    'create' => true,
+                    'view'   => true,
+                    'update' => true,
+                    'delete' => false, // default to false for delete permission
+                ];
+            } else {
+                $types = [
+                    'create' => $this->option('create'),
+                    'view'   => $this->option('view'),
+                    'update' => $this->option('update'),
+                    'delete' => $this->option('delete'),
+                ];
+            }
 
             $createdPermissions = [];
 

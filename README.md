@@ -91,6 +91,12 @@ npm run dev
 ### 1. Generate Service & Interface
 This custom command generates a new **Service class** and its corresponding **Interface**. Use the model-style name (PascalCase) when calling the command.
 
+🧾 **Usage**
+
+```bash
+php artisan make:service {ModelName}
+```
+
 🧪 **Example**
 
 If you run:
@@ -110,6 +116,54 @@ Service [app/Services/UserGroupService.php] created successfully.
 🗂️ **Generated files**
 - `app/Interfaces/UserGroupInterface.php`
 - `app/Services/UserGroupService.php`
+
+### 2. 🔐 Generate Module Permissions
+This custom Laravel Artisan command helps you generate CRUD permissions for a given module and assign them to all existing user groups in your system. It’s useful for streamlining role-based access control setup in your application.
+
+🧾 **Usage**
+
+```bash
+php artisan app:generate-module-permissions {ModuleName} [options]
+```
+
+🧪 **Example**
+
+```bash
+php artisan app:generate-module-permissions UserGroup --create --view --update
+
+```
+
+This will:
+- Generate the following permissions:
+    - `create` for `User Group`
+    - `view` for `User Group`
+    - `update` for `User Group`
+- Store them in the `permissions` table (if not already present)
+- Assign them to all user groups in the `user_group_permissions` table with default status `is_active = false`.
+
+⚙️ **Options**
+```plaintext
+| Option     | Description                 |
+| ---------- | --------------------------- |
+| `--create` | Include "create" permission |
+| `--view`   | Include "view" permission   |
+| `--update` | Include "update" permission |
+| `--delete` | Include "delete" permission |
+```
+> 💡 **If no option is provided**, the command will automatically add:
+> - "`create`"
+> - "`view`"
+> - "`update`"
+> `delete` is excluded by default for safety.
+
+📦 **Output**
+```bash
+Permissions and user group links generated successfully.
+```
+And internally:
+- Entries are inserted or reused from the `permissions` table.
+- Every `user_group` gets each of those permissions inserted into `user_group_permissions` with `is_active = false`.
+
 ---
 
 ## 📁 Project Structure Highlights
