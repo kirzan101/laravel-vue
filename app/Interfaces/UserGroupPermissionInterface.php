@@ -28,4 +28,22 @@ interface UserGroupPermissionInterface
      * @return array
      */
     public function deleteUserGroupPermission(int $userGroupPermissionId): array;
+
+    /**
+     * Store multiple user group permissions in the database.
+     *
+     * @param array $permissionIds
+     * @param int $userGroupId
+     * @return array
+     */
+    public function storeMultipleUserGroupPermission(array $permissionIds, int $userGroupId): array;
+
+    /**
+     * Update multiple user group permissions in the database.
+     *
+     * @param array $permissionIds
+     * @param int $userGroupId
+     * @return array
+     */
+    public function updateMultipleUserGroupPermission(array $permissionIds, int $userGroupId): array;
 }

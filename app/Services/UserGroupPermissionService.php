@@ -3,13 +3,15 @@
 namespace App\Services;
 
 use App\Helpers\Helper;
+use App\Interfaces\BaseInterface;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\UserGroupPermissionInterface;
 use App\Models\Permission;
 use App\Models\UserGroupPermission;
-use App\Services\FetchServices\BaseFetchService;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class UserGroupPermissionService implements UserGroupPermissionInterface
@@ -19,8 +21,8 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
         ReturnModelTrait;
 
     public function __construct(
-        private BaseService $service,
-        private BaseFetchService $fetchService,
+        private BaseInterface $base,
+        private BaseFetchInterface $fetch
     ) {}
 
     /**
@@ -32,22 +34,17 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
     public function storeUserGroupPermission(array $request): array
     {
         try {
-            DB::beginTransaction();
+            return DB::transaction(function () use ($request) {
+                $userGroupPermission = $this->base->store(UserGroupPermission::class, [
+                    'user_group_id' => $request['user_group_id'] ?? null,
+                    'permission_id' => $request['permission_id'] ?? null,
+                    'is_active' => $request['is_active'] ?? true,
+                ]);
 
-            $userGroupPermission = $this->service->store(UserGroupPermission::class, [
-                'user_group_id' => $request['user_group_id'] ?? null,
-                'permission_id' => $request['permission_id'] ?? null,
-                'is_active' => $request['is_active'] ?? true,
-            ]);
-
-            DB::commit();
-
-            return $this->returnModel(201, Helper::SUCCESS, 'User group permission created successfully!', $userGroupPermission, $userGroupPermission->id);
+                return $this->returnModel(201, Helper::SUCCESS, 'User group permission created successfully!', $userGroupPermission, $userGroupPermission->id);
+            });
         } catch (\Throwable $th) {
-            DB::rollBack();
-
             $code = $this->httpCode($th);
-
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
         }
     }
@@ -62,24 +59,19 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
     public function updateUserGroupPermission(array $request, int $userGroupPermissionId): array
     {
         try {
-            DB::beginTransaction();
+            return DB::transaction(function () use ($request, $userGroupPermissionId) {
+                $userGroupPermission = $this->fetch->showQuery(UserGroupPermission::class, $userGroupPermissionId)->firstOrFail();
 
-            $userGroupPermission = $this->fetchService->showQuery(UserGroupPermission::class, $userGroupPermissionId)->firstOrFail();
+                $userGroupPermission = $this->base->update($userGroupPermission, [
+                    'user_group_id' => $request['user_group_id'] ?? $userGroupPermission->user_group_id,
+                    'permission_id' => $request['permission_id'] ?? $userGroupPermission->permission_id,
+                    'is_active' => $request['is_active'] ?? $userGroupPermission->is_active,
+                ]);
 
-            $userGroupPermission = $this->service->update($userGroupPermission, [
-                'user_group_id' => $request['user_group_id'] ?? $userGroupPermission->user_group_id,
-                'permission_id' => $request['permission_id'] ?? $userGroupPermission->permission_id,
-                'is_active' => $request['is_active'] ?? $userGroupPermission->is_active,
-            ]);
-
-            DB::commit();
-
-            return $this->returnModel(200, Helper::SUCCESS, 'User group permission updated successfully!', $userGroupPermission, $userGroupPermissionId);
+                return $this->returnModel(200, Helper::SUCCESS, 'User group permission updated successfully!', $userGroupPermission, $userGroupPermissionId);
+            });
         } catch (\Throwable $th) {
-            DB::rollBack();
-
             $code = $this->httpCode($th);
-
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
         }
     }
@@ -93,20 +85,15 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
     public function deleteUserGroupPermission(int $userGroupPermissionId): array
     {
         try {
-            DB::beginTransaction();
+            return DB::transaction(function () use ($userGroupPermissionId) {
+                $userGroupPermission = $this->fetch->showQuery(UserGroupPermission::class, $userGroupPermissionId)->firstOrFail();
 
-            $userGroupPermission = $this->fetchService->showQuery(UserGroupPermission::class, $userGroupPermissionId)->firstOrFail();
+                $this->base->delete($userGroupPermission);
 
-            $this->service->delete($userGroupPermission);
-
-            DB::commit();
-
-            return $this->returnModel(204, Helper::SUCCESS, 'User group permission deleted successfully!', null, $userGroupPermissionId);
+                return $this->returnModel(204, Helper::SUCCESS, 'User group permission deleted successfully!', null, $userGroupPermissionId);
+            });
         } catch (\Throwable $th) {
-            DB::rollBack();
-
             $code = $this->httpCode($th);
-
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
         }
     }
@@ -142,35 +129,31 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
     public function storeMultipleUserGroupPermission(array $permissionIds, int $userGroupId): array
     {
         try {
-            // Begin a database transaction
-            DB::beginTransaction();
+            return DB::transaction(function () use ($permissionIds, $userGroupId) {
+                // Fetch all available permission IDs from the Permission model
+                $defaultPermissionIds = $this->fetch->indexQuery(Permission::class)->pluck('id')->toArray();
 
-            // Fetch all available permission IDs from the Permission model
-            $defaultPermissionIds = $this->fetchService->indexQuery(Permission::class)->pluck('id')->toArray();
+                $userGroupPermissions = [];
+                foreach ($defaultPermissionIds as $defaultPermissionId) {
+                    $userGroupPermissions[] = [
+                        'user_group_id' => $userGroupId,
+                        'permission_id' => $defaultPermissionId,
+                        'is_active' =>  in_array($defaultPermissionId, $permissionIds) // true if ID is in the list
+                    ];
+                }
 
-            $userGroupPermissions = [];
-            foreach ($defaultPermissionIds as $defaultPermissionId) {
-                $userGroupPermissions[] = [
-                    'user_group_id' => $userGroupId,
-                    'permission_id' => $defaultPermissionId,
-                    'is_active' =>  in_array($defaultPermissionId, $permissionIds) // Set is_active based on whether permission is in the provided list
-                ];
-            }
+                if (!empty($userGroupPermissions)) {
+                    $this->base->storeMultiple(UserGroupPermission::class, $userGroupPermissions);
+                }
 
-            if (!empty($userGroupPermissions)) {
-                $this->service->storeMultiple(UserGroupPermission::class, $userGroupPermissions);
-            }
+                $userGroupPermissionCollection = new Collection([
+                    $userGroupPermissions
+                ]);
 
-            DB::commit();
-
-            $userGroupPermissionCollection = collect($userGroupPermissions);
-
-            return $this->returnModelCollection(201, Helper::SUCCESS, 'User group permission created successfully!', $userGroupPermissionCollection);
+                return $this->returnModelCollection(201, Helper::SUCCESS, 'User group permission created successfully!', $userGroupPermissionCollection);
+            });
         } catch (\Throwable $th) {
-            DB::rollBack();
-
             $code = $this->httpCode($th);
-
             return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
         }
     }
@@ -201,27 +184,22 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
     public function updateMultipleUserGroupPermission(array $permissionIds, int $userGroupId): array
     {
         try {
-            DB::beginTransaction();
+            return DB::transaction(function () use ($permissionIds, $userGroupId) {
+                // Fetch all user group permissions for the given user group ID
+                $userGroupPermissions = $this->fetch->indexQuery(UserGroupPermission::class)
+                    ->where('user_group_id', $userGroupId)
+                    ->get();
 
-            // Fetch all user group permissions for the given user group ID
-            $userGroupPermissions = $this->fetchService->indexQuery(UserGroupPermission::class)
-                ->where('user_group_id', $userGroupId)
-                ->get();
+                // Update each permission's is_active status based on the provided permission IDs
+                foreach ($userGroupPermissions as $userGroupPermission) {
+                    $isActive = in_array($userGroupPermission->permission_id, $permissionIds);
+                    $this->base->update($userGroupPermission, ['is_active' => $isActive]);
+                }
 
-            // Update each permission's is_active status based on the provided permission IDs
-            foreach ($userGroupPermissions as $userGroupPermission) {
-                $isActive = in_array($userGroupPermission->permission_id, $permissionIds);
-                $this->service->update($userGroupPermission, ['is_active' => $isActive]);
-            }
-
-            DB::commit();
-
-            return $this->returnModelCollection(200, Helper::SUCCESS, 'User group permissions updated successfully!', $userGroupPermissions);
+                return $this->returnModelCollection(200, Helper::SUCCESS, 'User group permissions updated successfully!', $userGroupPermissions);
+            });
         } catch (\Throwable $th) {
-            DB::rollBack();
-
             $code = $this->httpCode($th);
-
             return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
         }
     }

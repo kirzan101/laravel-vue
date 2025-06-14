@@ -99,7 +99,7 @@ class ActivityLogService implements ActivityLogInterface
 
                 $this->base->delete($activityLog);
 
-                return $this->returnModel(200, Helper::SUCCESS, 'Activity log deleted successfully!', null, $activityLogId);
+                return $this->returnModel(204, Helper::SUCCESS, 'Activity log deleted successfully!', null, $activityLogId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);

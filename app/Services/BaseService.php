@@ -40,11 +40,11 @@ class BaseService implements BaseInterface
      * @param array $requests An array of associative arrays, where each associative array 
      *                        represents a record to be inserted. The keys should match 
      *                        the column names of the model's associated database table.
-     * @return int The number of rows affected by the insert operation.
+     * @return bool The number of rows affected by the insert operation.
      *
      * @throws \InvalidArgumentException If the provided class is not an Eloquent model.
      */
-    public function storeMultiple(string $modelClass, array $requests): int
+    public function storeMultiple(string $modelClass, array $requests): bool
     {
         $this->validateModelClass($modelClass);
 

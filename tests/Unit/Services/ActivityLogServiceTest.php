@@ -185,7 +185,7 @@ class ActivityLogServiceTest extends TestCase
 
         $response = $this->service->deleteActivityLog($id);
 
-        $this->assertSame(200, $response['code']);
+        $this->assertSame(204, $response['code']);
         $this->assertSame('success', $response['status']);
         $this->assertSame('Activity log deleted successfully!', $response['message']);
         $this->assertSame($id, $response['last_id']);

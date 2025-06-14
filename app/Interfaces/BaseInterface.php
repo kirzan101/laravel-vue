@@ -22,7 +22,7 @@ interface BaseInterface
      * @param array $requests
      * @return int
      */
-    public function storeMultiple(string $modelClass, array $requests): int;
+    public function storeMultiple(string $modelClass, array $requests): bool;
 
     /**
      * Update a record.

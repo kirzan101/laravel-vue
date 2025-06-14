@@ -28,4 +28,21 @@ interface UserGroupInterface
      * @return array
      */
     public function deleteUserGroup(int $userGroupId): array;
+
+    /**
+     * Store a new user group with permissions in the database.
+     *
+     * @param array $request
+     * @return array
+     */
+    public function storeUserGroupWithPermissions(array $request): array;
+
+    /**
+     * update an existing user group with permissions in the database.
+     *
+     * @param array $request
+     * @param integer $userGroupId
+     * @return array
+     */
+    public function updateUserGroupWithPermissions(array $request, int $userGroupId): array;
 }
