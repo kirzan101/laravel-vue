@@ -5,9 +5,11 @@ namespace App\Services;
 use App\Helpers\Helper;
 use App\Interfaces\AuthInterface;
 use App\Interfaces\BaseInterface;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\ProfileInterface;
 use App\Interfaces\ProfileUserGroupInterface;
 use App\Interfaces\UserInterface;
+use App\Models\Profile;
 use App\Traits\EnsureSuccessTrait;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelTrait;
@@ -24,6 +26,7 @@ class AuthService implements AuthInterface
 
     public function __construct(
         private BaseInterface $base,
+        private BaseFetchInterface $fetch,
         private UserInterface $user,
         private ProfileInterface $profile,
         private ProfileUserGroupInterface $profileUserGroup,
@@ -106,6 +109,72 @@ class AuthService implements AuthInterface
                 }
 
                 return $this->returnModel(201, Helper::SUCCESS, 'Profile registration successfully!', $profile, $profile->id);
+            });
+        } catch (\Throwable $th) {
+            $code = $this->httpCode($th);
+            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+        }
+    }
+
+    /**
+     * Update an existing user profile.
+     *
+     * @param array $request
+     * @param int $profileId
+     * @return array<string, mixed>
+     */
+    public function updateUserProfile(array $request, int $profileId): array
+    {
+        try {
+            return DB::transaction(function () use ($request, $profileId) {
+
+                // Get the profile by profile ID
+                $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
+
+                // Update profile
+                $profileResult = $this->profile->updateProfile([
+                    'avatar' => $request['avatar'] ?? $profile->avatar,
+                    'first_name' => $request['first_name'] ?? $profile->first_name,
+                    'middle_name' => $request['middle_name'] ?? $profile->middle_name,
+                    'last_name' => $request['last_name'] ?? $profile->last_name,
+                    'nickname' => $request['nickname'] ?? $profile->nickname,
+                    'type' => $request['type'] ?? $profile->type,
+                    'contact_numbers' => $request['contact_numbers'] ?? $profile->contact_numbers,
+                    'updated_by' => $this->getProfileId(),
+                ], $profileId);
+
+                // Ensure profile update was successful
+                $this->ensureSuccess($profileResult, 'Profile update failed!');
+
+                // Get user associated with the profile
+                $user = $profile->user;
+
+                if (!$user) {
+                    throw new RuntimeException('User associated with the profile not found.');
+                }
+
+                // Update user
+                $userResult = $this->user->updateUser([
+                    'username' => $request['username'] ?? $user->username,
+                    'email' => $request['email'] ?? $user->email,
+                    'password' => !empty($request['password']) ? bcrypt($request['password']) : $user->password,
+                ], $user->id);
+
+                // Ensure user update was successful
+                $this->ensureSuccess($userResult, 'User update failed!');
+
+                // Update user group if provided
+                if (!empty($request['user_group_id'])) {
+                    $profileUserGroupResult = $this->profileUserGroup->updateProfileUserGroupWithProfileId([
+                        'profile_id' => $profile->id,
+                        'user_group_id' => $request['user_group_id']
+                    ], $profileId);
+
+                    // Ensure profile user group update was successful
+                    $this->ensureSuccess($profileUserGroupResult, 'Profile user group update failed!');
+                }
+
+                return $this->returnModel(200, Helper::SUCCESS, 'Profile updated successfully!', $profile, $profile->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);

@@ -7,9 +7,12 @@ use App\Interfaces\AuthInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\ProfileInterface;
+use App\Interfaces\ProfileUserGroupInterface;
 use App\Interfaces\UserInterface;
+use App\Models\Profile;
 use App\Models\User;
 use App\Services\AuthService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +39,9 @@ class AuthServiceTest extends TestCase
     /** @var \Mockery\MockInterface&ProfileInterface */
     protected ProfileInterface $profile;
 
+    /** @var \Mockery\MockInterface&ProfileUserGroupInterface */
+    protected ProfileUserGroupInterface $profileUserGroup;
+
     /** @var \Mockery\MockInterface&AuthInterface */
     protected AuthInterface $auth;
 
@@ -49,6 +55,7 @@ class AuthServiceTest extends TestCase
         $this->fetch = $this->mockBaseFetchInterface();
         $this->user = Mockery::mock(UserInterface::class);
         $this->profile = Mockery::mock(ProfileInterface::class);
+        $this->profileUserGroup = Mockery::mock(ProfileUserGroupInterface::class);
         $this->auth = $this->mockAuthInterface();
 
         $this->service = new AuthService(
@@ -56,6 +63,7 @@ class AuthServiceTest extends TestCase
             $this->fetch,
             $this->user,
             $this->profile,
+            $this->profileUserGroup,
             $this->auth
         );
 
@@ -302,5 +310,94 @@ class AuthServiceTest extends TestCase
         $this->assertEquals(500, $response['code']);
         $this->assertEquals(Helper::ERROR, $response['status']);
         $this->assertStringContainsString('Profile creation failed', $response['message']);
+    }
+
+    #[Test]
+    public function it_updates_user_profile_successfully_with_password_change()
+    {
+        $profileId = 123;
+
+        // Mock Auth::user() to return a profile ID
+        $authUser = (object)['profile' => (object)['id' => 99]];
+        Auth::shouldReceive('user')->andReturn($authUser);
+
+        // Request data for update
+        $request = [
+            'avatar' => 'avatar.png',
+            'first_name' => 'Updated',
+            'middle_name' => 'Middle',
+            'last_name' => 'Name',
+            'nickname' => 'Nick',
+            'type' => 'employee',
+            'contact_numbers' => ['123456789'],
+            'username' => 'updateduser',
+            'email' => 'updated@example.com',
+            'password' => 'newpassword123', // this will be bcrypt-ed
+            'user_group_id' => 5,
+        ];
+
+        // Create a fake profile and associated user
+        $mockProfile = new class extends Model {
+            public $id = 123;
+            public $avatar = 'avatar.png';
+            public $first_name = 'First';
+            public $middle_name = 'M';
+            public $last_name = 'Last';
+            public $nickname = 'Nick';
+            public $type = 'admin';
+            public $contact_numbers = ['987654321'];
+            public $user;
+
+            public function __construct()
+            {
+                $this->user = new class {
+                    public $id = 1;
+                    public $username = 'olduser';
+                    public $email = 'old@example.com';
+                    public $password = 'oldhashedpw';
+                };
+            }
+        };
+
+         // Mock the query builder and firstOrFail() using Mockery
+        $fakeQueryBuilder = \Mockery::mock(Builder::class);
+        $fakeQueryBuilder
+            ->shouldReceive('firstOrFail')
+            ->once()
+            ->andReturn($mockProfile);
+
+        $this->fetch
+            ->shouldReceive('showQuery')
+            ->once()
+            ->with(Profile::class, $profileId)
+            ->andReturn($fakeQueryBuilder);
+
+        // Mock profile update
+        $this->profile->shouldReceive('updateProfile')
+            ->once()
+            ->with(Mockery::type('array'), $profileId)
+            ->andReturn(['success' => true]);
+
+        // Mock user update
+        $this->user->shouldReceive('updateUser')
+            ->once()
+            ->with(Mockery::on(function ($data) {
+                return !empty($data['password']); // Ensure password is processed
+            }), 1)
+            ->andReturn(['success' => true]);
+
+        // Mock user group update
+        $this->profileUserGroup->shouldReceive('updateProfileUserGroupWithProfileId')
+            ->once()
+            ->with(['profile_id' => 123, 'user_group_id' => 5], $profileId)
+            ->andReturn(['success' => true]);
+
+        // Run the method
+        $response = $this->service->updateUserProfile($request, $profileId);
+        
+        $this->assertEquals(200, $response['code']);
+        $this->assertEquals(Helper::SUCCESS, $response['status']);
+        $this->assertEquals('Profile updated successfully!', $response['message']);
+        $this->assertEquals(123, $response['data']->id);
     }
 }

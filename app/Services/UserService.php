@@ -69,7 +69,7 @@ class UserService implements UserInterface
                 $user = $this->base->update($user, [
                     'username' => $request['username'] ?? $user->username,
                     'email' => $request['email'] ?? $user->email,
-                    'password' => isset($request['password']) ? bcrypt($request['password']) : $user->password,
+                    'password' => !empty($request['password']) ? bcrypt($request['password']) : $user->password,
                     'is_admin' => $request['is_admin'] ?? $user->is_admin,
                     'status' => $request['status'] ?? $user->status,
                     'is_first_login' => $request['is_first_login'] ?? $user->is_first_login,

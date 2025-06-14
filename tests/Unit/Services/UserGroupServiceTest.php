@@ -118,6 +118,7 @@ class UserGroupServiceTest extends TestCase
             'code' => 'NEW',
             'description' => 'New description',
         ]);
+        $updated->id = $userGroupId;
 
         $mockQuery = Mockery::mock(Builder::class);
         $mockQuery->shouldReceive('firstOrFail')->andReturn($existing);
