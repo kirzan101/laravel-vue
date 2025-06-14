@@ -81,6 +81,23 @@ npm run dev
 ```
 > 💡 VS Code Tip: Use " Ctrl + Shift + ` " to open a new terminal tab inside VS Code.
 
+### 6. Generate Service & Interface
+This custom command generates a new **Service class** and its corresponding **Interface**. Use the model-style name (PascalCase) when calling the command.
+
+🧪 Example
+If you run:
+```bash
+php artisan make:service UserGroup 
+```
+
+Will generate:
+```bash
+Interface [app/Interfaces/UserGroupInterface.php] created successfully.
+Service [app/Services/UserGroupService.php] created successfully.
+```
+These files will be placed in:
+- app/Interfaces/UserGroupInterface.php
+- app/Services/UserGroupService.php
 ---
 
 ## 📁 Project Structure Highlights
