@@ -6,7 +6,13 @@
         ref="tableDataRef"
     >
         <template #item.name="{ item }">
-            <c-btn-edit :label="item.name" />
+            <EditUserGroup
+                :item="item"
+                :errors="errors"
+                :flash="flash"
+                :can="can"
+                ref="editUserGroupRef"
+            />
         </template>
     </c-data-table-server>
 </template>
@@ -15,7 +21,7 @@
 import { ref } from "vue";
 
 import CDataTableServer from "@/Components/Customs/Tables/CDataTableServer.vue";
-import CBtnEdit from "@/Components/Customs/Buttons/CBtnEdit.vue";
+import EditUserGroup from "../Actions/EditUserGroup.vue";
 
 // Define props
 const props = defineProps({

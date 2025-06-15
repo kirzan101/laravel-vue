@@ -1,5 +1,10 @@
 <template>
-    <c-btn prepend-icon="mdi-check-circle" type="submit" v-bind="$attrs">
+    <c-btn
+        prepend-icon="mdi-check-circle"
+        type="submit"
+        variant="elevated"
+        v-bind="$attrs"
+    >
         {{ label }}</c-btn
     >
 </template>

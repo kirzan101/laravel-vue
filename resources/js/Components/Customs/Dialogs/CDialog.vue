@@ -12,15 +12,15 @@
                 <c-btn-text prepend-icon="mdi-close" @click="$emit('close')">
                     Close
                 </c-btn-text>
-                <c-btn-submit label="submit" @click="$emit('submit')" />
+                <c-btn-submit @click="$emit('submit')" />
             </template>
         </v-card>
     </v-dialog>
 </template>
 
 <script setup>
-import CBtnText from "../Buttons/CBtnText.vue";
-import CBtnSubmit from "../Buttons/CBtnSubmit.vue";
+import CBtnText from "@/Components/Customs/Buttons/CBtnText.vue";
+import CBtnSubmit from "@/Components/Customs/Buttons/CBtnSubmit.vue";
 
 defineProps({
     width: {
