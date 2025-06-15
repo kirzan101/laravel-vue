@@ -26,7 +26,7 @@ class UserGroupService implements UserGroupInterface
     public function __construct(
         private BaseInterface $base,
         private BaseFetchInterface $fetch,
-        // private AuthInterface $auth,
+        private AuthInterface $auth,
         private PermissionInterface $permission,
         private UserGroupPermissionInterface $userGroupPermission
     ) {}
@@ -41,8 +41,7 @@ class UserGroupService implements UserGroupInterface
     {
         try {
             return DB::transaction(function () use ($request) {
-                // $profileId = $this->auth->getProfileId();
-                $profileId = 1;
+                $profileId = $this->auth->getProfileId();
 
                 $userGroup = $this->base->store(UserGroup::class, [
                     'name' => $request['name'] ?? null,
@@ -77,8 +76,7 @@ class UserGroupService implements UserGroupInterface
                     'name' => $request['name'] ?? $userGroup->name,
                     'code' => $request['code'] ?? $userGroup->code,
                     'description' => $request['description'] ?? $userGroup->description,
-                    // 'updated_by' => $this->auth->getProfileId(),
-                    'updated_by' => 1,
+                    'updated_by' => $this->auth->getProfileId(),
                 ]);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'User group updated successfully!', $userGroup, $userGroupId);
@@ -104,8 +102,7 @@ class UserGroupService implements UserGroupInterface
 
                 // record who deleted the user group
                 $this->base->update($userGroup, [
-                    // 'updated_by' => $this->auth->getProfileId(),
-                    'updated_by' => 1,
+                    'updated_by' => $this->auth->getProfileId(),
                 ]);
 
                 $this->base->delete($userGroup); // only soft delete
