@@ -5,6 +5,9 @@
         v-bind="$attrs"
         :model-value="modelValue"
         @update:modelValue="$emit('update:modelValue', $event)"
+        rounded="pill"
+        
+        bg-color="search-bg"
     >
         <slot />
     </c-text-field-solo>

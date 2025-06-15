@@ -6,6 +6,7 @@ const light = {
         secondary: "#c7960c", //gold
         accent: "#185D33", //green
         error: "#b71c1c", //red
+        "search-bg": "#FBFBFC",
     },
 };
 
@@ -17,6 +18,7 @@ const dark = {
         secondary: "#b08521", //gold
         accent: "#185D33", //green
         error: "#F44336", //red
+        "search-bg": "#252525",
         "primary-tonal": "#75B7F5",
         "secondary-tonal": "#FFD700", //gold
         "accent-tonal": "#31C469", //green

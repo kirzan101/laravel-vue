@@ -2,7 +2,7 @@
     <v-btn
         class="ma-1"
         variant="tonal"
-        size="small"
+        :size="size"
         :color="computedColor"
         v-bind="$attrs"
     >
@@ -18,6 +18,10 @@ const props = defineProps({
     color: {
         type: String,
         default: null, // no color passed
+    },
+    size: {
+        type: String,
+        default: "small",
     },
 });
 
