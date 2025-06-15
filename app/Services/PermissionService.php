@@ -22,7 +22,7 @@ class PermissionService implements PermissionInterface
     public function __construct(
         private BaseInterface $base,
         private BaseFetchInterface $fetch,
-        private ModuleNameResolverInterface $moduleResolver,
+        private ModuleNameResolverInterface $moduleResolver
     ) {}
 
     /**

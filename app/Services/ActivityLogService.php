@@ -22,7 +22,7 @@ class ActivityLogService implements ActivityLogInterface
     public function __construct(
         private BaseInterface $base,
         private BaseFetchInterface $baseFetch,
-        private AuthInterface $auth,
+        private AuthInterface $auth
     ) {}
 
     /**

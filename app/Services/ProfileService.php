@@ -23,7 +23,7 @@ class ProfileService implements ProfileInterface
     public function __construct(
         private BaseInterface $base,
         private BaseFetchInterface $fetch,
-        private AuthInterface $auth,
+        private AuthInterface $auth
     ) {}
 
     /**

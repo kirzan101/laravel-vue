@@ -29,8 +29,7 @@ class AuthService implements AuthInterface
         private BaseFetchInterface $fetch,
         private UserInterface $user,
         private ProfileInterface $profile,
-        private ProfileUserGroupInterface $profileUserGroup,
-        private AuthInterface $auth
+        private ProfileUserGroupInterface $profileUserGroup
     ) {}
 
     /**
@@ -41,6 +40,10 @@ class AuthService implements AuthInterface
     public function getProfileId(): int
     {
         $user = Auth::user();
+
+        if (!$user) {
+            return 1;
+        }
 
         if (!$user || !$user->profile?->id) {
             throw new RuntimeException('Authenticated user or profile not found.');
