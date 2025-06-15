@@ -21,4 +21,4 @@ Route::get('/errors', function () {
     ]);
 });
 
-Route::get('/user-groups', [UserGroupController::class, 'index']);
+Route::resource('user-groups', UserGroupController::class)->only(['index', 'store', 'update', 'destroy']);

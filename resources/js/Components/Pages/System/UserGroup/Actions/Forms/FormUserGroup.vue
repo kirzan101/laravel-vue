@@ -2,13 +2,25 @@
     <c-form>
         <c-row>
             <c-col>
-                <c-text-field label="Name" v-model="form.name" />
+                <c-text-field
+                    label="Name"
+                    v-model="form.name"
+                    :error-messages="formErrors.name"
+                />
             </c-col>
             <c-col>
-                <c-text-field label="Code" v-model="form.code" />
+                <c-text-field
+                    label="Code"
+                    v-model="form.code"
+                    :error-messages="formErrors.code"
+                />
             </c-col>
             <c-col md="12" lg="12" xl="12">
-                <c-textarea label="Description" v-model="form.description" />
+                <c-textarea
+                    label="Description"
+                    v-model="form.description"
+                    :error-messages="formErrors.description"
+                />
             </c-col>
         </c-row>
     </c-form>
@@ -32,10 +44,10 @@ const props = defineProps({
 });
 
 const form = ref({
+    id: null,
     name: null,
     code: null,
     description: null,
-    permissions: [],
 });
 
 watch(
@@ -59,4 +71,24 @@ watch(
     },
     { immediate: true, deep: true }
 );
+
+// set error start
+const formErrors = ref({});
+watch(
+    () => props.errors,
+    (newValue) => {
+        formErrors.value = Object.assign({}, newValue);
+    },
+    { deep: true }
+);
+// set error end
+
+const emits = defineEmits(["formValues"]);
+const emitFormData = () => {
+    emits("formValues", form.value);
+};
+
+defineExpose({
+    emitFormData,
+});
 </script>

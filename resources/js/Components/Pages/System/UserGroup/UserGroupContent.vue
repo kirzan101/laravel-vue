@@ -4,9 +4,10 @@
         <c-card>
             <c-row class="mt-1" justify="space-between">
                 <c-col cols="12" sm="4">
-                    <p class="text-h6 d-flex flex-column flex-sm-row">
+                    <!-- <p >
                         User Groups
                         <AddUserGroup
+                            :permissions="permissions"
                             :showBtn="showAddBtn"
                             :errors="errors"
                             :flash="flash"
@@ -18,21 +19,36 @@
                             icon="mdi-plus"
                             @click="toggleAddUserGroupDialog"
                         />
-                    </p>
+                    </p> -->
+                    <v-card-title>
+                        User Groups
+                        <AddUserGroup
+                            :permissions="permissions"
+                            :showBtn="showAddBtn"
+                            :errors="errors"
+                            :flash="flash"
+                            :can="can"
+                            ref="addUserGroupRef"
+                        />
+                        <c-fab-lower-right
+                            v-if="!showAddBtn"
+                            icon="mdi-plus"
+                            @click="toggleAddUserGroupDialog"
+                        />
+                    </v-card-title>
                 </c-col>
                 <v-col cols="12" sm="4">
                     <c-search-field v-model="filters.search" />
                 </v-col>
             </c-row>
             <TableUserGroup
+                :permissions="permissions"
                 :errors="errors"
                 :flash="flash"
                 :can="can"
                 ref="tableDataRef"
             />
         </c-card>
-        <!-- Uncomment the following line to enable the floating action button -->
-        <!-- <c-fab-lower-right icon="mdi-plus" /> -->
     </c-container>
 </template>
 
@@ -55,6 +71,7 @@ import AddUserGroup from "./Actions/AddUserGroup.vue";
 
 // Define props
 const props = defineProps({
+    permissions: Array,
     errors: Object,
     flash: Object,
     can: Array,
@@ -82,9 +99,9 @@ useDebouncedWatch(
     { deep: true }
 );
 
-//add form
 const { mobile } = useDisplay();
 
+// show normal add button on desktop and hide on mobile
 const showAddBtn = ref(true);
 watch(
     () => mobile.value,

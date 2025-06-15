@@ -9,10 +9,18 @@
         >
             <slot />
             <template v-slot:actions>
-                <c-btn-text prepend-icon="mdi-close" @click="$emit('close')">
+                <c-btn-text
+                    prepend-icon="mdi-close"
+                    @click="$emit('close')"
+                    :disabled="btnDisabled"
+                >
                     Close
                 </c-btn-text>
-                <c-btn-submit @click="$emit('submit')" />
+                <c-btn-submit
+                    @click="$emit('submit')"
+                    :disabled="btnDisabled"
+                    :loading="btnDisabled"
+                />
             </template>
         </v-card>
     </v-dialog>
@@ -35,6 +43,10 @@ defineProps({
     prependIcon: {
         type: String,
         default: "mdi-update",
+    },
+    btnDisabled: {
+        type: Boolean,
+        default: false,
     },
 });
 

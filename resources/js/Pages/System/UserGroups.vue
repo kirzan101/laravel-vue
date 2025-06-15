@@ -1,7 +1,12 @@
 <template>
     <Head :title="title" />
     <main-layout>
-        <user-group-content :errors="errors" :flash="flash" :can="can" />
+        <UserGroupContent
+            :permissions="permissions"
+            :errors="errors"
+            :flash="flash"
+            :can="can"
+        />
     </main-layout>
 </template>
 
@@ -13,6 +18,7 @@ import MainLayout from "../../Layouts/MainLayout.vue";
 import UserGroupContent from "../../Components/Pages/System/UserGroup/UserGroupContent.vue";
 
 defineProps({
+    permissions: Array,
     errors: Object,
     flash: Object,
     can: Array,

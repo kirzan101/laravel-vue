@@ -2,17 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\FetchInterfaces\PermissionFetchInterface;
+use App\Interfaces\PermissionInterface;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class UserGroupController extends Controller
 {
+    public function __construct(private PermissionFetchInterface $permissionFetch) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $permissionsResults = $this->permissionFetch->indexPermissions($request->toArray());
+        $permissions = $permissionsResults['data'] ?? [];
+
         return Inertia::render('System/UserGroups', [
+            'permissions' => $permissions,
             'can' => []
         ]);
     }
@@ -22,7 +30,7 @@ class UserGroupController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd($request->all());
     }
 
     /**
@@ -30,7 +38,7 @@ class UserGroupController extends Controller
      */
     public function update(Request $request, int $id)
     {
-        //
+        dd($request->all());
     }
 
     /**

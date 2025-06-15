@@ -16,15 +16,15 @@ class PermissionSeeder extends Seeder
         $permissions = [
             [
                 'module' => 'profiles',
-                'types' => ['create', 'view', 'edit'],
+                'types' => ['create', 'view', 'update'],
             ],
             [
                 'module' => 'user_groups',
-                'types' => ['create', 'view', 'edit'],
+                'types' => ['create', 'view', 'update'],
             ],
         ];
 
-        $accessTypes = ['create', 'view', 'edit', 'delete'];
+        $accessTypes = ['create', 'view', 'update', 'delete'];
 
         foreach ($permissions as $permission) {
             foreach ($accessTypes as $type) {

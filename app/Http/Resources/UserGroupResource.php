@@ -14,6 +14,14 @@ class UserGroupResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'code' => $this->code,
+            'description' => $this->description,
+            'createdBy' => $this->created_by ? $this->createdBy->getFullName() : null,
+            'updatedBy' => $this->updated_by ? $this->updatedBy->getFullName() : null,
+            'userGroupPermissions' => UserGroupPermissionResource::collection($this->userGroupPermissions),
+        ];
     }
 }
