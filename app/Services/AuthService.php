@@ -39,11 +39,12 @@ class AuthService implements AuthInterface
      */
     public function getProfileId(): int
     {
-        $user = Auth::user();
-
-        if (!$user) {
+        // Return 1 if environment is local
+        if (app()->environment('local')) {
             return 1;
         }
+
+        $user = Auth::user();
 
         if (!$user || !$user->profile?->id) {
             throw new RuntimeException('Authenticated user or profile not found.');
