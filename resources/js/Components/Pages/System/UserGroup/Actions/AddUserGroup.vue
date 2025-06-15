@@ -9,7 +9,7 @@
     <c-dialog
         v-model="dialog"
         width="1000"
-        title="Add User Groups"
+        title="Add User Group"
         prependIcon="mdi-plus"
         persistent
         :btnDisabled="btnDisabled"
@@ -37,6 +37,8 @@
             />
         </c-container>
     </c-dialog>
+
+    <SnackBar ref="snackBarRef" />
 </template>
 
 <script setup>
@@ -49,6 +51,7 @@ import CDialog from "@/Components/Customs/Dialogs/CDialog.vue";
 import CContainer from "@/Components/Customs/Containers/CContainer.vue";
 import FormUserGroup from "./Forms/FormUserGroup.vue";
 import FormTablePermissions from "./Forms/FormTablePermissions.vue";
+import SnackBar from "@/Components/Utilities/SnackBar.vue";
 
 const dialog = ref(false);
 const toggleDialog = () => {
@@ -104,6 +107,16 @@ const toggleFormTablePermissionsRef = () => {
     }
 };
 
+// notification
+const snackBarRef = ref(null);
+const toggleSnackBar = (message, color) => {
+    if (!snackBarRef.value) {
+        return;
+    }
+
+    snackBarRef.value.showNotification(message, color);
+};
+
 // handle submission
 const btnDisabled = ref(false);
 const handleSubmit = () => {
@@ -123,9 +136,12 @@ const handleSubmit = () => {
                     form.value[key] = null;
                 }
             });
+
+            toggleSnackBar(props.flash.success, "success");
         },
         onError: () => {
-            emits("notification", "Some fields has an error.", "error");
+            // emits("notification", "Some fields has an error.", "error");
+            toggleSnackBar("Some fields has an error.", "error");
         },
         onBefore: () => {
             btnDisabled.value = true;

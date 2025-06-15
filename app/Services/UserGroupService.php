@@ -26,7 +26,7 @@ class UserGroupService implements UserGroupInterface
     public function __construct(
         private BaseInterface $base,
         private BaseFetchInterface $fetch,
-        private AuthInterface $auth,
+        // private AuthInterface $auth,
         private PermissionInterface $permission,
         private UserGroupPermissionInterface $userGroupPermission
     ) {}
@@ -41,7 +41,8 @@ class UserGroupService implements UserGroupInterface
     {
         try {
             return DB::transaction(function () use ($request) {
-                $profileId = $this->auth->getProfileId();
+                // $profileId = $this->auth->getProfileId();
+                $profileId = 1;
 
                 $userGroup = $this->base->store(UserGroup::class, [
                     'name' => $request['name'] ?? null,
@@ -76,7 +77,8 @@ class UserGroupService implements UserGroupInterface
                     'name' => $request['name'] ?? $userGroup->name,
                     'code' => $request['code'] ?? $userGroup->code,
                     'description' => $request['description'] ?? $userGroup->description,
-                    'updated_by' => $this->auth->getProfileId(),
+                    // 'updated_by' => $this->auth->getProfileId(),
+                    'updated_by' => 1,
                 ]);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'User group updated successfully!', $userGroup, $userGroupId);
@@ -102,7 +104,8 @@ class UserGroupService implements UserGroupInterface
 
                 // record who deleted the user group
                 $this->base->update($userGroup, [
-                    'updated_by' => $this->auth->getProfileId(),
+                    // 'updated_by' => $this->auth->getProfileId(),
+                    'updated_by' => 1,
                 ]);
 
                 $this->base->delete($userGroup); // only soft delete
@@ -130,11 +133,10 @@ class UserGroupService implements UserGroupInterface
                     'code' => $request['code'] ?? null,
                     'description' => $request['description'] ?? null,
                 ]);
-
                 $this->ensureSuccess($userGroupResult, 'User group creation failed!');
 
                 $userGroup = $userGroupResult['data'] ?? null;
-                $userGroupId = $userGroupResult['lastId'] ?? null;
+                $userGroupId = $userGroupResult['last_id'] ?? null;
 
                 // Store user group permissions
                 $permissions = $request['permissions'] ?? [];

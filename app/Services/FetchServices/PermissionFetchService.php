@@ -9,6 +9,7 @@ use App\Traits\DefaultPaginateFilterTrait;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
+use Illuminate\Pagination\Paginator;
 
 class PermissionFetchService extends BaseFetchService implements PermissionFetchInterface
 {
@@ -43,8 +44,13 @@ class PermissionFetchService extends BaseFetchService implements PermissionFetch
                 [
                     'per_page' => $per_page,
                     'sort_by' => $sort_by,
-                    'sort' => $sort
+                    'sort' => $sort,
+                    'current_page' => $current_page
                 ] = $this->paginateFilter($request, $allowedFields);
+
+                // Manually set the current page
+                Paginator::currentPageResolver(fn() => $current_page ?? 1);
+
 
                 $permissions = $query->orderBy($sort_by, $sort)->paginate($per_page);
             } else {

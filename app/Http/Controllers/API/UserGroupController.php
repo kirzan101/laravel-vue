@@ -29,7 +29,7 @@ class UserGroupController extends Controller
         $code = $results['code'];
         $status = $results['status'];
         $message = $results['message'];
-
+        
         return response()->json([
             'data' => UserGroupResource::collection($data->all()),
             'per_page' => $data->perPage(),

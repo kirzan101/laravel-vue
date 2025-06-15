@@ -76,7 +76,7 @@ class AuthService implements AuthInterface
                 // Ensure user creation was successful
                 $this->ensureSuccess($userResult, 'User creation failed!');
 
-                $userId = $userResult['lastId'] ?? null;
+                $userId = $userResult['last_id'] ?? null;
 
                 // Create profile
                 $profileResult = $this->profile->storeProfile([

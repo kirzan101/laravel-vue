@@ -2,7 +2,7 @@
     <c-container>
         <c-alert-error
             v-if="errors.permissions"
-            :text="errors.permissions[0]"
+            :text="errors.permissions"
         />
         <v-row class="mt-1 mb-2 text-h6" justify="space-between">
             Permissions

@@ -4,22 +4,6 @@
         <c-card>
             <c-row class="mt-1" justify="space-between">
                 <c-col cols="12" sm="4">
-                    <!-- <p >
-                        User Groups
-                        <AddUserGroup
-                            :permissions="permissions"
-                            :showBtn="showAddBtn"
-                            :errors="errors"
-                            :flash="flash"
-                            :can="can"
-                            ref="addUserGroupRef"
-                        />
-                        <c-fab-lower-right
-                            v-if="!showAddBtn"
-                            icon="mdi-plus"
-                            @click="toggleAddUserGroupDialog"
-                        />
-                    </p> -->
                     <v-card-title>
                         User Groups
                         <AddUserGroup
@@ -38,7 +22,7 @@
                     </v-card-title>
                 </c-col>
                 <v-col cols="12" sm="4">
-                    <c-search-field v-model="filters.search" />
+                    <c-search-field v-model="filters.search" clearable />
                 </v-col>
             </c-row>
             <TableUserGroup
@@ -97,6 +81,15 @@ useDebouncedWatch(
     },
     undefined,
     { deep: true }
+);
+
+// reload data when flash message changes
+watch(
+    () => props.flash,
+    () => {
+        toggleLoadData(filters.value);
+    },
+    { immediate: true }
 );
 
 const { mobile } = useDisplay();

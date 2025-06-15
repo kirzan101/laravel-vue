@@ -2,14 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
+use App\Http\Requests\UserGroupFormRequest;
 use App\Interfaces\FetchInterfaces\PermissionFetchInterface;
 use App\Interfaces\PermissionInterface;
+use App\Interfaces\UserGroupInterface;
+use App\Services\UserGroupService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class UserGroupController extends Controller
 {
-    public function __construct(private PermissionFetchInterface $permissionFetch) {}
+    public function __construct(
+        private PermissionFetchInterface $permissionFetch,
+        private UserGroupInterface $userGroup
+    ) {}
 
     /**
      * Display a listing of the resource.
@@ -28,17 +35,43 @@ class UserGroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(UserGroupFormRequest $request)
     {
-        dd($request->all());
+        [
+            'code' => $code,
+            'status' => $status,
+            'message' => $message
+        ] = $this->userGroup->storeUserGroupWithPermissions($request->toArray());
+
+        if ($status === Helper::ERROR) {
+            return Inertia::render('Error', [
+                'code' => $code,
+                'message' => $message
+            ]);
+        }
+
+        return redirect()->back()->with($status, $message);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, int $id)
+    public function update(UserGroupFormRequest $request, int $id)
     {
-        dd($request->all());
+        [
+            'code' => $code,
+            'status' => $status,
+            'message' => $message
+        ] = $this->userGroup->updateUserGroupWithPermissions($request->toArray(), $id);
+
+        if ($status === Helper::ERROR) {
+            return Inertia::render('Error', [
+                'code' => $code,
+                'message' => $message
+            ]);
+        }
+
+        return redirect()->back()->with($status, $message);
     }
 
     /**

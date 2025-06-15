@@ -9,6 +9,7 @@ use App\Traits\DefaultPaginateFilterTrait;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
+use Illuminate\Pagination\Paginator;
 
 class ActivityLogFetchService extends BaseFetchService implements ActivityLogFetchInterface
 {
@@ -54,8 +55,12 @@ class ActivityLogFetchService extends BaseFetchService implements ActivityLogFet
                 [
                     'per_page' => $per_page,
                     'sort_by' => $sort_by,
-                    'sort' => $sort
+                    'sort' => $sort,
+                    'current_page' => $current_page
                 ] = $this->paginateFilter($request, $allowedFields);
+
+                // Manually set the current page
+                Paginator::currentPageResolver(fn() => $current_page ?? 1);
 
                 $users = $query->orderBy($sort_by, $sort)->paginate($per_page);
             } else {

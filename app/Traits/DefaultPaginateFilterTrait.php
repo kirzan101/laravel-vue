@@ -31,10 +31,15 @@ trait DefaultPaginateFilterTrait
         $sortDirection = strtolower($request['sort_direction'] ?? 'desc');
         $sortDirection = in_array($sortDirection, ['asc', 'desc']) ? $sortDirection : 'desc';
 
+        $currentPage = isset($request['current_page']) && is_numeric($request['current_page']) && $request['current_page'] > 0
+            ? (int) $request['current_page']
+            : 1;
+
         return [
             'per_page' => $perPage,
             'sort_by' => $sortBy,
             'sort' => $sortDirection,
+            'current_page' => $currentPage
         ];
     }
 
