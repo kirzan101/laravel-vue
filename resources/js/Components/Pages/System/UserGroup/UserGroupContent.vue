@@ -1,11 +1,12 @@
 <template>
     <c-container>
+        <c-breadcrumbs :items="['Home', 'User Groups']"></c-breadcrumbs>
         <c-card>
             <c-row class="mt-1" justify="space-between">
                 <c-col cols="12" sm="4">
-                    <p class="text-h6">
+                    <p class="text-h6 d-flex flex-column flex-sm-row">
                         User Groups
-                        <c-btn-add />
+                        <c-btn-add size="default" />
                     </p>
                 </c-col>
                 <v-col cols="12" sm="4">
@@ -33,6 +34,7 @@ import CRow from "@/Components/Customs/Grids/CRow.vue";
 import CCol from "@/Components/Customs/Grids/CCol.vue";
 import CBtnAdd from "@/Components/Customs/Buttons/CBtnAdd.vue";
 import CSearchField from "@/Components/Customs/Inputs/CSearchField.vue";
+import CBreadcrumbs from "@/Components/Customs/Breadcrumbs/CBreadcrumbs.vue";
 
 import TableUserGroup from "./Tables/TableUserGroup.vue";
 
