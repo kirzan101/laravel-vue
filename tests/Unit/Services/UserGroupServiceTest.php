@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services;
 
-use App\Interfaces\AuthInterface;
+use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\PermissionInterface;
@@ -26,8 +26,8 @@ class UserGroupServiceTest extends TestCase
     /** @var \Mockery\MockInterface&BaseFetchInterface */
     protected BaseFetchInterface $fetch;
 
-    /** @var \Mockery\MockInterface&AuthInterface */
-    protected AuthInterface $auth;
+    /** @var \Mockery\MockInterface&CurrentUserInterface */
+    protected CurrentUserInterface $currentUser;
 
     /** @var \Mockery\MockInterface&PermissionInterface */
     protected PermissionInterface $permission;
@@ -43,14 +43,14 @@ class UserGroupServiceTest extends TestCase
 
         $this->base = $this->mockBaseInterface();
         $this->fetch = $this->mockBaseFetchInterface();
-        $this->auth = $this->mockAuthInterface();
+        $this->currentUser = $this->mockCurrentUserInterface();
         $this->permission = Mockery::mock(PermissionInterface::class);
         $this->userGroupPermission = Mockery::mock(UserGroupPermissionInterface::class);
 
         $this->service = new UserGroupService(
             $this->base,
             $this->fetch,
-            $this->auth,
+            $this->currentUser,
             $this->permission,
             $this->userGroupPermission
         );
@@ -72,7 +72,7 @@ class UserGroupServiceTest extends TestCase
 
         $userGroup = new UserGroup(['id' => 123] + $request);
 
-        $this->auth->shouldReceive('getProfileId')->andReturn($profileId);
+        $this->currentUser->shouldReceive('getProfileId')->andReturn($profileId);
 
         $this->base
             ->shouldReceive('store')
@@ -129,7 +129,7 @@ class UserGroupServiceTest extends TestCase
             ->with(UserGroup::class, $userGroupId)
             ->andReturn($mockQuery);
 
-        $this->auth->shouldReceive('getProfileId')->once()->andReturn($profileId);
+        $this->currentUser->shouldReceive('getProfileId')->once()->andReturn($profileId);
 
         $this->base
             ->shouldReceive('update')
@@ -176,7 +176,7 @@ class UserGroupServiceTest extends TestCase
             ->with(UserGroup::class, $userGroupId)
             ->andReturn($mockQuery);
 
-        $this->auth->shouldReceive('getProfileId')->once()->andReturn($profileId);
+        $this->currentUser->shouldReceive('getProfileId')->once()->andReturn($profileId);
 
         $this->base->shouldReceive('update')
             ->once()

@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\Helper;
-use App\Interfaces\AuthInterface;
+use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\ProfileInterface;
@@ -23,7 +23,7 @@ class ProfileService implements ProfileInterface
     public function __construct(
         private BaseInterface $base,
         private BaseFetchInterface $fetch,
-        private AuthInterface $auth
+        private CurrentUserInterface $currentUser
     ) {}
 
     /**
@@ -36,7 +36,7 @@ class ProfileService implements ProfileInterface
     {
         try {
             return DB::transaction(function () use ($request) {
-                $profileId = $this->auth->getProfileId();
+                $profileId = $this->currentUser->getProfileId();
 
                 $profile = $this->base->store(Profile::class, [
                     'avatar' => $request['avatar'] ?? null,
@@ -70,7 +70,7 @@ class ProfileService implements ProfileInterface
     {
         try {
             return DB::transaction(function () use ($request, $profileId) {
-                $authProfileId = $this->auth->getProfileId();
+                $currentUserProfileId = $this->currentUser->getProfileId();
 
                 $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
 
@@ -84,7 +84,7 @@ class ProfileService implements ProfileInterface
                     'type' => $request['type'] ?? $profile->type,
                     'contact_numbers' => $request['contact_numbers'] ?? [],
                     'user_id' => $request['user_id'] ?? null,
-                    'updated_by' => $authProfileId,
+                    'updated_by' => $currentUserProfileId,
                 ]);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'Profile updated successfully!', $profile, $profile->id);
@@ -105,12 +105,12 @@ class ProfileService implements ProfileInterface
     {
         try {
             return DB::transaction(function () use ($profileId) {
-                $authProfileId = $this->auth->getProfileId();
+                $currentUserProfileId = $this->currentUser->getProfileId();
 
                 $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
 
                 $this->base->update($profile, [
-                    'updated_by' => $authProfileId, // record who deleted the profile
+                    'updated_by' => $currentUserProfileId, // record who deleted the profile
                 ]);
 
                 $this->base->delete($profile);

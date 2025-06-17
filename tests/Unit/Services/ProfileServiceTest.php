@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services;
 
 use App\Helpers\Helper;
-use App\Interfaces\AuthInterface;
+use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Models\Profile;
@@ -25,8 +25,8 @@ class ProfileServiceTest extends TestCase
     /** @var \Mockery\MockInterface&BaseFetchInterface */
     protected BaseFetchInterface $fetch;
 
-    /** @var \Mockery\MockInterface&AuthInterface */
-    protected AuthInterface $auth;
+    /** @var \Mockery\MockInterface&CurrentUserInterface */
+    protected CurrentUserInterface $currentUser;
 
     protected ProfileService $service;
 
@@ -36,12 +36,12 @@ class ProfileServiceTest extends TestCase
 
         $this->base = $this->mockBaseInterface();
         $this->fetch = $this->mockBaseFetchInterface();
-        $this->auth = $this->mockAuthInterface();
+        $this->currentUser = $this->mockCurrentUserInterface();
 
         $this->service = new ProfileService(
             $this->base,
             $this->fetch,
-            $this->auth
+            $this->currentUser
         );
     }
 
@@ -50,7 +50,7 @@ class ProfileServiceTest extends TestCase
     {
         $profile = new Profile(['id' => 1, 'first_name' => 'John']);
 
-        $this->auth->shouldReceive('getProfileId')->once()->andReturn(99);
+        $this->currentUser->shouldReceive('getProfileId')->once()->andReturn(99);
         $this->base->shouldReceive('store')->once()->andReturn($profile);
 
         $request = [
@@ -74,7 +74,7 @@ class ProfileServiceTest extends TestCase
         $profileId = 1;
         $mockProfile = new Profile(['id' => $profileId, 'first_name' => 'Old']);
 
-        $this->auth->shouldReceive('getProfileId')->once()->andReturn(99);
+        $this->currentUser->shouldReceive('getProfileId')->once()->andReturn(99);
 
         $builderMock = Mockery::mock(Builder::class);
         $builderMock->shouldReceive('firstOrFail')->once()->andReturn($mockProfile);
@@ -104,7 +104,7 @@ class ProfileServiceTest extends TestCase
         $profileId = 1;
         $mockProfile = new Profile(['id' => $profileId]);
 
-        $this->auth->shouldReceive('getProfileId')->once()->andReturn(99);
+        $this->currentUser->shouldReceive('getProfileId')->once()->andReturn(99);
 
         $builderMock = Mockery::mock(Builder::class);
         $builderMock->shouldReceive('firstOrFail')->once()->andReturn($mockProfile);

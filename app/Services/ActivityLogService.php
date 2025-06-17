@@ -8,7 +8,7 @@ use App\Models\ActivityLog;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
-use App\Interfaces\AuthInterface;
+use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +22,7 @@ class ActivityLogService implements ActivityLogInterface
     public function __construct(
         private BaseInterface $base,
         private BaseFetchInterface $baseFetch,
-        private AuthInterface $auth
+        private CurrentUserInterface $currentUser
     ) {}
 
     /**
@@ -35,7 +35,7 @@ class ActivityLogService implements ActivityLogInterface
     {
         try {
             return DB::transaction(function () use ($request) {
-                $profileId = $this->auth->getProfileId();
+                $profileId = $this->currentUser->getProfileId();
 
                 $activityLog = $this->base->store(ActivityLog::class, [
                     'module' => $request['module'] ?? null,
@@ -74,7 +74,7 @@ class ActivityLogService implements ActivityLogInterface
                     'status' => $request['status'] ?? $activityLog->status,
                     'type' => $request['type'] ?? $activityLog->type,
                     'properties' => $request['properties'] ?? $activityLog->properties,
-                    'updated_by' => $this->auth->getProfileId(),
+                    'updated_by' => $this->currentUser->getProfileId(),
                 ]);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'Activity log updated successfully!', $activityLog, $activityLogId);

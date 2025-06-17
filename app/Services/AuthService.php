@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Helpers\Helper;
 use App\Interfaces\AuthInterface;
 use App\Interfaces\BaseInterface;
+use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\ProfileInterface;
 use App\Interfaces\ProfileUserGroupInterface;
@@ -29,30 +30,9 @@ class AuthService implements AuthInterface
         private BaseFetchInterface $fetch,
         private UserInterface $user,
         private ProfileInterface $profile,
-        private ProfileUserGroupInterface $profileUserGroup
+        private ProfileUserGroupInterface $profileUserGroup,
+        private CurrentUserInterface $currentUser
     ) {}
-
-    /**
-     * get the authenticated user's profile ID.
-     *
-     * @return integer
-     */
-    public function getProfileId(): int
-    {
-        // Return 1 if environment is local
-        if (app()->environment('local')) {
-            return 1;
-        }
-
-        $user = Auth::user();
-
-        if (!$user || !$user->profile?->id) {
-            throw new RuntimeException('Authenticated user or profile not found.');
-        }
-
-        return $user->profile->id;
-    }
-
 
     /**
      * Register a new user with profile.
@@ -65,7 +45,7 @@ class AuthService implements AuthInterface
     {
         try {
             return DB::transaction(function () use ($request) {
-                $profileId = $this->getProfileId();
+                $profileId = $this->currentUser->getProfileId();
 
                 // Create user
                 $userResult = $this->user->storeUser([
@@ -144,7 +124,7 @@ class AuthService implements AuthInterface
                     'nickname' => $request['nickname'] ?? $profile->nickname,
                     'type' => $request['type'] ?? $profile->type,
                     'contact_numbers' => $request['contact_numbers'] ?? $profile->contact_numbers,
-                    'updated_by' => $this->getProfileId(),
+                    'updated_by' => $this->currentUser->getProfileId(),
                 ], $profileId);
 
                 // Ensure profile update was successful

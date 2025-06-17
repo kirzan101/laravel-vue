@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services;
 
 use App\Helpers\Helper;
-use App\Interfaces\AuthInterface;
+use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\ProfileInterface;
@@ -42,8 +42,8 @@ class AuthServiceTest extends TestCase
     /** @var \Mockery\MockInterface&ProfileUserGroupInterface */
     protected ProfileUserGroupInterface $profileUserGroup;
 
-    /** @var \Mockery\MockInterface&AuthInterface */
-    protected AuthInterface $auth;
+    /** @var \Mockery\MockInterface&CurrentUserInterface */
+    protected CurrentUserInterface $currentUser;
 
     protected AuthService $service;
 
@@ -56,7 +56,7 @@ class AuthServiceTest extends TestCase
         $this->user = Mockery::mock(UserInterface::class);
         $this->profile = Mockery::mock(ProfileInterface::class);
         $this->profileUserGroup = Mockery::mock(ProfileUserGroupInterface::class);
-        $this->auth = $this->mockAuthInterface();
+        $this->currentUser = $this->mockCurrentUserInterface();
 
         $this->service = new AuthService(
             $this->base,
@@ -64,7 +64,7 @@ class AuthServiceTest extends TestCase
             $this->user,
             $this->profile,
             $this->profileUserGroup,
-            $this->auth
+            $this->currentUser
         );
 
         $this->beforeApplicationDestroyed(function () {
@@ -202,6 +202,10 @@ class AuthServiceTest extends TestCase
         ];
         Auth::shouldReceive('user')->andReturn($fakeUser)->byDefault();
 
+        $this->currentUser->shouldReceive('getProfileId')
+            ->once()
+            ->andReturn(99);
+
         $request = [
             'username' => 'testuser',
             'email' => 'user@example.com',
@@ -254,6 +258,10 @@ class AuthServiceTest extends TestCase
             'profile' => (object)['id' => 99],
         ]));
 
+        $this->currentUser->shouldReceive('getProfileId')
+            ->once()
+            ->andReturn(99);
+
         $request = [
             'username' => 'failuser',
             'email' => 'fail@example.com',
@@ -287,6 +295,10 @@ class AuthServiceTest extends TestCase
             'profile' => (object)['id' => 99],
         ]));
 
+        $this->currentUser->shouldReceive('getProfileId')
+            ->once()
+            ->andReturn(99);
+
         $this->user->shouldReceive('storeUser')
             ->once()
             ->andReturn([
@@ -318,8 +330,12 @@ class AuthServiceTest extends TestCase
         $profileId = 123;
 
         // Mock Auth::user() to return a profile ID
-        $authUser = (object)['profile' => (object)['id' => 99]];
-        Auth::shouldReceive('user')->andReturn($authUser);
+        $currentUserUser = (object)['profile' => (object)['id' => 99]];
+        Auth::shouldReceive('user')->andReturn($currentUserUser);
+
+        $this->currentUser->shouldReceive('getProfileId')
+            ->once()
+            ->andReturn(99);
 
         // Request data for update
         $request = [
@@ -359,7 +375,7 @@ class AuthServiceTest extends TestCase
             }
         };
 
-         // Mock the query builder and firstOrFail() using Mockery
+        // Mock the query builder and firstOrFail() using Mockery
         $fakeQueryBuilder = \Mockery::mock(Builder::class);
         $fakeQueryBuilder
             ->shouldReceive('firstOrFail')
@@ -394,7 +410,7 @@ class AuthServiceTest extends TestCase
 
         // Run the method
         $response = $this->service->updateUserProfile($request, $profileId);
-        
+
         $this->assertEquals(200, $response['code']);
         $this->assertEquals(Helper::SUCCESS, $response['status']);
         $this->assertEquals('Profile updated successfully!', $response['message']);

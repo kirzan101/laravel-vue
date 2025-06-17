@@ -3,7 +3,7 @@
 namespace Tests\Unit\Services;
 
 use App\Interfaces\ActivityLogInterface;
-use App\Interfaces\AuthInterface;
+use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Models\ActivityLog;
@@ -28,8 +28,8 @@ class ActivityLogServiceTest extends TestCase
     /** @var \Mockery\MockInterface&BaseFetchInterface */
     protected BaseFetchInterface $fetch;
 
-    /** @var \Mockery\MockInterface&AuthInterface */
-    protected AuthInterface $auth;
+    /** @var \Mockery\MockInterface&CurrentUserInterface */
+    protected CurrentUserInterface $currentUser;
 
     protected ActivityLogInterface $service;
 
@@ -41,13 +41,13 @@ class ActivityLogServiceTest extends TestCase
         // Mock the interfaces
         $this->base = $this->mockBaseInterface();
         $this->fetch = $this->mockBaseFetchInterface();
-        $this->auth = $this->mockAuthInterface();
+        $this->currentUser = $this->mockCurrentUserInterface();
 
         // Create the service instance with the mocked dependencies
         $this->service = new ActivityLogService(
             $this->base,
             $this->fetch,
-            $this->auth
+            $this->currentUser
         );
 
         // Ensure Mockery is closed after each test to prevent memory leaks
@@ -74,7 +74,7 @@ class ActivityLogServiceTest extends TestCase
         $fakeModel = new ActivityLog($data);
         $fakeModel->id = 1;
 
-        $this->auth->shouldReceive('getProfileId')
+        $this->currentUser->shouldReceive('getProfileId')
             ->once()
             ->andReturn(1);
 
@@ -134,7 +134,7 @@ class ActivityLogServiceTest extends TestCase
             ->with(ActivityLog::class, $id)
             ->andReturn($fakeQueryBuilder);
 
-        $this->auth->shouldReceive('getProfileId')
+        $this->currentUser->shouldReceive('getProfileId')
             ->once()
             ->andReturn(1);
 

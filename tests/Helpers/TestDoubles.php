@@ -4,7 +4,7 @@ namespace Tests\Helpers;
 
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
-use App\Interfaces\AuthInterface;
+use App\Interfaces\CurrentUserInterface;
 use Mockery;
 
 trait TestDoubles
@@ -30,12 +30,12 @@ trait TestDoubles
     }
 
     /**
-     * create a mock of AuthInterface.
+     * create a mock of CurrentUserInterface.
      *
-     * @return AuthInterface
+     * @return CurrentUserInterface
      */
-    protected function mockAuthInterface(): AuthInterface
+    protected function mockCurrentUserInterface(): CurrentUserInterface
     {
-        return Mockery::mock(AuthInterface::class);
+        return Mockery::mock(CurrentUserInterface::class);
     }
 }

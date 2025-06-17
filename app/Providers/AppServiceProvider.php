@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Interfaces\ActivityLogInterface;
 use App\Interfaces\AuthInterface;
 use App\Interfaces\BaseInterface;
+use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\FetchInterfaces\ActivityLogFetchInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\FetchInterfaces\PermissionFetchInterface;
@@ -22,6 +23,7 @@ use App\Interfaces\UserInterface;
 use App\Services\ActivityLogService;
 use App\Services\AuthService;
 use App\Services\BaseService;
+use App\Services\CurrentUserService;
 use App\Services\FetchServices\ActivityLogFetchService;
 use App\Services\FetchServices\BaseFetchService;
 use App\Services\FetchServices\PermissionFetchService;
@@ -50,6 +52,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BaseInterface::class, BaseService::class);
         $this->app->bind(BaseFetchInterface::class, BaseFetchService::class);
         $this->app->bind(AuthInterface::class, AuthService::class);
+        $this->app->bind(CurrentUserInterface::class, CurrentUserService::class);
 
         // module services
         $this->app->bind(UserInterface::class, UserService::class);
