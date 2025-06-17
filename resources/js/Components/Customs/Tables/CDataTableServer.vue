@@ -123,7 +123,7 @@ const loadData = async (setFilters = {}) => {
             total.value = totalCount;
         }
     } catch (error) {
-        console.error("Error fetching user groups:", error);
+        console.error("Error fetching data:", error);
         // Optionally, you could set an error state here
     } finally {
         // Always set loading to false, regardless of success or failure
