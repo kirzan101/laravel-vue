@@ -7,7 +7,7 @@ use App\Interfaces\{{ interface }};
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
-use App\Interfaces\AuthInterface;
+use App\Interfaces\CurrentUser;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +21,7 @@ class {{ class }} implements {{ interface }}
     public function __construct(
         private BaseInterface $base,
         private BaseFetchInterface $fetch,
-        private AuthInterface $auth
+        private CurrentUser $currentUser
     ) {
         //
     }
@@ -36,7 +36,7 @@ class {{ class }} implements {{ interface }}
     {
         try {
             return DB::transaction(function () use ($request) {
-                $profileId = $this->auth->getProfileId(); // current logged in profile
+                $profileId = $this->currentUser->getProfileId(); // current logged in profile
 
                 // TODO: implement logic to store a {{ class }}
 
@@ -61,7 +61,7 @@ class {{ class }} implements {{ interface }}
     {
         try {
             return DB::transaction(function () use ($request, $id) {
-                $profileId = $this->auth->getProfileId(); // current logged in profile
+                $profileId = $this->currentUser->getProfileId(); // current logged in profile
 
                 // TODO: implement logic to update a {{ class }}
 
@@ -84,7 +84,7 @@ class {{ class }} implements {{ interface }}
     {
         try {
             return DB::transaction(function () use ($id) {
-                $profileId = $this->auth->getProfileId(); // current logged in profile
+                $profileId = $this->currentUser->getProfileId(); // current logged in profile
 
                 // TODO: implement logic to delete a {{ class }}
 
