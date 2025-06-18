@@ -15,14 +15,14 @@
                     class="bg-primary d-flex justify-center align-center flex-column"
                     style="height: 100vh"
                 >
-                    <v-container class="d-flex justify-center align-center">
+                    <c-container class="d-flex justify-center align-center">
                         <!-- <v-img
                             class=""
                             max-height="350"
                             max-width="350"
                             src="images/error_500.svg"
                         ></v-img> -->
-                    </v-container>
+                    </c-container>
                     <p class="text-h3 font-weight-medium">
                         {{ appName }}
                     </p>

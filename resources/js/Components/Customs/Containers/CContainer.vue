@@ -1,5 +1,5 @@
 <template>
-    <v-container clas="rounded-lg" v-bind="$attrs">
+    <v-container class="rounded-lg" v-bind="$attrs">
         <slot />
     </v-container>
 </template>
