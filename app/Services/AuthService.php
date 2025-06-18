@@ -52,7 +52,7 @@ class AuthService implements AuthInterface
                 return $this->returnModel(200, Helper::SUCCESS, 'Logged in successfully!', Auth::user(), Auth::id());
             }
 
-            return $this->returnModel(422, Helper::ERROR, 'Login failed!');
+            return $this->returnModel(422, Helper::ERROR, 'The provided credentials do not match our records.');
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
