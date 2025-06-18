@@ -141,7 +141,7 @@ const handleSubmit = () => {
             onSuccess: ({ props }) => {
                 dialog.value = false;
 
-                toggleSnackBar(props.flash.success, "success");
+                toggleSnackBar(props.flash.success, "accent");
             },
             onError: () => {
                 toggleSnackBar("Some fields has an error.", "error");

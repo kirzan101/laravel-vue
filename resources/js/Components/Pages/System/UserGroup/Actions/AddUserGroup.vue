@@ -137,7 +137,7 @@ const handleSubmit = () => {
                 }
             });
 
-            toggleSnackBar(props.flash.success, "success");
+            toggleSnackBar(props.flash.success, "accent");
         },
         onError: () => {
             // emits("notification", "Some fields has an error.", "error");
