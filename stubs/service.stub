@@ -7,7 +7,7 @@ use App\Interfaces\{{ interface }};
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
-use App\Interfaces\CurrentUser;
+use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use Illuminate\Support\Facades\DB;
@@ -21,7 +21,7 @@ class {{ class }} implements {{ interface }}
     public function __construct(
         private BaseInterface $base,
         private BaseFetchInterface $fetch,
-        private CurrentUser $currentUser
+        private CurrentUserInterface $currentUser
     ) {
         //
     }
