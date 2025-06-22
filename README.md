@@ -117,7 +117,36 @@ Service [app/Services/UserGroupService.php] created successfully.
 - `app/Interfaces/UserGroupInterface.php`
 - `app/Services/UserGroupService.php`
 
-### 2. 🔐 Generate Module Permissions
+### 2. Generate Fetch Service & Interface
+This custom command generates a new **Fetch Service class** and its corresponding **Fetch Interface**. Use the model-style name (PascalCase) when calling the command.
+
+🧾 **Usage**
+
+```bash
+php artisan make:fetch-service {ModelName}
+```
+
+🧪 **Example**
+
+If you run:
+```bash
+php artisan make:fetch-service UserGroup 
+```
+> 💡 VS Code Tip: Open your third terminal tab in VS Code to run this command.
+> - "Windows/Linux: Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>`</kbd> (backtick)"
+> - "Mac: Press <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>`</kbd> (backtick)".
+
+It will generate:
+```bash
+Interface [app/Interfaces/FetchInterfaces/UserGroupInterface.php] created successfully.
+Service [app/Services/FetchServices/UserGroupService.php] created successfully.
+```
+
+🗂️ **Generated files**
+- `app/Interfaces/FetchInterfaces/UserGroupInterface.php`
+- `app/Services/FetchServices/UserGroupService.php`
+
+### 3. 🔐 Generate Module Permissions
 This custom Laravel Artisan command helps you generate CRUD permissions for a given module and assign them to all existing user groups in your system. It’s useful for streamlining role-based access control setup in your application.
 
 🧾 **Usage**
@@ -165,7 +194,7 @@ And internally:
 - Entries are inserted or reused from the `permissions` table.
 - Every `user_group` gets each of those permissions inserted into `user_group_permissions` with `is_active = false`.
 
-### 3. 📦 Generate API Controller
+### 4. 📦 Generate API Controller
 This custom Artisan command simplifies the creation of API controllers under the App\Http\Controllers\API namespace with predefined RESTful (API-only) methods.
 
 🧾 **Usage**
