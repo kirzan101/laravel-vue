@@ -3,6 +3,7 @@
 namespace Tests\Unit\Services;
 
 use App\Interfaces\BaseInterface;
+use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\ModuleNameResolverInterface;
 use App\Models\Permission;
@@ -30,6 +31,9 @@ class PermissionServiceTest extends TestCase
     /** @var \Mockery\MockInterface&ModuleNameResolverInterface */
     protected ModuleNameResolverInterface $moduleResolver;
 
+    /** @var \Mockery\MockInterface&CurrentUserInterface */
+    protected CurrentUserInterface $currentUser;
+
     protected PermissionService $service;
 
     protected function setUp(): void
@@ -39,11 +43,13 @@ class PermissionServiceTest extends TestCase
         $this->base = $this->mockBaseInterface();
         $this->fetch = $this->mockBaseFetchInterface();
         $this->moduleResolver = Mockery::mock(ModuleNameResolverInterface::class);
+        $this->currentUser = $this->mockCurrentUserInterface();
 
         $this->service = new PermissionService(
             $this->base,
             $this->fetch,
-            $this->moduleResolver
+            $this->moduleResolver,
+            $this->currentUser
         );
 
         $this->beforeApplicationDestroyed(fn() => Mockery::close());

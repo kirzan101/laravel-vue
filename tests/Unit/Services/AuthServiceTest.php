@@ -109,7 +109,7 @@ class AuthServiceTest extends TestCase
         ]);
 
         $this->assertEquals(422, $response['code']);
-        $this->assertEquals('Login failed!', $response['message']);
+        $this->assertEquals('The provided credentials do not match our records.', $response['message']);
     }
 
     #[Test]
