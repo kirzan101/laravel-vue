@@ -248,7 +248,7 @@ php artisan make:api-controller ProductController --model=Product
 │   ├── Http/
 │   ├── Models/
 │   ├── Interfaces/
-│   │   └── FetchInterface/         # Fetch interfaces
+│   │   └── FetchInterfaces/        # Fetch interfaces
 │   └── Services/                   # Business logic layer
 │       └── FetchServices/          # Fetch services (index & show)
 │
