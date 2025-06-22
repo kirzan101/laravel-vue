@@ -154,4 +154,11 @@ class Helper
     ];
     const ACCOUNT_STATUS_ACTIVE = 'active';
     const ACCOUNT_STATUS_INACTIVE = 'inactive';
+
+    /**
+     * user group codes
+     */
+    const USER_GROUP_CODE_TYPES = ['ADMIN', 'USER'];
+    const USER_GROUP_CODE_ADMIN = 'ADMIN';
+    const USER_GROUP_CODE_USER = 'USER';
 }
