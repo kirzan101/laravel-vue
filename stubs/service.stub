@@ -54,13 +54,13 @@ class {{ class }} implements {{ interface }}
      * Update an existing {{ description }} in the database.
      *
      * @param array $request
-     * @param int $id
+     * @param int ${{ variable }}Id
      * @return array
      */
-    public function update{{ base }}(array $request, int $id): array
+    public function update{{ base }}(array $request, int ${{ variable }}Id): array
     {
         try {
-            return DB::transaction(function () use ($request, $id) {
+            return DB::transaction(function () use ($request, ${{ variable }}Id) {
                 $profileId = $this->currentUser->getProfileId(); // current logged in profile
 
                 // TODO: implement logic to update a {{ class }}
@@ -77,13 +77,13 @@ class {{ class }} implements {{ interface }}
     /**
      * Delete the given {{ description }} in the database.
      *
-     * @param int $id
+     * @param int ${{ variable }}Id
      * @return array
      */
-    public function delete{{ base }}(int $id): array
+    public function delete{{ base }}(int ${{ variable }}Id): array
     {
         try {
-            return DB::transaction(function () use ($id) {
+            return DB::transaction(function () use (${{ variable }}Id) {
                 $profileId = $this->currentUser->getProfileId(); // current logged in profile
 
                 // TODO: implement logic to delete a {{ class }}

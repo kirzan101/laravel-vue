@@ -13,7 +13,8 @@ class MakeFetchServiceCommand extends Command
 
     public function handle(): void
     {
-        $baseName = Str::studly($this->argument('name')); // e.g., "UserGroup"
+        $baseName = Str::studly($this->argument('name'));      // e.g., "UserGroup"
+        $variableName = Str::camel($baseName);                 // e.g., "userGroup"
         $className = "{$baseName}FetchService";                // e.g., "UserGroupFetchService"
         $interfaceName = "{$baseName}FetchInterface";          // e.g., "UserGroupFetchInterface"
         $readableLabel = ucfirst(strtolower(preg_replace('/(?<!^)[A-Z]/', ' $0', $baseName)));
@@ -45,8 +46,8 @@ class MakeFetchServiceCommand extends Command
         // Generate service file
         $serviceStub = File::get($serviceStubPath);
         $serviceContent = str_replace(
-            ['{{ namespace }}', '{{ class }}', '{{ base }}', '{{ interface }}', '{{ readable }}', '{{ description }}'],
-            ['App\\Services\\FetchServices', $className, $baseName, $interfaceName, $readableLabel, $readableDescription],
+            ['{{ namespace }}', '{{ class }}', '{{ base }}', '{{ interface }}', '{{ readable }}', '{{ description }}', '{{ variable }}'],
+            ['App\\Services\\FetchServices', $className, $baseName, $interfaceName, $readableLabel, $readableDescription, $variableName],
             $serviceStub
         );
         File::ensureDirectoryExists(app_path('Services\\FetchServices'));
@@ -55,8 +56,8 @@ class MakeFetchServiceCommand extends Command
         // Generate interface file
         $interfaceStub = File::get($interfaceStubPath);
         $interfaceContent = str_replace(
-            ['{{ namespace }}', '{{ interface }}', '{{ base }}', '{{ readable }}', '{{ description }}'],
-            ['App\\Interfaces\\FetchInterfaces', $interfaceName, $baseName, $readableLabel, $readableDescription],
+            ['{{ namespace }}', '{{ interface }}', '{{ base }}', '{{ readable }}', '{{ description }}', '{{ variable }}'],
+            ['App\\Interfaces\\FetchInterfaces', $interfaceName, $baseName, $readableLabel, $readableDescription, $variableName],
             $interfaceStub
         );
         File::ensureDirectoryExists(app_path('Interfaces\\FetchInterfaces'));

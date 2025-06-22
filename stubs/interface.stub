@@ -16,16 +16,16 @@ interface {{ interface }}
      * Update an existing {{ description }} in the database.
      *
      * @param  array  $request
-     * @param  int    $id
+     * @param  int    ${{ variable }}Id
      * @return array
      */
-    public function update{{ base }}(array $request, int $id): array;
+    public function update{{ base }}(array $request, int ${{ variable }}Id): array;
 
     /**
      * Delete the given {{ description }} in the database.
      *
-     * @param  int  $id
+     * @param  int  ${{ variable }}Id
      * @return array
      */
-    public function delete{{ base }}(int $id): array;
+    public function delete{{ base }}(int ${{ variable }}Id): array;
 }

@@ -74,17 +74,17 @@ class {{ class }} extends BaseFetchService implements {{ interface }}
     /**
      * Fetch a single {{ description }} by ID.
      *
-     * @param integer $id
+     * @param integer ${{ variable }}Id
      * @return array
      */
-    public function show{{ base }}(int $id): array
+    public function show{{ base }}(int ${{ variable }}Id): array
     {
         try {
-            $query = $this->showQuery({{ base }}::class, $id);
+            $query = $this->showQuery({{ base }}::class, ${{ variable }}Id);
 
             $model = $query->firstOrFail();
 
-            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $model, $id);
+            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $model, ${{ variable }}Id);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
