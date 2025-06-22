@@ -35,7 +35,8 @@ class UserGroupServiceTest extends TestCase
     /** @var \Mockery\MockInterface&UserGroupPermissionInterface */
     protected UserGroupPermissionInterface $userGroupPermission;
 
-    protected UserGroupService $service;
+    /** @var \Mockery\MockInterface|UserGroupService */
+    protected $service;
 
     protected function setUp(): void
     {
@@ -47,13 +48,14 @@ class UserGroupServiceTest extends TestCase
         $this->permission = Mockery::mock(PermissionInterface::class);
         $this->userGroupPermission = Mockery::mock(UserGroupPermissionInterface::class);
 
-        $this->service = new UserGroupService(
+        // 👇 Use partial mock to allow mocking of trait methods
+        $this->service = Mockery::mock(UserGroupService::class, [
             $this->base,
             $this->fetch,
             $this->currentUser,
             $this->permission,
-            $this->userGroupPermission
-        );
+            $this->userGroupPermission,
+        ])->makePartial();
 
         $this->beforeApplicationDestroyed(function () {
             Mockery::close();
@@ -165,10 +167,17 @@ class UserGroupServiceTest extends TestCase
     {
         $userGroupId = 99;
         $profileId = 1;
-        $existing = new UserGroup(['id' => $userGroupId]);
 
+        // Mock model with required behavior for soft deletes and column check
+        $userGroup = Mockery::mock(UserGroup::class)->makePartial();
+        $userGroup->shouldReceive('getAttribute')->with('id')->andReturn($userGroupId);
+
+        // Simulate modelUsesSoftDeletes() by making it a SoftDeletes model
+        $userGroup->shouldReceive('getMorphClass')->andReturn(UserGroup::class); // dummy for type safety
+
+        // showQuery returns a Builder mock that returns the user group
         $mockQuery = Mockery::mock(Builder::class);
-        $mockQuery->shouldReceive('firstOrFail')->andReturn($existing);
+        $mockQuery->shouldReceive('firstOrFail')->once()->andReturn($userGroup);
 
         $this->fetch
             ->shouldReceive('showQuery')
@@ -176,18 +185,42 @@ class UserGroupServiceTest extends TestCase
             ->with(UserGroup::class, $userGroupId)
             ->andReturn($mockQuery);
 
-        $this->currentUser->shouldReceive('getProfileId')->once()->andReturn($profileId);
+        // Mock modelUsesSoftDeletes() and modelHasColumn() directly on the service mock
+        $this->service
+            ->shouldAllowMockingProtectedMethods()
+            ->shouldReceive('modelUsesSoftDeletes')
+            ->andReturn(true);
 
-        $this->base->shouldReceive('update')
+        $this->service
+            ->shouldAllowMockingProtectedMethods()
+            ->shouldReceive('modelHasColumn')
+            ->withAnyArgs()
+            ->andReturnUsing(function ($model, $column) {
+                return $column === 'updated_by';
+            });
+
+        $this->currentUser
+            ->shouldReceive('getProfileId')
             ->once()
-            ->with($existing, ['updated_by' => $profileId])
-            ->andReturn($existing);
+            ->andReturn($profileId);
 
-        $this->base->shouldReceive('delete')->once()->with($existing);
+        $this->base
+            ->shouldReceive('update')
+            ->once()
+            ->with($userGroup, ['updated_by' => $profileId])
+            ->andReturn($userGroup);
+
+        $this->base
+            ->shouldReceive('delete')
+            ->once()
+            ->with($userGroup);
 
         $result = $this->service->deleteUserGroup($userGroupId);
 
         $this->assertEquals(204, $result['code']);
         $this->assertEquals('success', $result['status']);
+        $this->assertEquals('User group deleted successfully!', $result['message']);
+        $this->assertNull($result['data']);
+        $this->assertEquals($userGroupId, $result['last_id']);
     }
 }
