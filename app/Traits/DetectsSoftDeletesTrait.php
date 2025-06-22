@@ -5,11 +5,11 @@ namespace App\Traits;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Trait DetectsSoftDeletes
+ * Trait DetectsSoftDeletesTrait
  *
  * Provides a method to check if a model uses the SoftDeletes trait.
  */
-trait DetectsSoftDeletes
+trait DetectsSoftDeletesTrait
 {
     /**
      * Determine if the given model class or instance uses SoftDeletes.
