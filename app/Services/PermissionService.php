@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Interfaces\BaseInterface;
+use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
@@ -10,6 +11,8 @@ use App\Traits\ReturnModelTrait;
 use App\Interfaces\ModuleNameResolverInterface;
 use App\Interfaces\PermissionInterface;
 use App\Models\Permission;
+use App\Traits\CheckIfColumnExistsTrait;
+use App\Traits\DetectsSoftDeletesTrait;
 use Illuminate\Support\Facades\DB;
 
 
@@ -17,12 +20,15 @@ class PermissionService implements PermissionInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
-        ReturnModelTrait;
+        ReturnModelTrait,
+        DetectsSoftDeletesTrait,
+        CheckIfColumnExistsTrait;
 
     public function __construct(
         private BaseInterface $base,
         private BaseFetchInterface $fetch,
-        private ModuleNameResolverInterface $moduleResolver
+        private ModuleNameResolverInterface $moduleResolver,
+        private CurrentUserInterface $currentUser
     ) {}
 
     /**
@@ -96,6 +102,15 @@ class PermissionService implements PermissionInterface
         try {
             return DB::transaction(function () use ($permissionId) {
                 $permission = $this->fetch->showQuery(Permission::class, $permissionId)->firstOrFail();
+
+                if ($this->modelUsesSoftDeletes($permission)) {
+                    if ($this->modelHasColumn($permission, 'updated_by')) {
+                        // record who deleted the activity log
+                        $this->base->update($permission, [
+                            'updated_by' => $this->currentUser->getProfileId(),
+                        ]);
+                    }
+                }
 
                 $this->base->delete($permission);
 

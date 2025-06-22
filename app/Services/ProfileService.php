@@ -9,6 +9,8 @@ use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\ProfileInterface;
 use App\Models\Profile;
 use App\Services\FetchServices\BaseFetchService;
+use App\Traits\CheckIfColumnExistsTrait;
+use App\Traits\DetectsSoftDeletesTrait;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
@@ -18,7 +20,9 @@ class ProfileService implements ProfileInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
-        ReturnModelTrait;
+        ReturnModelTrait,
+        DetectsSoftDeletesTrait,
+        CheckIfColumnExistsTrait;
 
     public function __construct(
         private BaseInterface $base,
@@ -105,13 +109,16 @@ class ProfileService implements ProfileInterface
     {
         try {
             return DB::transaction(function () use ($profileId) {
-                $currentUserProfileId = $this->currentUser->getProfileId();
-
                 $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
 
-                $this->base->update($profile, [
-                    'updated_by' => $currentUserProfileId, // record who deleted the profile
-                ]);
+                if ($this->modelUsesSoftDeletes($profile)) {
+                    if ($this->modelHasColumn($profile, 'updated_by')) {
+                        // record who deleted the activity log
+                        $this->base->update($profile, [
+                            'updated_by' => $this->currentUser->getProfileId(),
+                        ]);
+                    }
+                }
 
                 $this->base->delete($profile);
 

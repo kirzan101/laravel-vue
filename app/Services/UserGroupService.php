@@ -10,6 +10,8 @@ use App\Interfaces\PermissionInterface;
 use App\Interfaces\UserGroupInterface;
 use App\Interfaces\UserGroupPermissionInterface;
 use App\Models\UserGroup;
+use App\Traits\CheckIfColumnExistsTrait;
+use App\Traits\DetectsSoftDeletesTrait;
 use App\Traits\EnsureSuccessTrait;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
@@ -21,7 +23,9 @@ class UserGroupService implements UserGroupInterface
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
         ReturnModelTrait,
-        EnsureSuccessTrait;
+        EnsureSuccessTrait,
+        DetectsSoftDeletesTrait,
+        CheckIfColumnExistsTrait;
 
     public function __construct(
         private BaseInterface $base,
@@ -100,10 +104,14 @@ class UserGroupService implements UserGroupInterface
             return DB::transaction(function () use ($userGroupId) {
                 $userGroup = $this->fetch->showQuery(UserGroup::class, $userGroupId)->firstOrFail();
 
-                // record who deleted the user group
-                $this->base->update($userGroup, [
-                    'updated_by' => $this->currentUser->getProfileId(),
-                ]);
+                if ($this->modelUsesSoftDeletes($userGroup)) {
+                    if ($this->modelHasColumn($userGroup, 'updated_by')) {
+                        // record who deleted the activity log
+                        $this->base->update($userGroup, [
+                            'updated_by' => $this->currentUser->getProfileId(),
+                        ]);
+                    }
+                }
 
                 $this->base->delete($userGroup); // only soft delete
 

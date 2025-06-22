@@ -11,13 +11,17 @@ use App\Traits\ReturnModelTrait;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
+use App\Traits\CheckIfColumnExistsTrait;
+use App\Traits\DetectsSoftDeletesTrait;
 use Illuminate\Support\Facades\DB;
 
 class ActivityLogService implements ActivityLogInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
-        ReturnModelTrait;
+        ReturnModelTrait,
+        DetectsSoftDeletesTrait,
+        CheckIfColumnExistsTrait;
 
     public function __construct(
         private BaseInterface $base,
@@ -96,6 +100,15 @@ class ActivityLogService implements ActivityLogInterface
         try {
             return DB::transaction(function () use ($activityLogId) {
                 $activityLog = $this->baseFetch->showQuery(ActivityLog::class, $activityLogId)->firstOrFail();
+
+                if ($this->modelUsesSoftDeletes($activityLog)) {
+                    if ($this->modelHasColumn($activityLog, 'updated_by')) {
+                        // record who deleted the activity log
+                        $this->base->update($activityLog, [
+                            'updated_by' => $this->currentUser->getProfileId(),
+                        ]);
+                    }
+                }
 
                 $this->base->delete($activityLog);
 
