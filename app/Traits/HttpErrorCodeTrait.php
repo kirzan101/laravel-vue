@@ -20,6 +20,11 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Throwable;
 
+/**
+ * Trait HttpErrorCodeTrait
+ *
+ * Provides a method to map exceptions to HTTP status codes.
+ */
 trait HttpErrorCodeTrait
 {
     /**

@@ -5,6 +5,11 @@ namespace App\Traits;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
+/**
+ * Trait ReturnModelCollectionTrait
+ *
+ * Provides a method to return a standardized API response with model collection or paginated data.
+ */
 trait ReturnModelCollectionTrait
 {
     /**

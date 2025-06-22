@@ -2,6 +2,11 @@
 
 namespace App\Traits;
 
+/**
+ * Trait DefaultPaginateFilterTrait
+ *
+ * Provides a method to set default filters for pagination, including per_page, sort_by, sort_direction, and current_page.
+ */
 trait DefaultPaginateFilterTrait
 {
     /**

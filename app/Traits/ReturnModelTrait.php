@@ -4,6 +4,11 @@ namespace App\Traits;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Trait ReturnModelTrait
+ *
+ * Provides a method to return a standardized API response with a model result.
+ */
 trait ReturnModelTrait
 {
     /**

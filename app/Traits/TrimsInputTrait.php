@@ -2,6 +2,11 @@
 
 namespace App\Traits;
 
+/**
+ * Trait TrimsInputTrait
+ *
+ * Provides a method to recursively trim whitespace from all string values in an input array.
+ */
 trait TrimsInputTrait
 {
     /**

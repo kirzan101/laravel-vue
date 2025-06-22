@@ -4,6 +4,11 @@ namespace App\Traits;
 
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
+/**
+ * Trait ReturnCollectionTrait
+ *
+ * Provides a method to return a standardized collection response.
+ */
 trait ReturnCollectionTrait
 {
     /**

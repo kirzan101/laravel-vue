@@ -4,6 +4,11 @@ namespace App\Traits;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * Trait ReturnResultTrait
+ *
+ * Provides a method to return a standardized API response with a result.
+ */
 trait ReturnResultTrait
 {
     /**
