@@ -1,9 +1,6 @@
 <template>
     <c-container>
-        <c-alert-error
-            v-if="errors.permissions"
-            :text="errors.permissions"
-        />
+        <c-alert-error v-if="formErrors.permissions" :text="formErrors.permissions" />
         <v-row class="mt-1 mb-2 text-h6" justify="space-between">
             Permissions
         </v-row>
@@ -60,9 +57,20 @@ const props = defineProps({
     permissions: Array,
     modules: Array,
     errors: Object,
-    flsash: Object,
+    flash: Object,
     can: Array,
 });
+
+// set error start
+const formErrors = ref({});
+watch(
+    () => props.errors,
+    (newValue) => {
+        formErrors.value = Object.assign({}, newValue);
+    },
+    { deep: true }
+);
+// set error end
 
 // Array of permission types
 const permissionTypes = ["view", "create", "update", "delete"];
