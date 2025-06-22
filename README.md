@@ -138,13 +138,13 @@ php artisan make:fetch-service UserGroup
 
 It will generate:
 ```bash
-Interface [app/Interfaces/FetchInterfaces/UserGroupInterface.php] created successfully.
-Service [app/Services/FetchServices/UserGroupService.php] created successfully.
+Interface [app/Interfaces/FetchInterfaces/UserGroupFetchInterface.php] created successfully.
+Service [app/Services/FetchServices/UserGroupFetchService.php] created successfully.
 ```
 
 🗂️ **Generated files**
-- `app/Interfaces/FetchInterfaces/UserGroupInterface.php`
-- `app/Services/FetchServices/UserGroupService.php`
+- `app/Interfaces/FetchInterfaces/UserGroupFetchInterface.php`
+- `app/Services/FetchServices/UserGroupFetchService.php`
 
 ### 3. 🔐 Generate Module Permissions
 This custom Laravel Artisan command helps you generate CRUD permissions for a given module and assign them to all existing user groups in your system. It’s useful for streamlining role-based access control setup in your application.
