@@ -48,7 +48,7 @@ class UserGroupController extends Controller
      */
     public function index(Request $request)
     {
-        // check current user user group's permission
+        // verify the current user's group permissions
         if (Gate::denies('view', new UserGroup())) {
             return Inertia::render('Error', [
                 'code' => 403,
@@ -113,6 +113,14 @@ class UserGroupController extends Controller
      */
     public function destroy(int $id)
     {
+        // Verify if the current user's group has permission to delete
+        if (Gate::denies('delete', new UserGroup())) {
+            return Inertia::render('Error', [
+                'code' => 403,
+                'message' => 'You do not have permission to delete this user group.'
+            ]);
+        }
+
         [
             'code' => $code,
             'status' => $status,
