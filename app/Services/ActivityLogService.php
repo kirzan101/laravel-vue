@@ -25,7 +25,7 @@ class ActivityLogService implements ActivityLogInterface
 
     public function __construct(
         private BaseInterface $base,
-        private BaseFetchInterface $baseFetch,
+        private BaseFetchInterface $fetch,
         private CurrentUserInterface $currentUser
     ) {}
 
@@ -70,7 +70,7 @@ class ActivityLogService implements ActivityLogInterface
     {
         try {
             return DB::transaction(function () use ($request, $activityLogId) {
-                $activityLog = $this->baseFetch->showQuery(ActivityLog::class, $activityLogId)->firstOrFail();
+                $activityLog = $this->fetch->showQuery(ActivityLog::class, $activityLogId)->firstOrFail();
 
                 $activityLog = $this->base->update($activityLog, [
                     'module' => $request['module'] ?? $activityLog->module,
@@ -99,7 +99,7 @@ class ActivityLogService implements ActivityLogInterface
     {
         try {
             return DB::transaction(function () use ($activityLogId) {
-                $activityLog = $this->baseFetch->showQuery(ActivityLog::class, $activityLogId)->firstOrFail();
+                $activityLog = $this->fetch->showQuery(ActivityLog::class, $activityLogId)->firstOrFail();
 
                 if ($this->modelUsesSoftDeletes($activityLog)) {
                     if ($this->modelHasColumn($activityLog, 'updated_by')) {

@@ -10,13 +10,17 @@ use App\Traits\ReturnModelTrait;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
+use App\Traits\CheckIfColumnExistsTrait;
+use App\Traits\DetectsSoftDeletesTrait;
 use Illuminate\Support\Facades\DB;
 
 class {{ class }} implements {{ interface }}
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
-        ReturnModelTrait;
+        ReturnModelTrait,
+        DetectsSoftDeletesTrait,
+        CheckIfColumnExistsTrait;
 
     public function __construct(
         private BaseInterface $base,
@@ -63,6 +67,8 @@ class {{ class }} implements {{ interface }}
             return DB::transaction(function () use ($request, ${{ variable }}Id) {
                 $profileId = $this->currentUser->getProfileId(); // current logged in profile
 
+                ${{ variable }} = $this->fetch->showQuery({{ base }}::class, ${{ variable }}Id)->firstOrFail();
+
                 // TODO: implement logic to update a {{ class }}
 
                 // $this->returnModel(code, status, message, model, last_id);
@@ -84,9 +90,16 @@ class {{ class }} implements {{ interface }}
     {
         try {
             return DB::transaction(function () use (${{ variable }}Id) {
-                $profileId = $this->currentUser->getProfileId(); // current logged in profile
+                ${{ variable }} = $this->fetch->showQuery({{ base }}::class, ${{ variable }}Id)->firstOrFail();
 
-                // TODO: implement logic to delete a {{ class }}
+                if ($this->modelUsesSoftDeletes(${{ variable }})) {
+                    if ($this->modelHasColumn(${{ variable }}, 'updated_by')) {
+                        // record who deleted the activity log
+                        $this->base->update(${{ variable }}, [
+                            'updated_by' => $this->currentUser->getProfileId(),
+                        ]);
+                    }
+                }
 
                 // $this->returnModel(code, status, message, model, last_id);
                 return $this->returnModel(204, Helper::SUCCESS, '{{ readable }} deleted successfully!', null, null);
