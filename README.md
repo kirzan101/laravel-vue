@@ -88,7 +88,7 @@ npm run dev
 
 ## 🧑‍💻 Development
 
-### 1. Generate Service & Interface
+### 1. 🔧 Generate Service & Interface
 This custom command generates a new **Service class** and its corresponding **Interface**. Use the model-style name (PascalCase) when calling the command.
 
 🧾 **Usage**
@@ -117,7 +117,7 @@ Service [app/Services/UserGroupService.php] created successfully.
 - `app/Interfaces/UserGroupInterface.php`
 - `app/Services/UserGroupService.php`
 
-### 2. Generate Fetch Service & Interface
+### 2. 🔧 Generate Fetch Service & Interface
 This custom command generates a new **Fetch Service class** and its corresponding **Fetch Interface**. Use the model-style name (PascalCase) when calling the command.
 
 🧾 **Usage**
