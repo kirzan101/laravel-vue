@@ -29,15 +29,12 @@ class UserGroupFormRequest extends FormRequest
     {
         $user = $this->user();
 
-        if ($this->isMethod('POST')) {
-            return $user->can(Helper::ACTION_TYPE_CREATE, UserGroup::class);
-        }
+        $model = $this->route('user_group');
 
-        if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
-            return $user->can(Helper::ACTION_TYPE_UPDATE, $this->route('user_group'));
-        }
+        $canCreate = $user->can(Helper::ACTION_TYPE_CREATE, UserGroup::class);
+        $canUpdate = $model && $user->can(Helper::ACTION_TYPE_UPDATE, $model);
 
-        return false;
+        return $canCreate || $canUpdate;
     }
 
 
