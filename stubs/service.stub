@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\DB;
 
 class {{ class }} implements {{ interface }}
 {
-    use HttpErrorCodeTrait;
-    use ReturnModelCollectionTrait;
-    use ReturnModelTrait;
+    use HttpErrorCodeTrait,
+        ReturnModelCollectionTrait,
+        ReturnModelTrait;
 
     public function __construct(
         private BaseInterface $base,

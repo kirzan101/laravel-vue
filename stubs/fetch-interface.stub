@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Interfaces\FetchInterfaces;
+
+interface {{ base }}FetchInterface
+{
+    /**
+     * Fetch a list of {{ description }}.
+     *
+     * @param array $request Optional parameters for filtering or pagination.
+     * @return array An array of {{ description }}s.
+     */
+    public function index{{ base }}s(array $request = [], bool $isPaginated = false): array;
+
+    /**
+     * Fetch a specific activity log by their ID.
+     *
+     * @param integer $id
+     * @return array
+     */
+    public function show{{ base }}(int $id): array;
+}

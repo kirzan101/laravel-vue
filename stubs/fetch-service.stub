@@ -1,0 +1,94 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Helpers\Helper;
+use App\Models\{{ base }};
+use App\Interfaces\FetchInterfaces\{{ interface }};
+use App\Traits\HttpErrorCodeTrait;
+use App\Traits\ReturnModelCollectionTrait;
+use App\Traits\ReturnModelTrait;
+use App\Traits\DefaultPaginateFilterTrait;
+use App\Interfaces\CurrentUserInterface;
+use App\Interfaces\BaseInterface;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\Paginator;
+
+class {{ class }} extends BaseFetchService implements {{ interface }}
+{
+    use HttpErrorCodeTrait,
+        ReturnModelCollectionTrait,
+        ReturnModelTrait,
+        DefaultPaginateFilterTrait;
+
+    /**
+     * Fetch a list of {{ description }} with optional search functionality.
+     *
+     * @param array $request
+     * @param bool $isPaginated
+     * @return array
+     */
+    public function index{{ base }}s(array $request = [], bool $isPaginated = false): array
+    {
+        try {
+            $query = $this->indexQuery({{ base }}::class);
+
+            //  //Uncomment this code if query has a seach functionality
+            // //Search filter
+            //if (isset($request['search']) && !empty($request['search'])) {
+                //$search = $request['search'];
+                //$query->where(function ($q) use ($search) {
+                //    $q->where('module', 'like', "%{$search}%")
+                //        ->orWhere('description', 'like', "%{$search}%");
+                //});
+            //}
+
+            if ($isPaginated) {
+                $allowedFields = (new {{ base }}())->getFillable();
+
+                [
+                    'per_page' => $per_page,
+                    'sort_by' => $sort_by,
+                    'sort' => $sort,
+                    'current_page' => $current_page
+                ] = $this->paginateFilter($request, $allowedFields);
+
+                // Manually set the current page
+                Paginator::currentPageResolver(fn() => $current_page ?? 1);
+
+                $users = $query->orderBy($sort_by, $sort)->paginate($per_page);
+            } else {
+
+                $users = $query->get();
+            }
+
+            return $this->returnModelCollection(200, Helper::SUCCESS, 'Successfully fetched!', $users);
+        } catch (\Throwable $th) {
+            $code = $this->httpCode($th);
+
+            return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
+        }
+    }
+
+    /**
+     * Fetch a single {{ description }} by ID.
+     *
+     * @param integer $id
+     * @return array
+     */
+    public function show{{ base }}(int $id): array
+    {
+        try {
+            $query = $this->showQuery({{ base }}::class, $id);
+
+            $model = $query->firstOrFail();
+
+            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $model, $id);
+        } catch (\Throwable $th) {
+            $code = $this->httpCode($th);
+
+            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+        }
+    }
+}
