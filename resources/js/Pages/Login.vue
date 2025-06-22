@@ -171,6 +171,9 @@ onMounted(() => {
 const btnDisabled = ref(false);
 const handleFormSubmission = () => {
     router.post("/login", form.value, {
+        onSuccess: ({ props }) => {
+            localStorage.setItem("token", props.token);
+        },
         onError: () => {
             //
         },

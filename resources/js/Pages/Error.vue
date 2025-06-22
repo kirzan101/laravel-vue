@@ -2,7 +2,8 @@
     <Head :title="`Error | ${code}`" />
     <blank-layout>
         <not-found v-if="code === 404" :text="message" />
-        <unauthorized v-else-if="code === 401" :text="message" />
+        <unauthorized :code="401" v-else-if="code === 401" title="Unauthorized" :text="message" />
+        <unauthorized :code="403" v-else-if="code === 403" title="Forbidden" :text="message" />
         <server-error v-else-if="code === 500" :text="message" />
         <server-error v-else :text="message" />
     </blank-layout>

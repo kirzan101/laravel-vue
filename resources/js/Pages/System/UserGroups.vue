@@ -3,6 +3,7 @@
     <main-layout>
         <UserGroupContent
             :permissions="permissions"
+            :modules="modules"
             :errors="errors"
             :flash="flash"
             :can="can"
@@ -19,6 +20,7 @@ import UserGroupContent from "../../Components/Pages/System/UserGroup/UserGroupC
 
 defineProps({
     permissions: Array,
+    modules: Array,
     errors: Object,
     flash: Object,
     can: Array,

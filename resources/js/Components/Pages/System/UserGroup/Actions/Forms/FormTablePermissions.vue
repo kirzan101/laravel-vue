@@ -58,12 +58,11 @@ import TextModuleName from "./Components/TextModuleName.vue";
 const props = defineProps({
     userGroupPermissions: Array,
     permissions: Array,
+    modules: Array,
     errors: Object,
     flsash: Object,
     can: Array,
 });
-
-const modules = ["users", "user_groups", "profiles"];
 
 // Array of permission types
 const permissionTypes = ["view", "create", "update", "delete"];
@@ -141,7 +140,7 @@ const toggleAllPermissions = (module) => {
 
 // Watch for changes to update the select-all checkbox state
 watch(selectedPermissions, () => {
-    modules.forEach((module) => {
+    props.modules.forEach((module) => {
         isChecked(module);
     });
 });

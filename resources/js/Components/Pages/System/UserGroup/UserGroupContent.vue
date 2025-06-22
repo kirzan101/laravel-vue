@@ -8,6 +8,7 @@
                         User Groups
                         <AddUserGroup
                             :permissions="permissions"
+                            :modules="modules"
                             :showBtn="showAddBtn"
                             :errors="errors"
                             :flash="flash"
@@ -27,6 +28,7 @@
             </c-row>
             <TableUserGroup
                 :permissions="permissions"
+                :modules="modules"
                 :errors="errors"
                 :flash="flash"
                 :can="can"
@@ -56,6 +58,7 @@ import AddUserGroup from "./Actions/AddUserGroup.vue";
 // Define props
 const props = defineProps({
     permissions: Array,
+    modules: Array,
     errors: Object,
     flash: Object,
     can: Array,

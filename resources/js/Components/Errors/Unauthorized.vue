@@ -1,6 +1,6 @@
 <template>
     <v-empty-state
-        headline="Whoops, 401"
+        :headline="`Whoops, ${code}`"
         :title="title"
         :text="text"
         :image="computedImage"
@@ -18,6 +18,10 @@ import { useTheme } from "vuetify";
 import { computed } from "vue";
 
 defineProps({
+    code: {
+        type: Number,
+        default: 401,
+    },
     title: {
         type: String,
         default: "Server Error",

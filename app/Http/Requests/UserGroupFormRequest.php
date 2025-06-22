@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\Helper;
+use App\Models\UserGroup;
 use App\Traits\TrimsInputTrait;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,8 +27,19 @@ class UserGroupFormRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $user = $this->user();
+
+        if ($this->isMethod('POST')) {
+            return $user->can(Helper::ACTION_TYPE_CREATE, UserGroup::class);
+        }
+
+        if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
+            return $user->can(Helper::ACTION_TYPE_UPDATE, $this->route('user_group'));
+        }
+
+        return false;
     }
+
 
     /**
      * Get the validation rules that apply to the request.

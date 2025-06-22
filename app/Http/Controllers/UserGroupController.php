@@ -7,28 +7,62 @@ use App\Http\Requests\UserGroupFormRequest;
 use App\Interfaces\FetchInterfaces\PermissionFetchInterface;
 use App\Interfaces\PermissionInterface;
 use App\Interfaces\UserGroupInterface;
+use App\Models\UserGroup;
 use App\Services\UserGroupService;
+use App\Traits\ReturnModulePermissionTrait;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class UserGroupController extends Controller
 {
+    use ReturnModulePermissionTrait;
+
     public function __construct(
         private PermissionFetchInterface $permissionFetch,
         private UserGroupInterface $userGroup
     ) {}
 
     /**
+     * Returns the permissions for the current user profile for the given model.
+     *
+     * @param Model $model The Eloquent model instance representing the target module (used to determine the table name).
+     *
+     * @return array An array of permission types (e.g., ['view', 'update', 'delete']) for the specified module.
+     */
+    protected function getModulePermissions(Model $model): array
+    {
+        $profileId = Auth::user()?->profile?->id;
+
+        if (!$profileId) {
+            return [];
+        }
+
+        return $this->returnPermissions($model, $profileId);
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        // check current user user group's permission
+        if (Gate::denies('view', new UserGroup())) {
+            return Inertia::render('Error', [
+                'code' => 403,
+                'message' => 'You do not have permission to view this page.'
+            ]);
+        }
+
         $permissionsResults = $this->permissionFetch->indexPermissions($request->toArray());
         $permissions = $permissionsResults['data'] ?? [];
 
         return Inertia::render('System/UserGroups', [
             'permissions' => $permissions,
-            'can' => []
+            'modules' => Helper::getModuleList(),
+            'can' => $this->getModulePermissions(new UserGroup())
         ]);
     }
 
@@ -79,6 +113,19 @@ class UserGroupController extends Controller
      */
     public function destroy(int $id)
     {
-        //
+        [
+            'code' => $code,
+            'status' => $status,
+            'message' => $message
+        ] = $this->userGroup->deleteUserGroup($id);
+
+        if ($status === Helper::ERROR) {
+            return Inertia::render('Error', [
+                'code' => $code,
+                'message' => $message
+            ]);
+        }
+
+        return redirect()->back()->with($status, $message);
     }
 }

@@ -20,15 +20,15 @@ class UserGroupSeeder extends Seeder
                 'name' => 'Admin',
                 'code' => 'ADMIN',
                 'description' => 'Administrator group',
-                'created_by' => 1,
-                'updated_by' => 1,
+                'created_by' => null,
+                'updated_by' => null,
             ],
             [
                 'name' => 'Users',
                 'code' => 'USERS',
                 'description' => 'Users group',
-                'created_by' => 1,
-                'updated_by' => 1,
+                'created_by' => null,
+                'updated_by' => null,
             ],
         ];
 
@@ -45,11 +45,11 @@ class UserGroupSeeder extends Seeder
                     ->where('permission_id', $permission->id)
                     ->exists();
 
-                if (! $exists) {
+                if (!$exists) {
                     UserGroupPermission::create([
                         'user_group_id' => $createdUserGroup->id,
                         'permission_id' => $permission->id,
-                        'is_active' => ($userGroup['code'] === 'ADMIN') ? true : false,
+                        'is_active' => ($userGroup['code'] === 'ADMIN') ? $permission->is_active : false,
                     ]);
                 }
             }

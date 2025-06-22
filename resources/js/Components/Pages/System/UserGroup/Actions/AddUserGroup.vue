@@ -29,6 +29,7 @@
 
             <FormTablePermissions
                 :permissions="permissions"
+                :modules="modules"
                 :errors="errors"
                 :flash="flash"
                 :can="can"
@@ -64,6 +65,7 @@ defineProps({
         default: true,
     },
     permissions: Array,
+    modules: Array,
     errors: Object,
     flash: Object,
     can: Array,

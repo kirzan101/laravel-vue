@@ -30,7 +30,9 @@ const handleLogout = () => {
         "/logout",
         {},
         {
-            onFinish: () => {},
+            onFinish: () => {
+                localStorage.removeItem("token");
+            },
         }
     );
 };

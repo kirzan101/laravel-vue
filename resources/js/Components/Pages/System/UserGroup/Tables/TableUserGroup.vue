@@ -9,6 +9,7 @@
             <EditUserGroup
                 :userGroup="item"
                 :permissions="permissions"
+                :modules="modules"
                 :errors="errors"
                 :flash="flash"
                 :can="can"
@@ -27,6 +28,7 @@ import EditUserGroup from "../Actions/EditUserGroup.vue";
 // Define props
 const props = defineProps({
     permissions: Array,
+    modules: Array,
     errors: Object,
     flash: Object,
     can: Array,

@@ -46,6 +46,17 @@ class HandleInertiaRequests extends Middleware
                     'error' => $request->session()->get('error'),
                 ];
             },
+            'auth' => Auth::check() ? [
+                'user' => [
+                    'username' => Auth::user()->username,
+                    'name' => Auth::user()->profile->getFullName(),
+                    'email' => Auth::user()->email,
+                    'isAdmin' => (bool) Auth::user()->is_admin,
+                    'isFirstLogin' => (bool) Auth::user()->is_first_login,
+                    'type' => Auth::user()->profile->type,
+                ]
+            ] : null,
+            'token' => Auth::check() ? Auth::user()->api_token : null,
         ]);
     }
 }

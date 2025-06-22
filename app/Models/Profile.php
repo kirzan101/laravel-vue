@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Profile extends Model
@@ -55,6 +56,16 @@ class Profile extends Model
     public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(Profile::class, 'updated_by');
+    }
+
+    /**
+     * Get the profile user group associated with the profile.
+     *
+     * @return HasOne
+     */
+    public function profileUserGroup(): HasOne
+    {
+        return $this->hasOne(ProfileUserGroup::class);
     }
 
     /**

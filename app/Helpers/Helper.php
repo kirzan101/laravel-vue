@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Helper
@@ -36,9 +37,6 @@ class Helper
      */
     protected static function normalizeName(string $name): ?string
     {
-        // Convert ñ and Ñ manually first
-        $name = str_replace(['ñ', 'Ñ'], ['n', 'n'], $name);
-
         // Transliterate to ASCII (é → e, ü → u, etc.)
         $name = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $name);
 
@@ -135,6 +133,17 @@ class Helper
 
         // Return the plural name if it differs from the singular, otherwise return the singular
         return ($pluralName === $singularName) ? $singularName : $pluralName;
+    }
+
+    /**
+     * Get a list of all unique module names from the permissions table.
+     *
+     * @return array
+     */
+    public static function getModuleList(): array
+    {
+        $modules = DB::table('permissions')->distinct()->pluck('module')->toArray();
+        return $modules;
     }
 
     /**

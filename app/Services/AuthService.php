@@ -4,11 +4,13 @@ namespace App\Services;
 
 use App\Helpers\Helper;
 use App\Interfaces\AuthInterface;
+use App\Models\User;
 use App\Traits\EnsureSuccessTrait;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class AuthService implements AuthInterface
 {
@@ -47,6 +49,14 @@ class AuthService implements AuthInterface
                     return $this->returnModel(403, Helper::ERROR, 'Account is inactive.');
                 }
 
+                // Retrieve the user model from the database to ensure it's an Eloquent model
+                $user = User::find(Auth::id());
+
+                // Generate a new token
+                $token = Str::random(60);
+                $user->api_token = $token;
+                $user->save();
+
                 Auth::getSession()->regenerate();
 
                 return $this->returnModel(200, Helper::SUCCESS, 'Logged in successfully!', Auth::user(), Auth::id());
@@ -68,6 +78,12 @@ class AuthService implements AuthInterface
     {
         try {
             if (Auth::check()) {
+
+                // Invalidate the user's API token
+                $user = User::find(Auth::id());
+                $user->api_token = null;
+                $user->save();
+
                 Auth::logout();
 
                 // Use the facade for testability

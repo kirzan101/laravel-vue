@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Helpers\Helper;
 use App\Models\Profile;
+use App\Models\ProfileUserGroup;
 use App\Models\User;
+use App\Models\UserGroup;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -30,6 +33,7 @@ class ProfileSeeder extends Seeder
                 ],
                 'created_by' => null,
                 'updated_by' => null,
+                'user_group_code' => Helper::USER_GROUP_CODE_ADMIN,
             ],
             [
                 'username' => 'user1',
@@ -46,6 +50,7 @@ class ProfileSeeder extends Seeder
                 ],
                 'created_by' => null,
                 'updated_by' => null,
+                'user_group_code' => Helper::USER_GROUP_CODE_USER,
             ]
         ];
 
@@ -58,7 +63,7 @@ class ProfileSeeder extends Seeder
                 'status' => $user['status'],
             ]);
 
-            Profile::create([
+            $createdProfile = Profile::create([
                 'user_id' => $createdUser->id,
                 'first_name' => $user['first_name'],
                 'last_name' => $user['last_name'],
@@ -68,6 +73,16 @@ class ProfileSeeder extends Seeder
                 'created_by' => $user['created_by'],
                 'updated_by' => $user['updated_by'],
             ]);
+
+            $userGroup = UserGroup::where('code', $user['user_group_code'])->first();
+
+            // add user group to profile
+            if ($userGroup) {
+                ProfileUserGroup::create([
+                    'profile_id' => $createdProfile->id,
+                    'user_group_id' => $userGroup->id,
+                ]);
+            }
         }
     }
 }

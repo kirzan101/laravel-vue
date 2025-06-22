@@ -16,10 +16,9 @@ class DatabaseSeeder extends Seeder
         // \App\Models\User::factory(10)->create();
 
         $this->call([
-            ProfileSeeder::class,
             PermissionSeeder::class,
             UserGroupSeeder::class,
-            ProfileUserGroupSeeder::class,
+            ProfileSeeder::class,
         ]);
 
         // Uncomment the line below to generate module permissions
