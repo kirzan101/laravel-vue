@@ -14,6 +14,7 @@
         <c-container>
             <FormUserGroup
                 :userGroup="userGroup"
+                :user_group_types="user_group_types"
                 :errors="errors"
                 :flash="flash"
                 :can="can"
@@ -67,6 +68,7 @@ const props = defineProps({
         default: true,
     },
     permissions: Array,
+    user_group_types: Array,
     modules: Array,
     errors: Object,
     flash: Object,

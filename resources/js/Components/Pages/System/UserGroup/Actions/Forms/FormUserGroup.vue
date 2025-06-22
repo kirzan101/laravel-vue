@@ -9,8 +9,9 @@
                 />
             </c-col>
             <c-col>
-                <c-text-field
+                <c-select
                     label="Code"
+                    :items="user_group_types"
                     v-model="form.code"
                     :error-messages="formErrors.code"
                 />
@@ -35,9 +36,11 @@ import CRow from "@/Components/Customs/Grids/CRow.vue";
 import CCol from "@/Components/Customs/Grids/CCol.vue";
 import CTextField from "@/Components/Customs/Inputs/CTextField.vue";
 import CTextarea from "@/Components/Customs/Textareas/CTextarea.vue";
+import CSelect from "@/Components/Customs/Selects/CSelect.vue";
 
 const props = defineProps({
     userGroup: Object,
+    user_group_types: Array,
     errors: Object,
     flsash: Object,
     can: Array,

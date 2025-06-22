@@ -24,8 +24,8 @@ class UserGroupSeeder extends Seeder
                 'updated_by' => null,
             ],
             [
-                'name' => 'Users',
-                'code' => 'USERS',
+                'name' => 'User',
+                'code' => 'USER',
                 'description' => 'Users group',
                 'created_by' => null,
                 'updated_by' => null,

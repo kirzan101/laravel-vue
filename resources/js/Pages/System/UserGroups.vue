@@ -3,6 +3,7 @@
     <main-layout>
         <UserGroupContent
             :permissions="permissions"
+            :user_group_types="user_group_types"
             :modules="modules"
             :errors="errors"
             :flash="flash"
@@ -20,6 +21,7 @@ import UserGroupContent from "../../Components/Pages/System/UserGroup/UserGroupC
 
 defineProps({
     permissions: Array,
+    user_group_types: Array,
     modules: Array,
     errors: Object,
     flash: Object,
