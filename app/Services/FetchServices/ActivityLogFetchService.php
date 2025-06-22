@@ -4,6 +4,7 @@ namespace App\Services\FetchServices;
 
 use App\Helpers\Helper;
 use App\Interfaces\FetchInterfaces\ActivityLogFetchInterface;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Models\ActivityLog;
 use App\Traits\DefaultPaginateFilterTrait;
 use App\Traits\HttpErrorCodeTrait;
@@ -11,12 +12,14 @@ use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
 use Illuminate\Pagination\Paginator;
 
-class ActivityLogFetchService extends BaseFetchService implements ActivityLogFetchInterface
+class ActivityLogFetchService implements ActivityLogFetchInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
         ReturnModelTrait,
         DefaultPaginateFilterTrait;
+
+    public function __construct(private BaseFetchInterface $fetch) {}
 
     /**
      * Fetch a list of activity logs with optional search functionality.
@@ -28,7 +31,7 @@ class ActivityLogFetchService extends BaseFetchService implements ActivityLogFet
     public function indexActivityLogs(array $request = [], bool $isPaginated = false): array
     {
         try {
-            $query = $this->indexQuery(ActivityLog::class);
+            $query = $this->fetch->indexQuery(ActivityLog::class);
 
             if (isset($request['search']) && !empty($request['search'])) {
                 $search = $request['search'];
@@ -85,7 +88,7 @@ class ActivityLogFetchService extends BaseFetchService implements ActivityLogFet
     public function showActivityLog(int $userId): array
     {
         try {
-            $query = $this->showQuery(ActivityLog::class, $userId);
+            $query = $this->fetch->showQuery(ActivityLog::class, $userId);
 
             $user = $query->firstOrFail();
 

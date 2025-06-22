@@ -3,6 +3,7 @@
 namespace App\Services\FetchServices;
 
 use App\Helpers\Helper;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\FetchInterfaces\ProfileFetchInterface;
 use App\Models\Profile;
 use App\Traits\DefaultPaginateFilterTrait;
@@ -11,12 +12,14 @@ use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
 use Illuminate\Pagination\Paginator;
 
-class ProfileFetchService extends BaseFetchService implements ProfileFetchInterface
+class ProfileFetchService implements ProfileFetchInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
         ReturnModelTrait,
         DefaultPaginateFilterTrait;
+
+    public function __construct(private BaseFetchInterface $fetch) {}
 
     /**
      * Fetch a list of profiles with optional search functionality.
@@ -28,7 +31,7 @@ class ProfileFetchService extends BaseFetchService implements ProfileFetchInterf
     public function indexProfiles(array $request = [], bool $isPaginated = false): array
     {
         try {
-            $query = $this->indexQuery(Profile::class);
+            $query = $this->fetch->indexQuery(Profile::class);
 
             if (!empty($request['search'])) {
                 $search = $request['search'];
@@ -76,7 +79,7 @@ class ProfileFetchService extends BaseFetchService implements ProfileFetchInterf
     public function showProfile(int $profileId): array
     {
         try {
-            $query = $this->showQuery(Profile::class, $profileId);
+            $query = $this->fetch->showQuery(Profile::class, $profileId);
 
             $profile = $query->firstOrFail();
 

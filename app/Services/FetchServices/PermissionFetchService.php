@@ -3,6 +3,7 @@
 namespace App\Services\FetchServices;
 
 use App\Helpers\Helper;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\FetchInterfaces\PermissionFetchInterface;
 use App\Models\Permission;
 use App\Traits\DefaultPaginateFilterTrait;
@@ -11,12 +12,14 @@ use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
 use Illuminate\Pagination\Paginator;
 
-class PermissionFetchService extends BaseFetchService implements PermissionFetchInterface
+class PermissionFetchService implements PermissionFetchInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
         ReturnModelTrait,
         DefaultPaginateFilterTrait;
+
+    public function __construct(private BaseFetchInterface $fetch) {}
 
     /**
      * Fetch a list of permissions with optional search functionality.
@@ -28,7 +31,7 @@ class PermissionFetchService extends BaseFetchService implements PermissionFetch
     public function indexPermissions(array $request = [], bool $isPaginated = false): array
     {
         try {
-            $query = $this->indexQuery(Permission::class);
+            $query = $this->fetch->indexQuery(Permission::class);
 
             if (!empty($request['search'])) {
                 $search = $request['search'];
@@ -75,7 +78,7 @@ class PermissionFetchService extends BaseFetchService implements PermissionFetch
     public function showPermission(int $permissionId): array
     {
         try {
-            $query = $this->showQuery(Permission::class, $permissionId);
+            $query = $this->fetch->showQuery(Permission::class, $permissionId);
 
             $permission = $query->firstOrFail();
 

@@ -3,6 +3,7 @@
 namespace App\Services\FetchServices;
 
 use App\Helpers\Helper;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\FetchInterfaces\UserGroupFetchInterface;
 use App\Models\UserGroup;
 use App\Traits\DefaultPaginateFilterTrait;
@@ -11,12 +12,14 @@ use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
 use Illuminate\Pagination\Paginator;
 
-class UserGroupFetchService extends BaseFetchService implements UserGroupFetchInterface
+class UserGroupFetchService implements UserGroupFetchInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
         ReturnModelTrait,
         DefaultPaginateFilterTrait;
+
+    public function __construct(private BaseFetchInterface $fetch) {}
 
     /**
      * Fetch a list of user groups with optional search functionality.
@@ -28,7 +31,7 @@ class UserGroupFetchService extends BaseFetchService implements UserGroupFetchIn
     public function indexUserGroups(array $request = [], bool $isPaginated = false): array
     {
         try {
-            $query = $this->indexQuery(UserGroup::class);
+            $query = $this->fetch->indexQuery(UserGroup::class);
 
             if (!empty($request['search'])) {
                 $search = $request['search'];
@@ -75,7 +78,7 @@ class UserGroupFetchService extends BaseFetchService implements UserGroupFetchIn
     public function showUserGroup(int $userGroupId): array
     {
         try {
-            $query = $this->showQuery(UserGroup::class, $userGroupId);
+            $query = $this->fetch->showQuery(UserGroup::class, $userGroupId);
 
             $userGroup = $query->firstOrFail();
 

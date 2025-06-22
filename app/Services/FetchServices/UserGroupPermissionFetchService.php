@@ -3,6 +3,7 @@
 namespace App\Services\FetchServices;
 
 use App\Helpers\Helper;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\FetchInterfaces\UserGroupPermissionFetchInterface;
 use App\Models\UserGroupPermission;
 use App\Traits\DefaultPaginateFilterTrait;
@@ -11,12 +12,14 @@ use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
 use Illuminate\Pagination\Paginator;
 
-class UserGroupPermissionFetchService extends BaseFetchService implements UserGroupPermissionFetchInterface
+class UserGroupPermissionFetchService implements UserGroupPermissionFetchInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
         ReturnModelTrait,
         DefaultPaginateFilterTrait;
+
+    public function __construct(private BaseFetchInterface $fetch) {}
 
     /**
      * Fetch a list of user group permissions with optional search functionality.
@@ -28,7 +31,7 @@ class UserGroupPermissionFetchService extends BaseFetchService implements UserGr
     public function indexUserGroupPermissions(array $request = [], bool $isPaginated = false): array
     {
         try {
-            $query = $this->indexQuery(UserGroupPermission::class);
+            $query = $this->fetch->indexQuery(UserGroupPermission::class);
 
             if ($isPaginated) {
                 $allowedFields = (new UserGroupPermission())->getFillable();
@@ -66,7 +69,7 @@ class UserGroupPermissionFetchService extends BaseFetchService implements UserGr
     public function showUserGroupPermission(int $userGroupPermissionId): array
     {
         try {
-            $query = $this->showQuery(UserGroupPermission::class, $userGroupPermissionId);
+            $query = $this->fetch->showQuery(UserGroupPermission::class, $userGroupPermissionId);
 
             $userGroupPermission = $query->firstOrFail();
 

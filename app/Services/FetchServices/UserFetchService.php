@@ -3,6 +3,7 @@
 namespace App\Services\FetchServices;
 
 use App\Helpers\Helper;
+use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\FetchInterfaces\UserFetchInterface;
 use App\Models\User;
 use App\Traits\DefaultPaginateFilterTrait;
@@ -11,12 +12,14 @@ use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
 use Illuminate\Pagination\Paginator;
 
-class UserFetchService extends BaseFetchService implements UserFetchInterface
+class UserFetchService implements UserFetchInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelCollectionTrait,
         ReturnModelTrait,
         DefaultPaginateFilterTrait;
+
+    public function __construct(private BaseFetchInterface $fetch) {}
 
     /**
      * Fetch a list of users with optional search functionality.
@@ -28,7 +31,7 @@ class UserFetchService extends BaseFetchService implements UserFetchInterface
     public function indexUsers(array $request = [], bool $isPaginated = false): array
     {
         try {
-            $query = $this->indexQuery(User::class);
+            $query = $this->fetch->indexQuery(User::class);
 
             if (!empty($request['search'])) {
                 $search = $request['search'];
@@ -74,7 +77,7 @@ class UserFetchService extends BaseFetchService implements UserFetchInterface
     public function showUser(int $userId): array
     {
         try {
-            $query = $this->showQuery(User::class, $userId);
+            $query = $this->fetch->showQuery(User::class, $userId);
 
             $user = $query->firstOrFail();
 
