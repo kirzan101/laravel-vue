@@ -65,6 +65,6 @@ class MakeFetchServiceCommand extends Command
 
         // Success messages
         $this->components->info("Interface [app/Interfaces/FetchInterfaces/{$interfaceName}.php] created successfully.");
-        $this->components->info("Service [app/Services/FetchInterfaces/{$className}.php] created successfully.");
+        $this->components->info("Service [app/Services/FetchServices/{$className}.php] created successfully.");
     }
 }
