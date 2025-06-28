@@ -28,7 +28,8 @@ class ProfileServiceTest extends TestCase
     /** @var \Mockery\MockInterface&CurrentUserInterface */
     protected CurrentUserInterface $currentUser;
 
-    protected ProfileService $service;
+    /** @var \Mockery\MockInterface|ProfileService */
+    protected $service;
 
     protected function setUp(): void
     {
@@ -38,11 +39,16 @@ class ProfileServiceTest extends TestCase
         $this->fetch = $this->mockBaseFetchInterface();
         $this->currentUser = $this->mockCurrentUserInterface();
 
-        $this->service = new ProfileService(
+        // 👇 Use partial mock to allow mocking of trait methods
+        $this->service = Mockery::mock(ProfileService::class, [
             $this->base,
             $this->fetch,
             $this->currentUser
-        );
+        ])->makePartial();
+
+        $this->beforeApplicationDestroyed(function () {
+            Mockery::close();
+        });
     }
 
     #[Test]
@@ -99,28 +105,61 @@ class ProfileServiceTest extends TestCase
     }
 
     #[Test]
-    public function it_deletes_a_profile_successfully()
+    public function it_deletes_a_profile_successfully(): void
     {
         $profileId = 1;
-        $mockProfile = new Profile(['id' => $profileId]);
+        $currentUserId = 99;
 
-        $this->currentUser->shouldReceive('getProfileId')->once()->andReturn(99);
+        $mockProfile = Mockery::mock(Profile::class)->makePartial();
+        $mockProfile->shouldReceive('getAttribute')->with('id')->andReturn($profileId);
 
-        $builderMock = Mockery::mock(Builder::class);
-        $builderMock->shouldReceive('firstOrFail')->once()->andReturn($mockProfile);
+        // Simulate modelUsesSoftDeletes() by making it a SoftDeletes model
+        $mockProfile->shouldReceive('getMorphClass')->andReturn(Profile::class); // dummy for type safety
 
-        $this->fetch->shouldReceive('showQuery')
+        // showQuery returns a Builder mock that returns the user group
+        $mockQuery = Mockery::mock(Builder::class);
+        $mockQuery->shouldReceive('firstOrFail')->once()->andReturn($mockProfile);
+
+        $this->fetch
+            ->shouldReceive('showQuery')
             ->once()
             ->with(Profile::class, $profileId)
-            ->andReturn($builderMock);
+            ->andReturn($mockQuery);
 
-        $this->base->shouldReceive('update')->once()->with($mockProfile, Mockery::type('array'))->andReturn($mockProfile);
-        $this->base->shouldReceive('delete')->once()->with($mockProfile);
+        // Mock modelUsesSoftDeletes() and modelHasColumn() directly on the service mock
+        $this->service
+            ->shouldAllowMockingProtectedMethods()
+            ->shouldReceive('modelUsesSoftDeletes')
+            ->andReturn(true);
+
+        $this->service
+            ->shouldAllowMockingProtectedMethods()
+            ->shouldReceive('modelHasColumn')
+            ->withAnyArgs()
+            ->andReturnUsing(function ($model, $column) {
+                return $column === 'updated_by';
+            });
+
+        $this->currentUser
+            ->shouldReceive('getProfileId')
+            ->once()
+            ->andReturn($currentUserId);
+
+        $this->base
+            ->shouldReceive('update')
+            ->once()
+            ->with($mockProfile, ['updated_by' => $currentUserId])
+            ->andReturn($mockProfile);
+
+        $this->base
+            ->shouldReceive('delete')
+            ->once()
+            ->with($mockProfile);
 
         $response = $this->service->deleteProfile($profileId);
 
         $this->assertSame(204, $response['code']);
-        $this->assertSame(Helper::SUCCESS, $response['status']);
+        $this->assertSame('success', $response['status']);
         $this->assertSame('Profile deleted successfully!', $response['message']);
         $this->assertNull($response['data']);
     }

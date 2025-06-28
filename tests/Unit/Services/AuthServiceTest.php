@@ -33,7 +33,13 @@ class AuthServiceTest extends TestCase
     #[Test]
     public function it_logs_in_with_username_successfully()
     {
-        $user = User::factory()->make(['username' => 'testuser', 'status' => Helper::ACCOUNT_STATUS_ACTIVE]);
+        $user = User::factory()->create([
+            'id' => 1,
+            'username' => 'testuser',
+            'status' => Helper::ACCOUNT_STATUS_ACTIVE,
+            'email' => 'test@example.com',
+            'password' => bcrypt('secret'),
+        ]);
 
         Auth::shouldReceive('attempt')
             ->once()
@@ -58,7 +64,13 @@ class AuthServiceTest extends TestCase
     #[Test]
     public function it_logs_in_with_email_successfully()
     {
-        $user = User::factory()->make(['email' => 'testuser@mail.com', 'status' => Helper::ACCOUNT_STATUS_ACTIVE]);
+        $user = User::factory()->create([
+            'id' => 1,
+            'username' => 'testuser',
+            'status' => Helper::ACCOUNT_STATUS_ACTIVE,
+            'email' => 'testuser@mail.com',
+            'password' => bcrypt('secret'),
+        ]);
 
         Auth::shouldReceive('attempt')
             ->once()
@@ -115,19 +127,31 @@ class AuthServiceTest extends TestCase
     #[Test]
     public function it_logs_out_successfully(): void
     {
-        Auth::shouldReceive('check')->once()->andReturn(true);
-        Auth::shouldReceive('logout')->once();
+        // Arrange: Create a real user in the database
+        $user = User::factory()->create([
+            'api_token' => 'sometoken',
+        ]);
 
-        $sessionMock = Session::partialMock();
-        $sessionMock->shouldReceive('invalidate')->once();
-        $sessionMock->shouldReceive('regenerateToken')->once();
+        // Fake login
+        Auth::login($user);
 
+        // Mock session methods
+        Session::shouldReceive('invalidate')->once();
+        Session::shouldReceive('regenerateToken')->once();
 
+        // Act
         $response = $this->service->logout();
 
+        // Assert
         $this->assertEquals(200, $response['code']);
         $this->assertEquals(Helper::SUCCESS, $response['status']);
         $this->assertEquals('Logged out successfully!', $response['message']);
+
+        // Assert user token is null in database
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'api_token' => null,
+        ]);
     }
 
     #[Test]
