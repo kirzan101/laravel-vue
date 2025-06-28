@@ -3,6 +3,11 @@ import { createInertiaApp } from "@inertiajs/vue3";
 import Layout from "@/App.vue";
 import vuetify from "./vuetify";
 
+// Helper: kebab-case converter (optional, if you prefer <c-data-table-server>)
+function toKebabCase(str) {
+    return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+}
+
 createInertiaApp({
     resolve: (name) => {
         const pages = import.meta.glob("./Pages/**/*.vue", { eager: true });
@@ -16,9 +21,21 @@ createInertiaApp({
         return page;
     },
     setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .use(vuetify)
-            .mount(el);
+        const app = createApp({ render: () => h(App, props) });
+
+        // ✅ Auto-register all components from ./Components/** (recursively)
+        const components = import.meta.glob("./Components/Customs/**/*.vue", {
+            eager: true,
+        });
+
+        Object.entries(components).forEach(([path, definition]) => {
+            const filename = path.split("/").pop().replace(".vue", "");
+            // Choose between these:
+            // app.component(filename, definition.default); // Use PascalCase (e.g., CDataTableServer)
+            // OR if you prefer kebab-case:
+            app.component(toKebabCase(filename), definition.default);
+        });
+
+        app.use(plugin).use(vuetify).mount(el);
     },
 });
