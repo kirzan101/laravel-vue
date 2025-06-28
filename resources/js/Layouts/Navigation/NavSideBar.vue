@@ -2,10 +2,10 @@
     <v-navigation-drawer v-model="drawer" app>
         <v-sheet class="pa-4" color="primary">
             <v-avatar class="mb-4" color="blue-grey-lighten-2" size="53">
-                <v-icon icon="mdi-account-star" size="x-large"></v-icon>
+                <v-icon :icon="profileIcon" size="x-large"></v-icon>
             </v-avatar>
-            <div>Lalatina Ford</div>
-            <div class="text-caption">lalatina@mail.com</div>
+            <div>{{ fullName }}</div>
+            <div class="text-caption">{{ emailAddress }}</div>
         </v-sheet>
 
         <v-divider></v-divider>
@@ -51,5 +51,17 @@ const toggleDrawer = () => {
 const page = usePage();
 const appName = computed(() => {
     return page.props.appName ?? "App Name";
+});
+
+const fullName = computed(() => {
+    return page.props.auth.user.name ?? "Full Name";
+});
+
+const emailAddress = computed(() => {
+    return page.props.auth.user.email ?? "Email Address";
+});
+
+const profileIcon = computed(() => {
+    return page.props.auth.user.isAdmin ? "mdi-account-star" : "mdi-account";
 });
 </script>
