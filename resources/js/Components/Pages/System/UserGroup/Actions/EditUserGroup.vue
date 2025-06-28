@@ -44,11 +44,6 @@
 import { computed, ref } from "vue";
 import { router } from "@inertiajs/vue3";
 
-// custom components
-import CBtnEdit from "@/Components/Customs/Buttons/CBtnEdit.vue";
-import CDialog from "@/Components/Customs/Dialogs/CDialog.vue";
-import CContainer from "@/Components/Customs/Containers/CContainer.vue";
-
 import FormUserGroup from "./Forms/FormUserGroup.vue";
 import FormTablePermissions from "./Forms/FormTablePermissions.vue";
 import SnackBar from "@/Components/Utilities/SnackBar.vue";

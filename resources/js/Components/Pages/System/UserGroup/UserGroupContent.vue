@@ -45,15 +45,6 @@ import { useDebouncedWatch } from "@/Composables/useDebouncedWatch";
 import { ref, onMounted, watch } from "vue";
 import { useDisplay } from "vuetify";
 
-// custom components
-import CContainer from "@/Components/Customs/Containers/CContainer.vue";
-import CCard from "@/Components/Customs/Cards/CCard.vue";
-import CRow from "@/Components/Customs/Grids/CRow.vue";
-import CCol from "@/Components/Customs/Grids/CCol.vue";
-import CSearchField from "@/Components/Customs/Inputs/CSearchField.vue";
-import CBreadcrumbs from "@/Components/Customs/Breadcrumbs/CBreadcrumbs.vue";
-import CFabLowerRight from "@/Components/Customs/Fabs/CFabLowerRight.vue";
-
 import TableUserGroup from "./Tables/TableUserGroup.vue";
 import AddUserGroup from "./Actions/AddUserGroup.vue";
 

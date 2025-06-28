@@ -31,9 +31,9 @@ createInertiaApp({
         Object.entries(components).forEach(([path, definition]) => {
             const filename = path.split("/").pop().replace(".vue", "");
             // Choose between these:
-            // app.component(filename, definition.default); // Use PascalCase (e.g., CDataTableServer)
+            app.component(filename, definition.default); // Use PascalCase (e.g., CDataTableServer)
             // OR if you prefer kebab-case:
-            app.component(toKebabCase(filename), definition.default);
+            // app.component(toKebabCase(filename), definition.default);
         });
 
         app.use(plugin).use(vuetify).mount(el);

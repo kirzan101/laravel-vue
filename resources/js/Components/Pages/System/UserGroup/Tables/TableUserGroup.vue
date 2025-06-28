@@ -23,7 +23,6 @@
 <script setup>
 import { ref } from "vue";
 
-import CDataTableServer from "@/Components/Customs/Tables/CDataTableServer.vue";
 import EditUserGroup from "../Actions/EditUserGroup.vue";
 
 // Define props

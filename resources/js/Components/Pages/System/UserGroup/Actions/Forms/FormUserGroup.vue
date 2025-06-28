@@ -30,14 +30,6 @@
 <script setup>
 import { ref, watch } from "vue";
 
-// custom components
-import CForm from "@/Components/Customs/Forms/CForm.vue";
-import CRow from "@/Components/Customs/Grids/CRow.vue";
-import CCol from "@/Components/Customs/Grids/CCol.vue";
-import CTextField from "@/Components/Customs/Inputs/CTextField.vue";
-import CTextarea from "@/Components/Customs/Textareas/CTextarea.vue";
-import CSelect from "@/Components/Customs/Selects/CSelect.vue";
-
 const props = defineProps({
     userGroup: Object,
     user_group_types: Array,

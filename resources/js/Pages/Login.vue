@@ -118,17 +118,6 @@ import { useTheme } from "vuetify";
 // layout
 import EmptyLayout from "@/Layouts/EmptyLayout.vue";
 
-// custom components
-import CRow from "@/Components/Customs/Grids/CRow.vue";
-import CCol from "@/Components/Customs/Grids/CCol.vue";
-import CForm from "@/Components/Customs/Forms/CForm.vue";
-import CPasswordField from "@/Components/Customs/Inputs/CPasswordField.vue";
-import CBtnSubmit from "@/Components/Customs/Buttons/CBtnSubmit.vue";
-import CContainer from "@/Components/Customs/Containers/CContainer.vue";
-import CAlertSystemError from "@/Components/Customs/Alerts/CAlertSystemError.vue";
-import CTextField from "@/Components/Customs/Inputs/CTextField.vue";
-import CFabLowerRight from "@/Components/Customs/Fabs/CFabLowerRight.vue";
-
 const props = defineProps({
     flash: Object,
     errors: Object,

@@ -44,12 +44,6 @@
 <script setup>
 import { computed, ref, watch } from "vue";
 
-// Importing custom components
-import CContainer from "@/Components/Customs/Containers/CContainer.vue";
-import CTable from "@/Components/Customs/Tables/CTable.vue";
-import CAlertError from "@/Components/Customs/Alerts/CAlertError.vue";
-import CCheckbox from "@/Components/Customs/Checkboxes/CCheckbox.vue";
-
 import TextModuleName from "./Components/TextModuleName.vue";
 
 const props = defineProps({

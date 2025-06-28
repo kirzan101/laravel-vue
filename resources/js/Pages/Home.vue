@@ -42,7 +42,9 @@
                     <copy-text textValue="Lalatina" />
                 </div>
                 <div>
-                <c-chip-file fileType="jpeg" color="primary">Img</c-chip-file>
+                    <c-chip-file fileType="jpeg" color="primary"
+                        >Img</c-chip-file
+                    >
                 </div>
             </c-card>
         </v-container>
@@ -55,28 +57,6 @@ import { Head, usePage } from "@inertiajs/vue3";
 
 import BlankLayout from "../Layouts/BlankLayout.vue";
 import MainLayout from "../Layouts/MainLayout.vue";
-import CBtn from "../Components/Customs/Buttons/CBtn.vue";
-import CBtnTonal from "../Components/Customs/Buttons/CBtnTonal.vue";
-import CBtnSubmit from "../Components/Customs/Buttons/CBtnSubmit.vue";
-import CBtnText from "../Components/Customs/Buttons/CBtnText.vue";
-import CBtnEdit from "../Components/Customs/Buttons/CBtnEdit.vue";
-import CBtnAdd from "../Components/Customs/Buttons/CBtnAdd.vue";
-import CAlertNotice from "../Components/Customs/Alerts/CAlertNotice.vue";
-import CAlertError from "../Components/Customs/Alerts/CAlertError.vue";
-import CAlertSuccess from "../Components/Customs/Alerts/CAlertSuccess.vue";
-import CAlertSystemError from "../Components/Customs/Alerts/CAlertSystemError.vue";
-import CTextField from "../Components/Customs/Inputs/CTextField.vue";
-import CTextFieldSolo from "../Components/Customs/Inputs/CTextFieldSolo.vue";
-import CSearchField from "../Components/Customs/Inputs/CSearchField.vue";
-import CNumberField from "../Components/Customs/Inputs/CNumberField.vue";
-import CDecimalField from "../Components/Customs/Inputs/CDecimalField.vue";
-import CCard from "../Components/Customs/Cards/CCard.vue";
-import Loading from "../Components/Utilities/Loading.vue";
-import SnackBar from "../Components/Utilities/SnackBar.vue";
-import CopyText from "../Components/Utilities/CopyText.vue";
-import CDateField from "../Components/Customs/Inputs/CDateField.vue";
-import CDateRangeField from "../Components/Customs/Inputs/CDateRangeField.vue";
-import CChipFile from "../Components/Customs/Chips/CChipFile.vue";
 
 import { computed, ref } from "vue";
 
