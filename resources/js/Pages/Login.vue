@@ -106,7 +106,6 @@
         <c-fab-lower-right
             @click="isDarkMode = !isDarkMode"
             :icon="isDarkMode ? 'mdi-weather-sunny' : 'mdi-weather-night'"
-            style="position: fixed; top: 400px; right: 25px; z-index: 1000"
         />
     </empty-layout>
 </template>
