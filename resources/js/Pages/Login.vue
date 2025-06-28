@@ -90,7 +90,7 @@
                             size="default"
                         />
                     </c-form>
-                    <v-footer
+                    <c-footer
                         class="bg-transparent d-flex flex-column text-center mt-10"
                     >
                         <div>
@@ -99,7 +99,7 @@
                             <strong>Developer ©</strong> —
                             {{ new Date().getFullYear() }}
                         </div>
-                    </v-footer>
+                    </c-footer>
                 </c-container>
             </c-col>
         </c-row>
