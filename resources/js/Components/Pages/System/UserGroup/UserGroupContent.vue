@@ -4,7 +4,7 @@
         <c-card>
             <c-row class="mt-1" justify="space-between">
                 <c-col cols="12" sm="4">
-                    <v-card-title>
+                    <c-card-title>
                         User Groups
                         <AddUserGroup
                             :permissions="permissions"
@@ -21,11 +21,11 @@
                             icon="mdi-plus"
                             @click="toggleAddUserGroupDialog"
                         />
-                    </v-card-title>
+                    </c-card-title>
                 </c-col>
-                <v-col cols="12" sm="4">
+                <c-col cols="12" sm="4">
                     <c-search-field v-model="filters.search" clearable />
-                </v-col>
+                </c-col>
             </c-row>
             <TableUserGroup
                 :permissions="permissions"
