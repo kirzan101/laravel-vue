@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ErrorHelper;
 use App\Helpers\Helper;
 use App\Http\Requests\UserGroupFormRequest;
 use App\Interfaces\FetchInterfaces\PermissionFetchInterface;
@@ -50,7 +51,7 @@ class UserGroupController extends Controller
         if (Gate::denies('view', new UserGroup())) {
             return Inertia::render('Error', [
                 'code' => 403,
-                'message' => 'You do not have permission to view this page.'
+                'message' => ErrorHelper::productionErrorMessage(403, 'You do not have permission to view this page.')
             ]);
         }
 
@@ -76,14 +77,15 @@ class UserGroupController extends Controller
             'message' => $message
         ] = $this->userGroup->storeUserGroupWithPermissions($request->toArray());
 
+        $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
         if ($status === Helper::ERROR) {
             return Inertia::render('Error', [
                 'code' => $code,
-                'message' => $message
+                'message' => $productionErrorMessage
             ]);
         }
 
-        return redirect()->back()->with($status, $message);
+        return redirect()->back()->with($status, $productionErrorMessage);
     }
 
     /**
@@ -97,14 +99,15 @@ class UserGroupController extends Controller
             'message' => $message
         ] = $this->userGroup->updateUserGroupWithPermissions($request->toArray(), $id);
 
+        $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
         if ($status === Helper::ERROR) {
             return Inertia::render('Error', [
                 'code' => $code,
-                'message' => $message
+                'message' => $productionErrorMessage
             ]);
         }
 
-        return redirect()->back()->with($status, $message);
+        return redirect()->back()->with($status, $productionErrorMessage);
     }
 
     /**
@@ -126,13 +129,14 @@ class UserGroupController extends Controller
             'message' => $message
         ] = $this->userGroup->deleteUserGroup($id);
 
+        $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
         if ($status === Helper::ERROR) {
             return Inertia::render('Error', [
                 'code' => $code,
-                'message' => $message
+                'message' => $productionErrorMessage
             ]);
         }
 
-        return redirect()->back()->with($status, $message);
+        return redirect()->back()->with($status, $productionErrorMessage);
     }
 }

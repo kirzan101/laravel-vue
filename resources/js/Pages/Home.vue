@@ -58,6 +58,9 @@ import { Head, usePage } from "@inertiajs/vue3";
 import BlankLayout from "../Layouts/BlankLayout.vue";
 import MainLayout from "../Layouts/MainLayout.vue";
 
+import SnackBar from "@/Components/Utilities/SnackBar.vue";
+import CopyText from "@/Components/Utilities/CopyText.vue";
+
 import { computed, ref } from "vue";
 
 const props = defineProps({
