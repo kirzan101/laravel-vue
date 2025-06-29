@@ -1,5 +1,5 @@
 <template>
-    <v-footer
+    <c-footer
         app
         color="transparent"
         :absolute="true"
@@ -9,7 +9,7 @@
         <span class="white--text"
             >&copy; {{ `${new Date().getFullYear()} ${appName}` }}</span
         >
-    </v-footer>
+    </c-footer>
 </template>
 
 <script setup>

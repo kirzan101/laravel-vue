@@ -1,24 +1,29 @@
 <template>
-    <v-menu location="bottom">
+    <c-menu location="bottom">
         <template v-slot:activator="{ props }">
-            <v-btn icon="mdi-cog" v-bind="props" v-tooltip:bottom="'Settings'">
-            </v-btn>
+            <c-btn-icon
+                icon="mdi-cog"
+                v-bind="props"
+                v-tooltip:bottom="'Settings'"
+                class="mr-2 ml-3"
+            >
+            </c-btn-icon>
         </template>
 
-        <v-list>
-            <v-list-item
+        <c-list>
+            <c-list-item
                 v-for="(item, index) in items"
                 :key="index"
                 :value="index"
             >
-                <v-list-item-title>{{ item.title }}</v-list-item-title>
-            </v-list-item>
+                <c-list-item-title>{{ item.title }}</c-list-item-title>
+            </c-list-item>
 
-            <v-list-item @click="handleLogout">
-                <v-list-item-title>Logout</v-list-item-title>
-            </v-list-item>
-        </v-list>
-    </v-menu>
+            <c-list-item @click="handleLogout">
+                <c-list-item-title>Logout</c-list-item-title>
+            </c-list-item>
+        </c-list>
+    </c-menu>
 </template>
 
 <script setup>

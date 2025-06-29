@@ -1,5 +1,5 @@
 <template>
-    <v-switch
+    <c-switch
         class="d-flex justify-center"
         v-model="isDarkMode"
         :color="isDarkMode ? 'white' : 'primary'"

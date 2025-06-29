@@ -1,9 +1,9 @@
 <template>
     <v-navigation-drawer v-model="drawer" app>
         <v-sheet class="pa-4" color="primary">
-            <v-avatar class="mb-4" color="blue-grey-lighten-2" size="53">
-                <v-icon :icon="profileIcon" size="x-large"></v-icon>
-            </v-avatar>
+            <c-avatar class="mb-4" color="blue-grey-lighten-2" size="53">
+                <c-icon :icon="profileIcon" size="x-large"></c-icon>
+            </c-avatar>
             <div>{{ fullName }}</div>
             <div class="text-caption">{{ emailAddress }}</div>
         </v-sheet>
