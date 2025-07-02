@@ -26,7 +26,13 @@
         </template>
     </v-navigation-drawer>
 
-    <nav-bar :hasDrawer="true" @toggleDrawer="toggleDrawer" />
+    <nav-bar
+        :hasDrawer="true"
+        :errors="errors"
+        :flash="flash"
+        :can="can"
+        @toggleDrawer="toggleDrawer"
+    />
 </template>
 
 <script setup>
@@ -34,6 +40,12 @@ import { computed, onMounted, ref } from "vue";
 import NavBar from "./NavBar.vue";
 import { usePage } from "@inertiajs/vue3";
 import { useDisplay } from "vuetify";
+
+defineProps({
+    errors: Object,
+    flash: Object,
+    can: Array,
+});
 
 const drawer = ref(false);
 

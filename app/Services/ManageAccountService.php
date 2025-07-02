@@ -161,4 +161,48 @@ class ManageAccountService implements ManageAccountInterface
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
         }
     }
+
+    /**
+     * Change the password for the authenticated user's profile.
+     *
+     * @param array $request
+     * @param int $profileId
+     * @return array<string, mixed>
+     */
+    public function changeUserProfilePassword(array $request, int $profileId): array
+    {
+        try {
+            // Get the profile by profile ID
+            $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
+
+            // Get user associated with the profile
+            $user = $profile->user;
+
+            if (!$user) {
+                throw new RuntimeException('User associated with the profile not found.');
+            }
+
+            // Update user password
+            $userResult = $this->user->updateUser([
+                'password' => $request['new_password'], // no need to hash here, it will be hashed in the User service
+                'is_first_login' => false, // Set to false since password is being changed
+            ], $user->id);
+
+            // Ensure user password update was successful
+            $this->ensureSuccess($userResult, 'User password update failed!');
+
+            //update profile updated_at and updated_by
+            $profileResult = $this->profile->updateProfile([
+                'updated_by' => $this->currentUser->getProfileId(),
+            ], $profileId);
+
+            // Ensure profile update was successful
+            $this->ensureSuccess($profileResult, 'Profile update failed!');
+
+            return $this->returnModel(200, Helper::SUCCESS, 'Password changed successfully!', null, null);
+        } catch (\Throwable $th) {
+            $code = $this->httpCode($th);
+            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+        }
+    }
 }

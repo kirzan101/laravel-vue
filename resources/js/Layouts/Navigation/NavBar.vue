@@ -6,7 +6,7 @@
 
         <template v-slot:append>
             <switch-theme />
-            <menu-settings />
+            <menu-settings :errors="errors" :flash="flash" :can="can" />
         </template>
     </v-app-bar>
 </template>
@@ -28,6 +28,9 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    errors: Object,
+    flash: Object,
+    can: Array,
 });
 
 const emits = defineEmits(["toggleDrawer"]);

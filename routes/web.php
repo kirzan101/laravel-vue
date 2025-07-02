@@ -14,6 +14,7 @@ Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/change-password', [AuthController::class, 'changePassword'])->name('change-password');
 
     Route::get('/errors', function () {
         return Inertia::render('Error', [

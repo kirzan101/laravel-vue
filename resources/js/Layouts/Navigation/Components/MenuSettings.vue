@@ -11,12 +11,16 @@
         </template>
 
         <c-list>
-            <c-list-item
+            <!-- <c-list-item
                 v-for="(item, index) in items"
                 :key="index"
                 :value="index"
             >
                 <c-list-item-title>{{ item.title }}</c-list-item-title>
+            </c-list-item> -->
+
+            <c-list-item @click="handleChangePassword">
+                <c-list-item-title>Change Password</c-list-item-title>
             </c-list-item>
 
             <c-list-item @click="handleLogout">
@@ -24,11 +28,37 @@
             </c-list-item>
         </c-list>
     </c-menu>
+    <ChangePassword
+        :errors="errors"
+        :flash="flash"
+        :can="can"
+        ref="changePassworRef"
+    />
 </template>
 
 <script setup>
+import { ref } from "vue";
 import { router } from "@inertiajs/vue3";
-const items = [{ title: "Change Password" }];
+
+import ChangePassword from "@/Components/Pages/System/Auth/ChangePassword.vue";
+
+defineProps({
+    errors: Object,
+    flash: Object,
+    can: Array,
+});
+
+// const items = [{ title: "Change Password" }];
+
+const changePassworRef = ref(null);
+const handleChangePassword = () => {
+    if (!changePassworRef.value) {
+        console.error("ChangePassword component is not available.");
+        return;
+    }
+
+    changePassworRef.value.toggleDialog();
+};
 
 const handleLogout = () => {
     router.post(

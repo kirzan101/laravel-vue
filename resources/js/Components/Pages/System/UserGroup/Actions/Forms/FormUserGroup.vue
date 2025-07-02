@@ -34,7 +34,7 @@ const props = defineProps({
     userGroup: Object,
     user_group_types: Array,
     errors: Object,
-    flsash: Object,
+    flash: Object,
     can: Array,
 });
 

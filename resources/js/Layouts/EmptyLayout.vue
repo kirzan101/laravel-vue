@@ -10,6 +10,12 @@
 import { usePage } from "@inertiajs/vue3";
 import { computed } from "vue";
 
+defineProps({
+    errors: Object,
+    flash: Object,
+    can: Array,
+});
+
 const page = usePage();
 const api_token = computed(() => page.props.token);
 

@@ -86,9 +86,9 @@ class ProfileService implements ProfileInterface
                     'last_name' => $request['last_name'] ?? $profile->last_name,
                     'nickname' => $request['nickname'] ?? $profile->nickname,
                     'type' => $request['type'] ?? $profile->type,
-                    'contact_numbers' => $request['contact_numbers'] ?? [],
-                    'user_id' => $request['user_id'] ?? null,
-                    'updated_by' => $currentUserProfileId,
+                    'contact_numbers' => $request['contact_numbers'] ?? $profile->contact_numbers,
+                    'user_id' => $request['user_id'] ?? $profile->user_id,
+                    'updated_by' => $request['updated_by'] ?? $currentUserProfileId,
                 ]);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'Profile updated successfully!', $profile, $profile->id);

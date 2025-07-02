@@ -1,6 +1,6 @@
 <template>
     <Head :title="title" />
-    <main-layout>
+    <main-layout :errors="errors" :flash="flash" :can="can">
         <UserGroupContent
             :permissions="permissions"
             :user_group_types="user_group_types"
