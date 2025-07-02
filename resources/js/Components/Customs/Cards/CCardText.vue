@@ -3,3 +3,5 @@
         <slot />
     </v-card-text>
 </template>
+
+<script setup></script>
