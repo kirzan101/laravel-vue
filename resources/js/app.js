@@ -1,3 +1,5 @@
+// import "./bootstrap"; // ✅ MUST come before anything that uses Echo
+
 import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 import Layout from "@/App.vue";
