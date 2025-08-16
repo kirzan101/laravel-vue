@@ -27,12 +27,17 @@ class {{ class }} extends BaseFetchService implements {{ interface }}
      *
      * @param array $request
      * @param bool $isPaginated
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function index{{ base }}s(array $request = [], bool $isPaginated = false): array
+    public function index{{ base }}s(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
     {
         try {
             $query = $this->indexQuery({{ base }}::class);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             //  //Uncomment this code if query has a seach functionality
             // //Search filter
@@ -75,12 +80,17 @@ class {{ class }} extends BaseFetchService implements {{ interface }}
      * Fetch a single {{ description }} by ID.
      *
      * @param integer ${{ variable }}Id
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function show{{ base }}(int ${{ variable }}Id): array
+    public function show{{ base }}(int ${{ variable }}Id, ?string $resourceClass = null): array
     {
         try {
             $query = $this->showQuery({{ base }}::class, ${{ variable }}Id);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             $model = $query->firstOrFail();
 

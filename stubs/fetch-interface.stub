@@ -8,15 +8,18 @@ interface {{ base }}FetchInterface
      * Fetch a list of {{ description }} with optional search functionality.
      *
      * @param array $request Optional parameters for filtering or pagination.
+     * @param bool $isPaginated Whether to paginate the results.
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass The resource class to transform the results.
      * @return array An array of {{ description }}s.
      */
-    public function index{{ base }}s(array $request = [], bool $isPaginated = false): array;
+    public function index{{ base }}s(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array;
 
     /**
      * Fetch a single {{ description }} by ID.
      *
      * @param integer ${{ variable }}Id
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function show{{ base }}(int ${{ variable }}Id): array;
+    public function show{{ base }}(int ${{ variable }}Id, ?string $resourceClass = null): array;
 }
