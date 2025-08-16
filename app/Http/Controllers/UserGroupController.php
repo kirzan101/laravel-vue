@@ -12,6 +12,7 @@ use App\Traits\ReturnModulePermissionTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -55,8 +56,11 @@ class UserGroupController extends Controller
             ]);
         }
 
-        $permissionsResults = $this->permissionFetch->indexPermissions($request->toArray());
-        $permissions = $permissionsResults['data'] ?? [];
+        $permissions = Cache::remember('permission_fetch_list', 60, function () {
+            // Fetch the result and extract only the 'data' part
+            $result = $this->permissionFetch->indexPermissions();
+            return $result['data'] ?? []; // Only return 'data' part
+        });
 
         return Inertia::render('System/UserGroups', [
             'permissions' => $permissions,
