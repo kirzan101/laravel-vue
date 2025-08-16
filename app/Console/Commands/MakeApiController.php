@@ -17,7 +17,8 @@ class MakeApiController extends Command
         $model = $this->option('model');
 
         // Ensure it goes into API namespace
-        $controllerPath = "API/" . $name;
+        // $controllerPath = "API/" . $name;
+        $controllerPath = sprintf('API/%sApiController', $name);
 
         // Build the Artisan command
         $command = [

@@ -26,12 +26,17 @@ class ActivityLogFetchService implements ActivityLogFetchInterface
      *
      * @param array $request
      * @param bool $isPaginated
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function indexActivityLogs(array $request = [], bool $isPaginated = false): array
+    public function indexActivityLogs(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
     {
         try {
             $query = $this->fetch->indexQuery(ActivityLog::class);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             if (isset($request['search']) && !empty($request['search'])) {
                 $search = $request['search'];
@@ -45,7 +50,6 @@ class ActivityLogFetchService implements ActivityLogFetchInterface
                 $status = $request['status'];
                 $query->where('status', $status);
             }
-
 
             if (!empty($request['type'])) {
                 $type = $request['type'];
@@ -65,13 +69,13 @@ class ActivityLogFetchService implements ActivityLogFetchInterface
                 // Manually set the current page
                 Paginator::currentPageResolver(fn() => $current_page ?? 1);
 
-                $users = $query->orderBy($sort_by, $sort)->paginate($per_page);
+                $activityLogs = $query->orderBy($sort_by, $sort)->paginate($per_page);
             } else {
 
-                $users = $query->get();
+                $activityLogs = $query->get();
             }
 
-            return $this->returnModelCollection(200, Helper::SUCCESS, 'Successfully fetched!', $users);
+            return $this->returnModelCollection(200, Helper::SUCCESS, 'Successfully fetched!', $activityLogs);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
@@ -83,16 +87,21 @@ class ActivityLogFetchService implements ActivityLogFetchInterface
      * Fetch a single activity log by ID.
      *
      * @param integer $id
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function showActivityLog(int $userId): array
+    public function showActivityLog(int $id, ?string $resourceClass = null): array
     {
         try {
-            $query = $this->fetch->showQuery(ActivityLog::class, $userId);
+            $query = $this->fetch->showQuery(ActivityLog::class, $id);
 
-            $user = $query->firstOrFail();
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
-            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $user, $userId);
+            $activityLog = $query->firstOrFail();
+
+            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $activityLog, $id);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 

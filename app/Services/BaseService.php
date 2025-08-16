@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Interfaces\BaseInterface;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 
@@ -22,31 +23,62 @@ class BaseService implements BaseInterface
     }
 
     /**
-     * Create multiple records in the specified Eloquent model.
+     * Bulk-insert multiple records into the specified Eloquent model.
+     * Automatically sets timestamps if the table has `created_at` and `updated_at`.
      *
      * This method inserts multiple records into the database in a single query.
-     * It bypasses Eloquent model events (like `creating` and `created`) and 
-     * doesn't handle timestamps (`created_at`, `updated_at`) by default.
+     * It bypasses Eloquent model events (like `creating` and `created`).
      *
-     * Note:
+     * Timestamps:
+     * - If the target table contains `created_at` and `updated_at` columns, 
+     *   this method will automatically set them for each record.
+     * - If the table does not have these columns, timestamps will not be added.
+     *
+     * Notes:
      * - This method is efficient for inserting large datasets, as it reduces 
      *   the number of database queries.
-     * - Make sure to handle timestamps manually if necessary (e.g., add `created_at`
-     *   and `updated_at` columns in the `$requests` array).
-     * - This method does not trigger Eloquent's model events, so any logic tied
-     *   to these events will not be executed.
+     * - Since Eloquent model events are not triggered, any logic tied to 
+     *   these events will not run.
      * 
      * @param string $modelClass The fully qualified class name of the model (e.g., `App\Models\User`).
      * @param array $requests An array of associative arrays, where each associative array 
      *                        represents a record to be inserted. The keys should match 
      *                        the column names of the model's associated database table.
-     * @return bool The number of rows affected by the insert operation.
+     * @return bool True if the insert operation was successful, otherwise false.
      *
      * @throws \InvalidArgumentException If the provided class is not an Eloquent model.
      */
     public function storeMultiple(string $modelClass, array $requests): bool
     {
         $this->validateModelClass($modelClass);
+
+        // Added this code to ensure timestamps are set
+        // When using the query builder's insert(), timestamps are not set automatically like in Eloquent.
+        // Manually set 'created_at' and 'updated_at' for each record.
+        // Only add timestamps if the table has the columns
+        $model = new $modelClass;
+        $table = $model->getTable();
+
+        // Cache schema checks per model to avoid repetitive DB hits
+        static $timestampColumns = [];
+        if (!isset($timestampColumns[$table])) {
+            $timestampColumns[$table] = [
+                'created_at' => Schema::hasColumn($table, 'created_at'),
+                'updated_at' => Schema::hasColumn($table, 'updated_at'),
+            ];
+        }
+
+        $hasCreatedAt = $timestampColumns[$table]['created_at'];
+        $hasUpdatedAt = $timestampColumns[$table]['updated_at'];
+
+        if ($hasCreatedAt && $hasUpdatedAt) {
+            $now = Carbon::now();
+            foreach ($requests as &$request) {
+                $request['created_at'] = $now;
+                $request['updated_at'] = $now;
+            }
+            unset($request);
+        }
 
         return $modelClass::insert($requests);
     }

@@ -7,7 +7,7 @@ use App\Http\Resources\UserGroupResource;
 use App\Interfaces\FetchInterfaces\UserGroupFetchInterface;
 use Illuminate\Http\Request;
 
-class UserGroupController extends Controller
+class UserGroupApiController extends Controller
 {
     public function __construct(private UserGroupFetchInterface $userGroupFetch) {}
 
@@ -23,13 +23,13 @@ class UserGroupController extends Controller
             'sort' => $request->get('sort', 'desc'),
         ]);
 
-        $results = $this->userGroupFetch->indexUserGroups($request->toArray(), true);
+        $results = $this->userGroupFetch->indexUserGroups($request->toArray(), true, UserGroupResource::class);
 
         $data = $results['data'];
         $code = $results['code'];
         $status = $results['status'];
         $message = $results['message'];
-        
+
         return response()->json([
             'data' => UserGroupResource::collection($data->all()),
             'per_page' => $data->perPage(),

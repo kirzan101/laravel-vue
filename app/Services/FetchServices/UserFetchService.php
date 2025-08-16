@@ -26,12 +26,17 @@ class UserFetchService implements UserFetchInterface
      *
      * @param array $request
      * @param bool $isPaginated
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function indexUsers(array $request = [], bool $isPaginated = false): array
+    public function indexUsers(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
     {
         try {
             $query = $this->fetch->indexQuery(User::class);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             if (!empty($request['search'])) {
                 $search = $request['search'];
@@ -71,13 +76,18 @@ class UserFetchService implements UserFetchInterface
     /**
      * Fetch a single user by ID.
      *
-     * @param integer $id
+     * @param integer $userId
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function showUser(int $userId): array
+    public function showUser(int $userId, ?string $resourceClass = null): array
     {
         try {
             $query = $this->fetch->showQuery(User::class, $userId);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             $user = $query->firstOrFail();
 

@@ -8,6 +8,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class UserGroupResource extends JsonResource
 {
     /**
+     * Define relationships this resource may need.
+     */
+    public static array $relations = ['createdBy', 'updatedBy', 'userGroupPermissions'];
+
+    /**
      * Transform the resource into an array.
      *
      * @return array<string, mixed>

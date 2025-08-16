@@ -26,12 +26,17 @@ class PermissionFetchService implements PermissionFetchInterface
      *
      * @param array $request
      * @param bool $isPaginated
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function indexPermissions(array $request = [], bool $isPaginated = false): array
+    public function indexPermissions(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
     {
         try {
             $query = $this->fetch->indexQuery(Permission::class);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             if (!empty($request['search'])) {
                 $search = $request['search'];
@@ -54,10 +59,8 @@ class PermissionFetchService implements PermissionFetchInterface
                 // Manually set the current page
                 Paginator::currentPageResolver(fn() => $current_page ?? 1);
 
-
                 $permissions = $query->orderBy($sort_by, $sort)->paginate($per_page);
             } else {
-
                 $permissions = $query->get();
             }
 
@@ -73,12 +76,17 @@ class PermissionFetchService implements PermissionFetchInterface
      * Fetch a single permission by ID.
      *
      * @param integer $id
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function showPermission(int $permissionId): array
+    public function showPermission(int $permissionId, ?string $resourceClass = null): array
     {
         try {
             $query = $this->fetch->showQuery(Permission::class, $permissionId);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             $permission = $query->firstOrFail();
 

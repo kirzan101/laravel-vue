@@ -26,12 +26,17 @@ class UserGroupPermissionFetchService implements UserGroupPermissionFetchInterfa
      *
      * @param array $request
      * @param bool $isPaginated
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function indexUserGroupPermissions(array $request = [], bool $isPaginated = false): array
+    public function indexUserGroupPermissions(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
     {
         try {
             $query = $this->fetch->indexQuery(UserGroupPermission::class);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             if ($isPaginated) {
                 $allowedFields = (new UserGroupPermission())->getFillable();
@@ -48,7 +53,6 @@ class UserGroupPermissionFetchService implements UserGroupPermissionFetchInterfa
 
                 $userGroupPermissions = $query->orderBy($sort_by, $sort)->paginate($per_page);
             } else {
-
                 $userGroupPermissions = $query->get();
             }
 
@@ -64,12 +68,17 @@ class UserGroupPermissionFetchService implements UserGroupPermissionFetchInterfa
      * Fetch a single user group permission by ID.
      *
      * @param integer $id
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function showUserGroupPermission(int $userGroupPermissionId): array
+    public function showUserGroupPermission(int $userGroupPermissionId, ?string $resourceClass = null): array
     {
         try {
             $query = $this->fetch->showQuery(UserGroupPermission::class, $userGroupPermissionId);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             $userGroupPermission = $query->firstOrFail();
 

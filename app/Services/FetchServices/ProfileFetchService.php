@@ -26,12 +26,17 @@ class ProfileFetchService implements ProfileFetchInterface
      *
      * @param array $request
      * @param bool $isPaginated
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function indexProfiles(array $request = [], bool $isPaginated = false): array
+    public function indexProfiles(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
     {
         try {
             $query = $this->fetch->indexQuery(Profile::class);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             if (!empty($request['search'])) {
                 $search = $request['search'];
@@ -73,13 +78,18 @@ class ProfileFetchService implements ProfileFetchInterface
     /**
      * Fetch a single Profile by ID.
      *
-     * @param integer $id
+     * @param int $profileId
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function showProfile(int $profileId): array
+    public function showProfile(int $profileId, ?string $resourceClass = null): array
     {
         try {
             $query = $this->fetch->showQuery(Profile::class, $profileId);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             $profile = $query->firstOrFail();
 

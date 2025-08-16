@@ -26,12 +26,17 @@ class UserGroupFetchService implements UserGroupFetchInterface
      *
      * @param array $request
      * @param bool $isPaginated
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function indexUserGroups(array $request = [], bool $isPaginated = false): array
+    public function indexUserGroups(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
     {
         try {
             $query = $this->fetch->indexQuery(UserGroup::class);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             if (!empty($request['search'])) {
                 $search = $request['search'];
@@ -73,12 +78,17 @@ class UserGroupFetchService implements UserGroupFetchInterface
      * Fetch a single user group by ID.
      *
      * @param integer $id
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
      * @return array
      */
-    public function showUserGroup(int $userGroupId): array
+    public function showUserGroup(int $userGroupId, ?string $resourceClass = null): array
     {
         try {
             $query = $this->fetch->showQuery(UserGroup::class, $userGroupId);
+
+            if ($resourceClass !== null && isset($resourceClass::$relations)) {
+                $query->with($resourceClass::$relations ?? []);
+            }
 
             $userGroup = $query->firstOrFail();
 
