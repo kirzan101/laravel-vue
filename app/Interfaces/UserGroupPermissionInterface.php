@@ -2,24 +2,26 @@
 
 namespace App\Interfaces;
 
+use App\DTOs\UserGroupPermissionDTO;
+
 interface UserGroupPermissionInterface
 {
     /**
      * Store a new user group permission in the database.
      *
-     * @param array $request
+     * @param UserGroupPermissionDTO $userGroupPermissionDTO
      * @return array
      */
-    public function storeUserGroupPermission(array $request): array;
+    public function storeUserGroupPermission(UserGroupPermissionDTO $userGroupPermissionDTO): array;
 
     /**
      * update an existing user group permission in the database.
      *
-     * @param array $request
+     * @param UserGroupPermissionDTO $userGroupPermissionDTO
      * @param integer $userGroupPermissionId
      * @return array
      */
-    public function updateUserGroupPermission(array $request, int $userGroupPermissionId): array;
+    public function updateUserGroupPermission(UserGroupPermissionDTO $userGroupPermissionDTO, int $userGroupPermissionId): array;
 
     /**
      * delete a user group permission from the database.

@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+use App\DTOs\AccountDTO;
+use App\DTOs\ProfileDTO;
+use App\DTOs\ProfileUserGroupDTO;
+use App\DTOs\UserDTO;
 use App\Helpers\Helper;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelTrait;
@@ -24,6 +28,7 @@ class ManageAccountService implements ManageAccountInterface
 
     public function __construct(
         private BaseFetchInterface $fetch,
+        private BaseService $base,
         private UserInterface $user,
         private ProfileInterface $profile,
         private ProfileUserGroupInterface $profileUserGroup,
@@ -37,21 +42,15 @@ class ManageAccountService implements ManageAccountInterface
      * @return array<string, mixed>
      * @throws \Throwable
      */
-    public function register(array $request): array
+    public function register(AccountDTO $accountDTO): array
     {
         try {
-            return DB::transaction(function () use ($request) {
-                $profileId = $this->currentUser->getProfileId();
+            return DB::transaction(function () use ($accountDTO) {
+                $currentProfileId = $this->currentUser->getProfileId();
 
                 // Create user
-                $userResult = $this->user->storeUser([
-                    'username' => $request['username'] ?? null,
-                    'email' => $request['email'] ?? null,
-                    'password' => $request['username'], // default
-                    'is_admin' => $request['is_admin'] ?? false,
-                    'status' => Helper::ACCOUNT_STATUS_ACTIVE,
-                    'is_first_login' => $request['is_first_login'] ?? true,
-                ]);
+                $userDto = $accountDTO->user;
+                $userResult = $this->user->storeUser($userDto);
 
                 // Ensure user creation was successful
                 $this->ensureSuccess($userResult, 'User creation failed!');
@@ -59,30 +58,22 @@ class ManageAccountService implements ManageAccountInterface
                 $userId = $userResult['last_id'] ?? null;
 
                 // Create profile
-                $profileResult = $this->profile->storeProfile([
-                    'avatar' => $request['avatar'] ?? null,
-                    'first_name' => $request['first_name'] ?? null,
-                    'middle_name' => $request['middle_name'] ?? null,
-                    'last_name' => $request['last_name'] ?? null,
-                    'nickname' => $request['nickname'] ?? null,
-                    'type' => $request['type'] ?? null,
-                    'contact_numbers' => $request['contact_numbers'] ?? [],
-                    'user_id' => $userId,
-                    'created_by' => $profileId,
-                    'updated_by' => $profileId,
-                ]);
+                $profileDTO = $accountDTO->profile->withUser($userId)->withDefaultAudit($currentProfileId);
+                $profileResult = $this->profile->storeProfile($profileDTO);
 
                 // Ensure profile creation was successful
                 $this->ensureSuccess($profileResult, 'Profile creation failed!');
 
+                // Get the profile data
                 $profile = $profileResult['data'];
 
                 // create profile user group
-                if (!empty($request['user_group_id'])) {
-                    $profileUserGroupResult = $this->profileUserGroup->storeProfileUserGroup([
+                if (!empty($accountDTO->user_group_id)) {
+                    $profileUserGroupDto = ProfileUserGroupDTO::fromArray([
                         'profile_id' => $profile->id,
-                        'user_group_id' => $request['user_group_id']
+                        'user_group_id' => $accountDTO->user_group_id
                     ]);
+                    $profileUserGroupResult = $this->profileUserGroup->storeProfileUserGroup($profileUserGroupDto);
 
                     // Ensure profile user group creation was successful
                     $this->ensureSuccess($profileUserGroupResult, 'Profile user group creation failed!');
@@ -99,29 +90,22 @@ class ManageAccountService implements ManageAccountInterface
     /**
      * Update an existing user profile.
      *
-     * @param array $request
+     * @param AccountDTO $accountDTO
      * @param int $profileId
      * @return array<string, mixed>
      */
-    public function updateUserProfile(array $request, int $profileId): array
+    public function updateUserProfile(AccountDTO $accountDTO, int $profileId): array
     {
         try {
-            return DB::transaction(function () use ($request, $profileId) {
+            return DB::transaction(function () use ($accountDTO, $profileId) {
 
                 // Get the profile by profile ID
                 $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
+                $currentProfileId = $this->currentUser->getProfileId();
 
                 // Update profile
-                $profileResult = $this->profile->updateProfile([
-                    'avatar' => $request['avatar'] ?? $profile->avatar,
-                    'first_name' => $request['first_name'] ?? $profile->first_name,
-                    'middle_name' => $request['middle_name'] ?? $profile->middle_name,
-                    'last_name' => $request['last_name'] ?? $profile->last_name,
-                    'nickname' => $request['nickname'] ?? $profile->nickname,
-                    'type' => $request['type'] ?? $profile->type,
-                    'contact_numbers' => $request['contact_numbers'] ?? $profile->contact_numbers,
-                    'updated_by' => $this->currentUser->getProfileId(),
-                ], $profileId);
+                $profileData = $accountDTO->profile->withDefaultAudit($currentProfileId);
+                $profileResult = $this->profile->updateProfile($profileData, $profileId);
 
                 // Ensure profile update was successful
                 $this->ensureSuccess($profileResult, 'Profile update failed!');
@@ -134,21 +118,19 @@ class ManageAccountService implements ManageAccountInterface
                 }
 
                 // Update user
-                $userResult = $this->user->updateUser([
-                    'username' => $request['username'] ?? $user->username,
-                    'email' => $request['email'] ?? $user->email,
-                    'password' => !empty($request['password']) ? bcrypt($request['password']) : $user->password,
-                ], $user->id);
+                $userData = $accountDTO->user;
+                $userResult = $this->user->updateUser($userData, $user->id);
 
                 // Ensure user update was successful
                 $this->ensureSuccess($userResult, 'User update failed!');
 
                 // Update user group if provided
-                if (!empty($request['user_group_id'])) {
-                    $profileUserGroupResult = $this->profileUserGroup->updateProfileUserGroupWithProfileId([
+                if (!empty($accountDTO->user_group_id)) {
+                    $profileUserGroupDto = ProfileUserGroupDTO::fromArray([
                         'profile_id' => $profile->id,
-                        'user_group_id' => $request['user_group_id']
-                    ], $profileId);
+                        'user_group_id' => $accountDTO->user_group_id
+                    ]);
+                    $profileUserGroupResult = $this->profileUserGroup->updateProfileUserGroupWithProfileId($profileUserGroupDto, $profileId);
 
                     // Ensure profile user group update was successful
                     $this->ensureSuccess($profileUserGroupResult, 'Profile user group update failed!');
@@ -183,23 +165,27 @@ class ManageAccountService implements ManageAccountInterface
             }
 
             // Update user password
-            $userResult = $this->user->updateUser([
-                'password' => $request['new_password'], // no need to hash here, it will be hashed in the User service
-                'is_first_login' => false, // Set to false since password is being changed
-            ], $user->id);
+            $user = $this->base->update($user, [
+                'is_first_login' => false,
+                'password' => bcrypt($request['password']),
+            ]);
 
             // Ensure user password update was successful
-            $this->ensureSuccess($userResult, 'User password update failed!');
+            if (!$user) {
+                throw new RuntimeException('User password update failed!');
+            }
 
             //update profile updated_at and updated_by
-            $profileResult = $this->profile->updateProfile([
+            $profile = $this->base->update($profile, [
+                'updated_at' => now(),
                 'updated_by' => $this->currentUser->getProfileId(),
-            ], $profileId);
+            ]);
 
-            // Ensure profile update was successful
-            $this->ensureSuccess($profileResult, 'Profile update failed!');
+            if (!$profile) {
+                throw new RuntimeException('Profile update failed!');
+            }
 
-            return $this->returnModel(200, Helper::SUCCESS, 'Password changed successfully!', null, null);
+            return $this->returnModel(200, Helper::SUCCESS, 'Password changed successfully!', $profile, $profileId);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());

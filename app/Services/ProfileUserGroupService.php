@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
+use App\DTOs\ProfileUserGroupDTO;
 use App\Helpers\Helper;
 use App\Interfaces\ProfileUserGroupInterface;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
-use App\Interfaces\AuthInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Models\ProfileUserGroup;
@@ -27,17 +27,16 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
     /**
      * Store a new profile user group in the database.
      * 
-     * @param array $request
+     * @param ProfileUserGroupDTO $profileUserGroupDTO
      * @return array
      */
-    public function storeProfileUserGroup(array $request): array
+    public function storeProfileUserGroup(ProfileUserGroupDTO $profileUserGroupDTO): array
     {
         try {
-            return DB::transaction(function () use ($request) {
-                $profileUserGroup = $this->base->store(ProfileUserGroup::class, [
-                    'profile_id' => $request['profile_id'] ?? null,
-                    'user_group_id' => $request['user_group_id'] ?? null
-                ]);
+            return DB::transaction(function () use ($profileUserGroupDTO) {
+
+                $profileUserGroupData = $profileUserGroupDTO->toArray();
+                $profileUserGroup = $this->base->store(ProfileUserGroup::class, $profileUserGroupData);
 
                 return $this->returnModel(201, Helper::SUCCESS, 'Profile user group created successfully!', $profileUserGroup, $profileUserGroup->id);
             });
@@ -50,20 +49,18 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
     /**
      * Update an existing profile user group in the database.
      * 
-     * @param array $request
+     * @param ProfileUserGroupDTO $profileUserGroupDTO
      * @param int $profileUserGroupId
      * @return array
      */
-    public function updateProfileUserGroup(array $request, int $profileUserGroupId): array
+    public function updateProfileUserGroup(ProfileUserGroupDTO $profileUserGroupDTO, int $profileUserGroupId): array
     {
         try {
-            return DB::transaction(function () use ($request, $profileUserGroupId) {
+            return DB::transaction(function () use ($profileUserGroupDTO, $profileUserGroupId) {
                 $profileUserGroup = $this->fetch->showQuery(ProfileUserGroup::class, $profileUserGroupId)->firstOrFail();
 
-                $profileUserGroup = $this->base->update($profileUserGroup, [
-                    'profile_id' => $request['profile_id'] ?? $profileUserGroup->profile_id,
-                    'user_group_id' => $request['user_group_id'] ?? $profileUserGroup->user_group_id,
-                ]);
+                $profileUserGroupData = $profileUserGroupDTO->fromModel($profileUserGroup)->toArray();
+                $profileUserGroup = $this->base->update($profileUserGroup, $profileUserGroupData);
 
                 // $this->returnModel(code, status, message, model, last_id);
                 return $this->returnModel(200, Helper::SUCCESS, 'Profile user group updated successfully!', $profileUserGroup, $profileUserGroupId);
@@ -77,19 +74,18 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
     /**
      * Update an existing profile user group in the database using profile id.
      * 
-     * @param array $request
+     * @param ProfileUserGroupDTO $profileUserGroupDTO
      * @param int $profileId
      * @return array
      */
-    public function updateProfileUserGroupWithProfileId(array $request, int $profileId): array
+    public function updateProfileUserGroupWithProfileId(ProfileUserGroupDTO $profileUserGroupDTO, int $profileId): array
     {
         try {
-            return DB::transaction(function () use ($request, $profileId) {
+            return DB::transaction(function () use ($profileUserGroupDTO, $profileId) {
                 $profileUserGroup = $this->fetch->showQuery(ProfileUserGroup::class, $profileId, 'profile_id')->firstOrFail();
 
-                $profileUserGroup = $this->base->update($profileUserGroup, [
-                    'user_group_id' => $request['user_group_id'] ?? $profileUserGroup->user_group_id,
-                ]);
+                $profileUserGroupData = $profileUserGroupDTO->toArray();
+                $profileUserGroup = $this->base->update($profileUserGroup, $profileUserGroupData);
 
                 // $this->returnModel(code, status, message, model, last_id);
                 return $this->returnModel(200, Helper::SUCCESS, 'Profile user group updated successfully!', $profileUserGroup, $profileUserGroup->id);

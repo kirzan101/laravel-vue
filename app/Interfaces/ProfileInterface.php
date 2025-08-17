@@ -2,24 +2,26 @@
 
 namespace App\Interfaces;
 
+use App\DTOs\ProfileDTO;
+
 interface ProfileInterface
 {
     /**
      * Store a new profile in the database.
      *
-     * @param array $request
+     * @param ProfileDTO $profileDTO
      * @return array
      */
-    public function storeProfile(array $request): array;
+    public function storeProfile(ProfileDTO $profileDTO): array;
 
     /**
      * update an existing profile in the database.
      *
-     * @param array $request
+     * @param ProfileDTO $profileDTO
      * @param integer $profileId
      * @return array
      */
-    public function updateProfile(array $request, int $profileId): array;
+    public function updateProfile(ProfileDTO $profileDTO, int $profileId): array;
 
     /**
      * delete a profile from the database.

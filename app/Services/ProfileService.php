@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTOs\ProfileDTO;
 use App\Helpers\Helper;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
@@ -33,27 +34,17 @@ class ProfileService implements ProfileInterface
     /**
      * Store a new profile in the database.
      *
-     * @param array $request
+     * @param ProfileDTO $profileDTO
      * @return array
      */
-    public function storeProfile(array $request): array
+    public function storeProfile(ProfileDTO $profileDTO): array
     {
         try {
-            return DB::transaction(function () use ($request) {
-                $profileId = $this->currentUser->getProfileId();
+            return DB::transaction(function () use ($profileDTO) {
+                $currentUserProfileId = $this->currentUser->getProfileId();
 
-                $profile = $this->base->store(Profile::class, [
-                    'avatar' => $request['avatar'] ?? null,
-                    'first_name' => $request['first_name'] ?? null,
-                    'middle_name' => $request['middle_name'] ?? null,
-                    'last_name' => $request['last_name'] ?? null,
-                    'nickname' => $request['nickname'] ?? null,
-                    'type' => $request['type'] ?? null,
-                    'contact_numbers' => $request['contact_numbers'] ?? [],
-                    'user_id' => $request['user_id'] ?? null,
-                    'created_by' => $profileId,
-                    'updated_by' => $profileId,
-                ]);
+                $profileData = $profileDTO->withDefaultAudit($currentUserProfileId)->toArray();
+                $profile = $this->base->store(Profile::class, $profileData);
 
                 return $this->returnModel(201, Helper::SUCCESS, 'Profile created successfully!', $profile, $profile->id);
             });
@@ -66,30 +57,24 @@ class ProfileService implements ProfileInterface
     /**
      * update an existing profile in the database.
      *
+     * @param ProfileDTO $profileDTO
      * @param integer $profileId
-     * @param array $request
      * @return array
      */
-    public function updateProfile(array $request, int $profileId): array
+    public function updateProfile(ProfileDTO $profileDTO, int $profileId): array
     {
         try {
-            return DB::transaction(function () use ($request, $profileId) {
+            return DB::transaction(function () use ($profileDTO, $profileId) {
                 $currentUserProfileId = $this->currentUser->getProfileId();
 
                 $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
 
                 // Update the profile with the provided data
-                $profile = $this->base->update($profile, [
-                    'avatar' => $request['avatar'] ?? $profile->avatar,
-                    'first_name' => $request['first_name'] ?? $profile->first_name,
-                    'middle_name' => $request['middle_name'] ?? $profile->middle_name,
-                    'last_name' => $request['last_name'] ?? $profile->last_name,
-                    'nickname' => $request['nickname'] ?? $profile->nickname,
-                    'type' => $request['type'] ?? $profile->type,
-                    'contact_numbers' => $request['contact_numbers'] ?? $profile->contact_numbers,
-                    'user_id' => $request['user_id'] ?? $profile->user_id,
-                    'updated_by' => $request['updated_by'] ?? $currentUserProfileId,
-                ]);
+                $profileData = $profileDTO->fromModel($profile)
+                    ->touchUpdatedBy($currentUserProfileId)
+                    ->toArray();
+                $profile = $this->base->update($profile, $profileData);
+
 
                 return $this->returnModel(200, Helper::SUCCESS, 'Profile updated successfully!', $profile, $profile->id);
             });

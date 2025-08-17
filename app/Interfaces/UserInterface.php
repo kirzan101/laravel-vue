@@ -2,24 +2,26 @@
 
 namespace App\Interfaces;
 
+use App\DTOs\UserDTO;
+
 interface UserInterface
 {
     /**
      * Store a new user in the database.
      *
-     * @param array $request
+     * @param UserDTO $userDTO
      * @return array
      */
-    public function storeUser(array $request): array;
+    public function storeUser(UserDTO $userDTO): array;
 
     /**
      * update an existing user in the database.
      *
-     * @param array $request
+     * @param UserDTO $userDTO
      * @param integer $userId
      * @return array
      */
-    public function updateUser(array $request, int $userId): array;
+    public function updateUser(UserDTO $userDTO, int $userId): array;
 
     /**
      * delete a user from the database.

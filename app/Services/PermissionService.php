@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTOs\PermissionDTO;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
@@ -34,20 +35,16 @@ class PermissionService implements PermissionInterface
     /**
      * Store a new permission in the database.
      *
-     * @param array $request
+     * @param PermissionDTO $permissionDTO
      * @return array
      */
-    public function storePermission(array $request): array
+    public function storePermission(PermissionDTO $permissionDTO): array
     {
         try {
-            return DB::transaction(function () use ($request) {
-                $module = $this->moduleResolver->resolve($request['module'] ?? null);
+            return DB::transaction(function () use ($permissionDTO) {
 
-                $permission = $this->base->store(Permission::class, [
-                    'module' => $module,
-                    'type' => $request['type'] ?? null,
-                    'is_active' => $request['is_active'] ?? true,
-                ]);
+                $permissionData = $permissionDTO->toArray();
+                $permission = $this->base->store(Permission::class, $permissionData);
 
                 return $this->returnModel(201, 'success', 'Permission created successfully!', $permission, $permission->id);
             });
@@ -60,28 +57,18 @@ class PermissionService implements PermissionInterface
     /**
      * Update an existing permission in the database.
      *
-     * @param array $request
+     * @param PermissionDTO $permissionDTO
      * @param int $permissionId
      * @return array
      */
-    public function updatePermission(array $request, int $permissionId): array
+    public function updatePermission(PermissionDTO $permissionDTO, int $permissionId): array
     {
         try {
-            return DB::transaction(function () use ($request, $permissionId) {
+            return DB::transaction(function () use ($permissionDTO, $permissionId) {
                 $permission = $this->fetch->showQuery(Permission::class, $permissionId)->firstOrFail();
 
-                $module = $permission->module;
-                $newModule = $this->moduleResolver->resolve($request['module'] ?? null);
-
-                if ($module !== $newModule) {
-                    $module = $newModule;
-                }
-
-                $permission = $this->base->update($permission, [
-                    'module' => $module,
-                    'type' => $request['type'] ?? $permission->type,
-                    'is_active' => $request['is_active'] ?? $permission->is_active,
-                ]);
+                $permissionData = $permissionDTO->fromModel($permission)->toArray();
+                $permission = $this->base->update($permission, $permissionData);
 
                 return $this->returnModel(200, 'success', 'Permission updated successfully!', $permission, $permissionId);
             });

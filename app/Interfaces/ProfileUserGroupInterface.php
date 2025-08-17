@@ -2,33 +2,35 @@
 
 namespace App\Interfaces;
 
+use App\DTOs\ProfileUserGroupDTO;
+
 interface ProfileUserGroupInterface
 {
     /**
      * Store a new profile user group in the database.
      *
-     * @param  array  $request
+     * @param  ProfileUserGroupDTO  $profileUserGroupDTO
      * @return array
      */
-    public function storeProfileUserGroup(array $request): array;
+    public function storeProfileUserGroup(ProfileUserGroupDTO $profileUserGroupDTO): array;
 
     /**
      * Update an existing profile user group in the database.
      *
-     * @param  array  $request
+     * @param  ProfileUserGroupDTO  $profileUserGroupDTO
      * @param  int    $profileUserGroupId
      * @return array
      */
-    public function updateProfileUserGroup(array $request, int $profileUserGroupIdid): array;
+    public function updateProfileUserGroup(ProfileUserGroupDTO $profileUserGroupDTO, int $profileUserGroupId): array;
 
     /**
      * Update an existing profile user group in the database using profile id.
      * 
-     * @param array $request
+     * @param ProfileUserGroupDTO $profileUserGroupDTO
      * @param int $profileId
      * @return array
      */
-    public function updateProfileUserGroupWithProfileId(array $request, int $profileUserGroupId): array;
+    public function updateProfileUserGroupWithProfileId(ProfileUserGroupDTO $profileUserGroupDTO, int $profileId): array;
 
     /**
      * Delete the given profile user group in the database.

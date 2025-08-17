@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTOs\UserDTO;
 use App\Helpers\Helper;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
@@ -26,25 +27,17 @@ class UserService implements UserInterface
     /**
      * Store a new user in the database.
      *
-     * @param array $request
+     * @param UserDTO $userDTO
      * @return array
      */
-    public function storeUser(array $request): array
+    public function storeUser(UserDTO $userDTO): array
     {
         try {
-            return DB::transaction(function () use ($request) {
+            return DB::transaction(function () use ($userDTO) {
 
-                // Hash password if provided
-                $password = bcrypt($request['username'] ?? 'q');
+                $userData = $userDTO->toArray();
+                $user = $this->base->store(User::class, $userData);
 
-                $user = $this->base->store(User::class, [
-                    'username' => $request['username'] ?? null,
-                    'email' => $request['email'] ?? null,
-                    'password' => $password,
-                    'status' => $request['status'] ?? Helper::ACCOUNT_STATUS_ACTIVE,
-                    'is_admin' => $request['is_admin'] ?? false,
-                    'is_first_login' => $request['is_first_login'] ?? true,
-                ]);
                 return $this->returnModel(201, Helper::SUCCESS, 'User created successfully!', $user, $user->id);
             });
         } catch (\Throwable $th) {
@@ -57,23 +50,17 @@ class UserService implements UserInterface
      * update an existing user in the database.
      *
      * @param integer $userId
-     * @param array $request
+     * @param UserDTO $userDTO
      * @return array
      */
-    public function updateUser(array $request, int $userId): array
+    public function updateUser(UserDTO $userDTO, int $userId): array
     {
         try {
-            return DB::transaction(function () use ($request, $userId) {
+            return DB::transaction(function () use ($userDTO, $userId) {
                 $user = $this->fetch->showQuery(User::class, $userId)->firstOrFail();
 
-                $user = $this->base->update($user, [
-                    'username' => $request['username'] ?? $user->username,
-                    'email' => $request['email'] ?? $user->email,
-                    'password' => !empty($request['password']) ? bcrypt($request['password']) : $user->password,
-                    'is_admin' => $request['is_admin'] ?? $user->is_admin,
-                    'status' => $request['status'] ?? $user->status,
-                    'is_first_login' => $request['is_first_login'] ?? $user->is_first_login,
-                ]);
+                $userData = $userDTO->fromModel($user)->toArray();
+                $user = $this->base->update($user, $userData);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'User updated successfully!', $user, $userId);
             });

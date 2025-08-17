@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTOs\ActivityLogDTO;
 use App\Helpers\Helper;
 use App\Interfaces\ActivityLogInterface;
 use App\Models\ActivityLog;
@@ -31,25 +32,18 @@ class ActivityLogService implements ActivityLogInterface
 
     /**
      * Store a new activity log in the database.
-     * @param array $request
+     * @param ActivityLogDTO $activityLogDTO
      * @return array
      * @throws \Throwable
      */
-    public function storeActivityLog(array $request): array
+    public function storeActivityLog(ActivityLogDTO $activityLogDTO): array
     {
         try {
-            return DB::transaction(function () use ($request) {
-                $profileId = $this->currentUser->getProfileId();
+            return DB::transaction(function () use ($activityLogDTO) {
+                $currentProfileId = $this->currentUser->getProfileId();
 
-                $activityLog = $this->base->store(ActivityLog::class, [
-                    'module' => $request['module'] ?? null,
-                    'description' => $request['description'] ?? null,
-                    'status' => $request['status'] ?? null,
-                    'type' => $request['type'] ?? null,
-                    'properties' => $request['properties'] ?? [],
-                    'created_by' => $profileId,
-                    'updated_by' => $profileId,
-                ]);
+                $activityLogData = $activityLogDTO->withDefaultAudit($currentProfileId)->toArray();
+                $activityLog = $this->base->store(ActivityLog::class, $activityLogData);
 
                 return $this->returnModel(201, Helper::SUCCESS, 'Activity log created successfully!', $activityLog, $activityLog->id);
             });
@@ -61,25 +55,23 @@ class ActivityLogService implements ActivityLogInterface
 
     /**
      * Update an existing activity log in the database.
-     * @param array $request
+     * @param ActivityLogDTO $activityLogDTO
      * @param int $activityLogId
      * @return array
      * @throws \Throwable
      */
-    public function updateActivityLog(array $request, int $activityLogId): array
+    public function updateActivityLog(ActivityLogDTO $activityLogDTO, int $activityLogId): array
     {
         try {
-            return DB::transaction(function () use ($request, $activityLogId) {
+            return DB::transaction(function () use ($activityLogDTO, $activityLogId) {
+
                 $activityLog = $this->fetch->showQuery(ActivityLog::class, $activityLogId)->firstOrFail();
 
-                $activityLog = $this->base->update($activityLog, [
-                    'module' => $request['module'] ?? $activityLog->module,
-                    'description' => $request['description'] ?? $activityLog->description,
-                    'status' => $request['status'] ?? $activityLog->status,
-                    'type' => $request['type'] ?? $activityLog->type,
-                    'properties' => $request['properties'] ?? $activityLog->properties,
-                    'updated_by' => $this->currentUser->getProfileId(),
-                ]);
+                $currentProfileId = $this->currentUser->getProfileId();
+                $activityLogData = $activityLogDTO->fromModel($activityLog)
+                    ->touchUpdatedBy($currentProfileId)
+                    ->toArray();
+                $activityLog = $this->base->update($activityLog, $activityLogData);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'Activity log updated successfully!', $activityLog, $activityLogId);
             });

@@ -2,24 +2,26 @@
 
 namespace App\Interfaces;
 
+use App\DTOs\UserGroupDTO;
+
 interface UserGroupInterface
 {
     /**
      * Store a new user group in the database.
      *
-     * @param array $request
+     * @param UserGroupDTO $userGroupDTO
      * @return array
      */
-    public function storeUserGroup(array $request): array;
+    public function storeUserGroup(UserGroupDTO $userGroupDTO): array;
 
     /**
      * update an existing user group in the database.
      *
-     * @param array $request
+     * @param UserGroupDTO $userGroupDTO
      * @param integer $userGroupId
      * @return array
      */
-    public function updateUserGroup(array $request, int $userGroupId): array;
+    public function updateUserGroup(UserGroupDTO $userGroupDTO, int $userGroupId): array;
 
     /**
      * delete a user group from the database.
@@ -28,21 +30,4 @@ interface UserGroupInterface
      * @return array
      */
     public function deleteUserGroup(int $userGroupId): array;
-
-    /**
-     * Store a new user group with permissions in the database.
-     *
-     * @param array $request
-     * @return array
-     */
-    public function storeUserGroupWithPermissions(array $request): array;
-
-    /**
-     * update an existing user group with permissions in the database.
-     *
-     * @param array $request
-     * @param integer $userGroupId
-     * @return array
-     */
-    public function updateUserGroupWithPermissions(array $request, int $userGroupId): array;
 }

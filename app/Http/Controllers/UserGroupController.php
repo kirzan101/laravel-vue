@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\UserGroupDTO;
+use App\DTOs\UserGroupPermissionDTO;
+use App\DTOs\UserGroupWithPermissionDTO;
 use App\Helpers\ErrorHelper;
 use App\Helpers\Helper;
 use App\Http\Requests\UserGroupFormRequest;
 use App\Interfaces\FetchInterfaces\PermissionFetchInterface;
+use App\Interfaces\ManageUserGroupPermissionInterface;
 use App\Interfaces\UserGroupInterface;
 use App\Models\UserGroup;
 use App\Traits\ReturnModulePermissionTrait;
@@ -22,6 +26,7 @@ class UserGroupController extends Controller
 
     public function __construct(
         private PermissionFetchInterface $permissionFetch,
+        private ManageUserGroupPermissionInterface $manageUserGroupPermission,
         private UserGroupInterface $userGroup
     ) {}
 
@@ -75,11 +80,18 @@ class UserGroupController extends Controller
      */
     public function store(UserGroupFormRequest $request)
     {
+        $userGroupDTO = UserGroupDTO::fromArray($request->all());
+        $permissions = $request->input('permissions', []);
+        $userGroupPermissionDTO = new UserGroupWithPermissionDTO(
+            userGroup: $userGroupDTO,
+            permissions: $permissions
+        );
+
         [
             'code' => $code,
             'status' => $status,
             'message' => $message
-        ] = $this->userGroup->storeUserGroupWithPermissions($request->toArray());
+        ] = $this->manageUserGroupPermission->storeUserGroupWithPermissions($userGroupPermissionDTO);
 
         $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
         if ($status === Helper::ERROR) {
@@ -97,11 +109,18 @@ class UserGroupController extends Controller
      */
     public function update(UserGroupFormRequest $request, int $id)
     {
+        $userGroupDTO = UserGroupDTO::fromArray($request->all());
+        $permissions = $request->input('permissions', []);
+        $userGroupPermissionDTO = new UserGroupWithPermissionDTO(
+            userGroup: $userGroupDTO,
+            permissions: $permissions
+        );
+
         [
             'code' => $code,
             'status' => $status,
             'message' => $message
-        ] = $this->userGroup->updateUserGroupWithPermissions($request->toArray(), $id);
+        ] = $this->manageUserGroupPermission->updateUserGroupWithPermissions($userGroupPermissionDTO, $id);
 
         $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
         if ($status === Helper::ERROR) {

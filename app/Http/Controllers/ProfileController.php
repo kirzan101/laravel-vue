@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\ActivityLogDTO;
+use App\DTOs\ProfileDTO;
 use App\Helpers\Helper;
 use App\Http\Requests\ProfileFormRequest;
 use App\Http\Resources\ProfileResource;
@@ -58,11 +60,13 @@ class ProfileController extends Controller
      */
     public function store(ProfileFormRequest $request)
     {
+        $profileDTO = ProfileDTO::fromArray($request->all());
+
         [
             'code' => $code,
             'status' => $status,
             'message' => $message
-        ] = $this->profile->storeProfile($request->all());
+        ] = $this->profile->storeProfile($profileDTO);
 
         if ($status === Helper::ERROR) {
             return Inertia::render('Error', [
@@ -72,15 +76,14 @@ class ProfileController extends Controller
         }
 
         // Log the activity
-        $this->activityLog->storeActivityLog(
-            [
-                'module' => 'profiles',
-                'description' => $message,
-                'status' => $status,
-                'type' => 'create',
-                'properties' => $request->toArray(),
-            ]
-        );
+        $activityLogData = ActivityLogDTO::fromArray([
+            'module' => 'profiles',
+            'description' => $message,
+            'status' => $status,
+            'type' => 'delete',
+            'properties' => $request->toArray(),
+        ]);
+        $this->activityLog->storeActivityLog($activityLogData);
 
         return redirect()->back()->with($status, $message);
     }
@@ -90,11 +93,13 @@ class ProfileController extends Controller
      */
     public function update(ProfileFormRequest $request, int $id)
     {
+        $profileDTO = ProfileDTO::fromArray($request->all());
+
         [
             'code' => $code,
             'status' => $status,
             'message' => $message
-        ] = $this->profile->updateProfile($request->all(), $id);
+        ] = $this->profile->updateProfile($profileDTO, $id);
 
         if ($status === Helper::ERROR) {
             return Inertia::render('Error', [
@@ -104,15 +109,14 @@ class ProfileController extends Controller
         }
 
         // Log the activity
-        $this->activityLog->storeActivityLog(
-            [
-                'module' => 'profiles',
-                'description' => $message,
-                'status' => $status,
-                'type' => 'update',
-                'properties' => $request->toArray(),
-            ]
-        );
+        $activityLogData = ActivityLogDTO::fromArray([
+            'module' => 'profiles',
+            'description' => $message,
+            'status' => $status,
+            'type' => 'delete',
+            'properties' => $request->toArray(),
+        ]);
+        $this->activityLog->storeActivityLog($activityLogData);
 
         return redirect()->back()->with($status, $message);
     }
@@ -136,17 +140,16 @@ class ProfileController extends Controller
         }
 
         // Log the activity
-        $this->activityLog->storeActivityLog(
-            [
-                'module' => 'profiles',
-                'description' => $message,
-                'status' => $status,
-                'type' => 'delete',
-                'properties' => [
-                    'profile_id' => $id,
-                ],
-            ]
-        );
+        $activityLogData = ActivityLogDTO::fromArray([
+            'module' => 'profiles',
+            'description' => $message,
+            'status' => $status,
+            'type' => 'delete',
+            'properties' => [
+                'profile_id' => $id,
+            ],
+        ]);
+        $this->activityLog->storeActivityLog($activityLogData);
 
         return redirect()->back()->with($status, $message);
     }

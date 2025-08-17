@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\DTOs\UserGroupPermissionDTO;
 use App\Helpers\Helper;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
@@ -28,18 +29,16 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
     /**
      * Store a new user group permission in the database.
      *
-     * @param array $request
+     * @param UserGroupPermissionDTO $userGroupPermissionDTO
      * @return array
      */
-    public function storeUserGroupPermission(array $request): array
+    public function storeUserGroupPermission(UserGroupPermissionDTO $userGroupPermissionDTO): array
     {
         try {
-            return DB::transaction(function () use ($request) {
-                $userGroupPermission = $this->base->store(UserGroupPermission::class, [
-                    'user_group_id' => $request['user_group_id'] ?? null,
-                    'permission_id' => $request['permission_id'] ?? null,
-                    'is_active' => $request['is_active'] ?? true,
-                ]);
+            return DB::transaction(function () use ($userGroupPermissionDTO) {
+
+                $userGroupPermissionData = $userGroupPermissionDTO->toArray();
+                $userGroupPermission = $this->base->store(UserGroupPermission::class, $userGroupPermissionData);
 
                 return $this->returnModel(201, Helper::SUCCESS, 'User group permission created successfully!', $userGroupPermission, $userGroupPermission->id);
             });
@@ -52,21 +51,18 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
     /**
      * update an existing user group permission in the database.
      *
+     * @param UserGroupPermissionDTO $userGroupPermissionDTO
      * @param integer $userGroupPermissionId
-     * @param array $request
      * @return array
      */
-    public function updateUserGroupPermission(array $request, int $userGroupPermissionId): array
+    public function updateUserGroupPermission(UserGroupPermissionDTO $userGroupPermissionDTO, int $userGroupPermissionId): array
     {
         try {
-            return DB::transaction(function () use ($request, $userGroupPermissionId) {
+            return DB::transaction(function () use ($userGroupPermissionDTO, $userGroupPermissionId) {
                 $userGroupPermission = $this->fetch->showQuery(UserGroupPermission::class, $userGroupPermissionId)->firstOrFail();
 
-                $userGroupPermission = $this->base->update($userGroupPermission, [
-                    'user_group_id' => $request['user_group_id'] ?? $userGroupPermission->user_group_id,
-                    'permission_id' => $request['permission_id'] ?? $userGroupPermission->permission_id,
-                    'is_active' => $request['is_active'] ?? $userGroupPermission->is_active,
-                ]);
+                $userGroupPermissionData = $userGroupPermissionDTO->fromModel($userGroupPermission)->toArray();
+                $userGroupPermission = $this->base->update($userGroupPermission, $userGroupPermissionData);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'User group permission updated successfully!', $userGroupPermission, $userGroupPermissionId);
             });
