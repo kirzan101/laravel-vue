@@ -2,6 +2,7 @@
 
 namespace {{ namespace }};
 
+use App\DTOs\{{ dto }};
 use App\Helpers\Helper;
 use App\Interfaces\{{ interface }};
 use App\Traits\HttpErrorCodeTrait;
@@ -26,27 +27,29 @@ class {{ class }} implements {{ interface }}
         private BaseInterface $base,
         private BaseFetchInterface $fetch,
         private CurrentUserInterface $currentUser
-    ) {
-        //
-    }
+    ) {}
 
     /**
      * Store a new {{ description }} in the database.
      *
-     * @param array $request
+     * @param {{ dto }} ${{ dtoVariable }}
      * @return array
      */
-    public function store{{ base }}(array $request): array
+    public function store{{ base }}({{ dto }} ${{ dtoVariable }}): array
     {
         try {
-            return DB::transaction(function () use ($request) {
-                $profileId = $this->currentUser->getProfileId(); // current logged in profile
+            return DB::transaction(function () use (${{ dtoVariable }}) {
 
-                // TODO: implement logic to store a {{ class }}
+                // Uncomment if there is an created_by and updated_by column in the model
+                // $currentUserProfileId = $this->currentUser->getProfileId(); // current logged in profile
+                // if ($this->modelHasColumns({{ base }}::class, ['created_by', 'updated_by'])) {
+                //     ${{ dtoVariable }} = ${{ dtoVariable }}->withDefaultAudit($currentUserProfileId);
+                // }
 
-                // use this format in return
-                // $this->returnModel(code, status, message, model, last_id);
-                return $this->returnModel(201, Helper::SUCCESS, '{{ readable }} created successfully!', null, null);
+                ${{ variable }}Data = ${{ dtoVariable }}->toArray();
+                ${{ variable }} = $this->base->store({{ base }}::class, ${{ variable }}Data);
+
+                return $this->returnModel(201, Helper::SUCCESS, '{{ readable }} created successfully!', ${{ variable }}, ${{ variable }}->id );
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
@@ -57,19 +60,27 @@ class {{ class }} implements {{ interface }}
     /**
      * Update an existing {{ description }} in the database.
      *
-     * @param array $request
+     * @param {{ dto }} ${{ dtoVariable }}
      * @param int ${{ variable }}Id
      * @return array
      */
-    public function update{{ base }}(array $request, int ${{ variable }}Id): array
+    public function update{{ base }}({{ dto }} ${{ dtoVariable }}, int ${{ variable }}Id): array
     {
         try {
-            return DB::transaction(function () use ($request, ${{ variable }}Id) {
-                $profileId = $this->currentUser->getProfileId(); // current logged in profile
-
+            return DB::transaction(function () use (${{ dtoVariable }}, ${{ variable }}Id) {
                 ${{ variable }} = $this->fetch->showQuery({{ base }}::class, ${{ variable }}Id)->firstOrFail();
 
-                // TODO: implement logic to update a {{ class }}
+                ${{ dtoVariable }} = ${{ dtoVariable }}->fromModel(${{ variable }});
+                
+                // Uncomment if there is an updated_by column in the model
+                // $currentUserProfileId = $this->currentUser->getProfileId(); // current logged in profile
+                // if ($this->modelHasColumn(${{ variable }}, 'updated_by')) {
+                //     ${{ dtoVariable }} = ${{ dtoVariable }}->fromModel(${{ variable }})
+                //         ->touchUpdatedBy($currentUserProfileId);
+                // }
+
+                ${{ variable }}Data = ${{ dtoVariable }}->toArray();
+                ${{ variable }} = $this->base->update(${{ variable }}, ${{ variable }}Data);
 
                 // $this->returnModel(code, status, message, model, last_id);
                 return $this->returnModel(200, Helper::SUCCESS, '{{ readable }} updated successfully!', null, null);

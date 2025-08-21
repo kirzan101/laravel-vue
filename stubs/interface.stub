@@ -2,24 +2,26 @@
 
 namespace App\Interfaces;
 
+use App\DTOs\{{ dto }};
+
 interface {{ interface }}
 {
     /**
      * Store a new {{ description }} in the database.
      *
-     * @param  array  $request
+     * @param  {{ dto }} ${{ dtoVariable }}
      * @return array
      */
-    public function store{{ base }}(array $request): array;
+    public function store{{ base }}({{ dto }} ${{ dtoVariable }}): array;
 
     /**
      * Update an existing {{ description }} in the database.
      *
-     * @param  array  $request
+     * @param  {{ dto }} ${{ dtoVariable }}
      * @param  int    ${{ variable }}Id
      * @return array
      */
-    public function update{{ base }}(array $request, int ${{ variable }}Id): array;
+    public function update{{ base }}({{ dto }} ${{ dtoVariable }}, int ${{ variable }}Id): array;
 
     /**
      * Delete the given {{ description }} in the database.

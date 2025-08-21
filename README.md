@@ -111,11 +111,13 @@ It will generate:
 ```bash
 Interface [app/Interfaces/UserGroupInterface.php] created successfully.
 Service [app/Services/UserGroupService.php] created successfully.
+DTO [app/DTOs/UserGroupDTO.php] created successfully.
 ```
 
 🗂️ **Generated files**
 - `app/Interfaces/UserGroupInterface.php`
 - `app/Services/UserGroupService.php`
+- `app/DTOs/UserGroupDTO.php`
 
 ### 2. 🔧 Generate Fetch Service & Interface
 This custom command generates a new **Fetch Service class** and its corresponding **Fetch Interface**. Use the model-style name (PascalCase) when calling the command.

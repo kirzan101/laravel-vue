@@ -17,19 +17,23 @@ class MakeServiceCommand extends Command
         $variableName = Str::camel($baseName);            // e.g., "userGroup"
         $className = "{$baseName}Service";                // e.g., "UserGroupService"
         $interfaceName = "{$baseName}Interface";          // e.g., "UserGroupInterface"
+        $dtoName = "{$baseName}DTO";                      // e.g., "UserGroupDTO"
+        $dtoVariableName = Str::camel($baseName) . "DTO";  // e.g., "userGroupDTO"
         $readableLabel = ucfirst(strtolower(preg_replace('/(?<!^)[A-Z]/', ' $0', $baseName)));
         $readableDescription = strtolower(strtolower(preg_replace('/(?<!^)[A-Z]/', ' $0', $baseName)));
 
         // Paths
         $servicePath = app_path("Services/{$className}.php");
         $interfacePath = app_path("Interfaces/{$interfaceName}.php");
+        $dtoPath = app_path("DTOs/{$dtoName}.php");
 
         $serviceStubPath = base_path('stubs/service.stub');
         $interfaceStubPath = base_path('stubs/interface.stub');
+        $dtoStubPath = base_path('stubs/dto.stub');
 
         // Validate stub files
-        if (!File::exists($serviceStubPath) || !File::exists($interfaceStubPath)) {
-            $this->error('One or both stub files are missing in /stubs directory.');
+        if (!File::exists($serviceStubPath) || !File::exists($interfaceStubPath) || !File::exists($dtoStubPath)) {
+            $this->error('One or more stub files are missing in /stubs directory.');
             return;
         }
 
@@ -46,8 +50,8 @@ class MakeServiceCommand extends Command
         // Generate service file
         $serviceStub = File::get($serviceStubPath);
         $serviceContent = str_replace(
-            ['{{ namespace }}', '{{ class }}', '{{ base }}', '{{ interface }}', '{{ readable }}', '{{ description }}', '{{ variable }}'],
-            ['App\\Services', $className, $baseName, $interfaceName, $readableLabel, $readableDescription, $variableName],
+            ['{{ namespace }}', '{{ class }}', '{{ base }}', '{{ interface }}', '{{ readable }}', '{{ description }}', '{{ variable }}', '{{ dto }}', '{{ dtoVariable }}'],
+            ['App\\Services', $className, $baseName, $interfaceName, $readableLabel, $readableDescription, $variableName, $dtoName, $dtoVariableName],
             $serviceStub
         );
         File::ensureDirectoryExists(app_path('Services'));
@@ -56,15 +60,26 @@ class MakeServiceCommand extends Command
         // Generate interface file
         $interfaceStub = File::get($interfaceStubPath);
         $interfaceContent = str_replace(
-            ['{{ namespace }}', '{{ interface }}', '{{ base }}', '{{ readable }}', '{{ description }}', '{{ variable }}'],
-            ['App\\Interfaces', $interfaceName, $baseName, $readableLabel, $readableDescription, $variableName],
+            ['{{ namespace }}', '{{ interface }}', '{{ base }}', '{{ readable }}', '{{ description }}', '{{ variable }}', '{{ dto }}', '{{ dtoVariable }}'],
+            ['App\\Interfaces', $interfaceName, $baseName, $readableLabel, $readableDescription, $variableName, $dtoName, $dtoVariableName],
             $interfaceStub
         );
         File::ensureDirectoryExists(app_path('Interfaces'));
         File::put($interfacePath, $interfaceContent);
 
+        // Generate DTO file
+        $dtoStub = File::get($dtoStubPath);
+        $dtoContent = str_replace(
+            ['{{ namespace }}', '{{ dto }}', '{{ base }}', '{{ readable }}', '{{ description }}', '{{ variable }}'],
+            ['App\\DTOs', $dtoName, $baseName, $readableLabel, $readableDescription, $variableName],
+            $dtoStub
+        );
+        File::ensureDirectoryExists(app_path('DTOs'));
+        File::put($dtoPath, $dtoContent);
+
         // Success messages
         $this->components->info("Interface [app/Interfaces/{$interfaceName}.php] created successfully.");
         $this->components->info("Service [app/Services/{$className}.php] created successfully.");
+        $this->components->info("DTO [app/DTOs/{$className}.php] created successfully.");
     }
 }

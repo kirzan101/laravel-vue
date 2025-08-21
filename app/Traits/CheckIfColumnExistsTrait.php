@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -31,5 +32,29 @@ trait CheckIfColumnExistsTrait
         }
 
         return Schema::hasColumn($model->getTable(), $column);
+    }
+
+    /**
+     * Check if the given column exists on the model's underlying database table.
+     *
+     * @param string $modelClass Fully qualified model class name
+     * @param array  $columns    Column names to check
+     * @return bool
+     */
+    public function modelHasColumns(string $modelClass, array $columns): bool
+    {
+        if (!class_exists($modelClass) || !is_subclass_of($modelClass, Model::class)) {
+            return false;
+        }
+
+        $table = (new $modelClass)->getTable();
+
+        foreach ($columns as $column) {
+            if (!Schema::hasColumn($table, $column)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

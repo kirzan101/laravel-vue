@@ -75,7 +75,6 @@ class ProfileService implements ProfileInterface
                     ->toArray();
                 $profile = $this->base->update($profile, $profileData);
 
-
                 return $this->returnModel(200, Helper::SUCCESS, 'Profile updated successfully!', $profile, $profile->id);
             });
         } catch (\Throwable $th) {

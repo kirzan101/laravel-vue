@@ -6,8 +6,6 @@ use App\Helpers\Helper;
 
 class PermissionDTO extends BaseDTO
 {
-    protected array $hidden = ['hidden']; // hide the hidden property itself
-
     /**
      * The module name for the permission.
      * This is a read-only property that is set based on the provided module name.
