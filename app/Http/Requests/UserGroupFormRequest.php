@@ -28,15 +28,22 @@ class UserGroupFormRequest extends FormRequest
     public function authorize(): bool
     {
         $user = $this->user();
+        $routeParam = $this->route('user_group');
 
-        $model = $this->route('user_group');
+        // If the route parameter is numeric, treat it as an existing model (update)
+        if (is_numeric($routeParam)) {
+            $model = UserGroup::find($routeParam);
+            return $user->can(Helper::ACTION_TYPE_UPDATE, $model);
+        }
 
-        $canCreate = $user->can(Helper::ACTION_TYPE_CREATE, UserGroup::class);
-        $canUpdate = $model && $user->can(Helper::ACTION_TYPE_UPDATE, $model);
+        if ($routeParam instanceof UserGroup) {
+            // If the route parameter is an instance of UserGroup, treat it as an existing model (update)
+            return $user->can(Helper::ACTION_TYPE_UPDATE, $routeParam);
+        }
 
-        return $canCreate || $canUpdate;
+        // Otherwise, this is a create request
+        return $user->can(Helper::ACTION_TYPE_CREATE, UserGroup::class);
     }
-
 
     /**
      * Get the validation rules that apply to the request.

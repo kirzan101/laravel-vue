@@ -80,6 +80,14 @@ class UserGroupController extends Controller
      */
     public function store(UserGroupFormRequest $request)
     {
+        // Verify if the current user's group has permission to create
+        if (Gate::denies('create', new UserGroup())) {
+            return Inertia::render('Error', [
+                'code' => 403,
+                'message' => 'You do not have permission to create user group.'
+            ]);
+        }
+
         $userGroupDTO = UserGroupDTO::fromArray($request->all());
         $permissionIds = $request->input('permissionIds', []);
         $userGroupPermissionDTO = new UserGroupWithPermissionDTO(
@@ -109,6 +117,14 @@ class UserGroupController extends Controller
      */
     public function update(UserGroupFormRequest $request, int $id)
     {
+        // Verify if the current user's group has permission to update
+        if (Gate::denies('update', new UserGroup())) {
+            return Inertia::render('Error', [
+                'code' => 403,
+                'message' => 'You do not have permission to update user group.'
+            ]);
+        }
+
         $userGroupDTO = UserGroupDTO::fromArray($request->all());
         $permissionIds = $request->input('permissionIds', []);
         $userGroupPermissionDTO = new UserGroupWithPermissionDTO(
