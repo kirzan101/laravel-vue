@@ -18,7 +18,7 @@ class MakeServiceCommand extends Command
         $className = "{$baseName}Service";                // e.g., "UserGroupService"
         $interfaceName = "{$baseName}Interface";          // e.g., "UserGroupInterface"
         $dtoName = "{$baseName}DTO";                      // e.g., "UserGroupDTO"
-        $dtoVariableName = Str::camel($baseName) . "DTO";  // e.g., "userGroupDTO"
+        $dtoVariableName = Str::camel($baseName) . "DTO"; // e.g., "userGroupDTO"
         $readableLabel = ucfirst(strtolower(preg_replace('/(?<!^)[A-Z]/', ' $0', $baseName)));
         $readableDescription = strtolower(strtolower(preg_replace('/(?<!^)[A-Z]/', ' $0', $baseName)));
 
