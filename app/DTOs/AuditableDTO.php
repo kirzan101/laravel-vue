@@ -4,7 +4,6 @@ namespace App\DTOs;
 
 abstract class AuditableDTO extends BaseDTO
 {
-    public ?int $id = null;
     public ?int $created_by = null;
     public ?int $updated_by = null;
 

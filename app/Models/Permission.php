@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Traits\ReturnModulePermissionTrait;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Cache;
 
 class Permission extends Model
@@ -30,8 +31,8 @@ class Permission extends Model
     {
         $module = $this->module;
 
-        foreach ($this->userGroupPermissions()->with('userGroup.profileUserGroup.profile')->get() as $ugp) {
-            foreach ($ugp->userGroup->profileUserGroup as $profileUserGroup) {
+        foreach ($this->userGroupPermissions()->with('userGroup.profileUserGroups.profile')->get() as $ugp) {
+            foreach ($ugp->userGroup->profileUserGroups as $profileUserGroup) {
                 $profile = $profileUserGroup->profile;
                 if ($profile) {
                     Cache::forget($this->getPermissionCacheKey($profile->id, $module));
@@ -45,4 +46,12 @@ class Permission extends Model
         'type',
         'is_active',
     ];
+
+    /**
+     * Get the user group permissions associated with the permission.
+     */
+    public function userGroupPermissions(): HasMany
+    {
+        return $this->hasMany(UserGroupPermission::class, 'permission_id');
+    }
 }

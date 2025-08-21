@@ -11,8 +11,8 @@ class UserGroupDTO extends AuditableDTO
         public readonly ?string $name = null,
         public readonly ?string $code = null,
         public readonly ?string $description = null,
-        public readonly ?int $id = null,
-        public readonly ?int $created_by = null,
-        public readonly ?int $updated_by = null,
+        ?int $id = null,
+        ?int $created_by = null,
+        ?int $updated_by = null,
     ) {}
 }

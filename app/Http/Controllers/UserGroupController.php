@@ -81,10 +81,10 @@ class UserGroupController extends Controller
     public function store(UserGroupFormRequest $request)
     {
         $userGroupDTO = UserGroupDTO::fromArray($request->all());
-        $permissions = $request->input('permissions', []);
+        $permissionIds = $request->input('permissionIds', []);
         $userGroupPermissionDTO = new UserGroupWithPermissionDTO(
             userGroup: $userGroupDTO,
-            permissions: $permissions
+            permissionIds: $permissionIds
         );
 
         [
@@ -110,10 +110,10 @@ class UserGroupController extends Controller
     public function update(UserGroupFormRequest $request, int $id)
     {
         $userGroupDTO = UserGroupDTO::fromArray($request->all());
-        $permissions = $request->input('permissions', []);
+        $permissionIds = $request->input('permissionIds', []);
         $userGroupPermissionDTO = new UserGroupWithPermissionDTO(
             userGroup: $userGroupDTO,
-            permissions: $permissions
+            permissionIds: $permissionIds
         );
 
         [

@@ -75,7 +75,7 @@ const form = ref({
     name: null,
     code: null,
     description: null,
-    permissions: [],
+    permissionIds: [],
 });
 
 // User group form
@@ -98,7 +98,7 @@ const toggleFormUserGroupRef = () => {
 
 // permissions
 const getSelectedPermissions = (selectedPermissions) => {
-    form.value.permissions = [...selectedPermissions];
+    form.value.permissionIds = [...selectedPermissions];
 };
 
 const formTablePermissionsRef = ref(null);

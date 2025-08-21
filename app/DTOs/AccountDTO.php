@@ -2,7 +2,7 @@
 
 namespace App\DTOs;
 
-class AccountDTO
+class AccountDTO extends BaseDTO
 {
     public function __construct(
         public readonly UserDTO $user,

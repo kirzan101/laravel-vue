@@ -2,10 +2,10 @@
 
 namespace App\DTOs;
 
-class UserGroupWithPermissionDTO
+class UserGroupWithPermissionDTO extends BaseDTO
 {
     public function __construct(
         public readonly UserGroupDTO $userGroup,
-        public readonly ?array $permissions = [],
+        public readonly ?array $permissionIds = [],
     ) {}
 }

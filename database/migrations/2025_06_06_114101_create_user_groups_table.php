@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('user_groups', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); // Unique name for the group
-            $table->string('code')->unique(); // Unique code for the group
+            $table->string('name');
+            $table->string('code');
             $table->string('description')->nullable(); // Optional description of the group
             $table->unsignedBigInteger('created_by')->nullable(); // ID of the user who created the group
             $table->unsignedBigInteger('updated_by')->nullable(); // ID of the user who last updated the group

@@ -19,7 +19,7 @@ class PermissionDTO extends BaseDTO
         ?string $module,
         public readonly ?string $type,
         public readonly ?bool $isActive = true,
-        public readonly ?int $id = null
+        ?int $id = null
     ) {
         $this->module = Helper::getModuleName($module);
     }

@@ -57,8 +57,8 @@ class ManageUserGroupPermissionService implements ManageUserGroupPermissionInter
                 $userGroupId = $userGroupResult['last_id'] ?? null;
 
                 // Store user group permissions
-                $permissions = $userGroupWithPermissionDTO->permissions ?? [];
-                $userGroupPermissionResult = $this->userGroupPermission->storeMultipleUserGroupPermission($permissions, $userGroupId);
+                $permissionIds = $userGroupWithPermissionDTO->permissionIds ?? [];
+                $userGroupPermissionResult = $this->userGroupPermission->storeMultipleUserGroupPermission($permissionIds, $userGroupId);
 
                 $this->ensureSuccess($userGroupPermissionResult, 'User group permission creation failed!');
 
@@ -94,8 +94,8 @@ class ManageUserGroupPermissionService implements ManageUserGroupPermissionInter
                 $userGroup = $userGroupResult['data'] ?? null;
 
                 // Update user group permissions
-                $permissions = $userGroupWithPermissionDTO->permissions ?? [];
-                $userGroupPermissionResult = $this->userGroupPermission->updateMultipleUserGroupPermission($permissions, $userGroupId);
+                $permissionIds = $userGroupWithPermissionDTO->permissionIds ?? [];
+                $userGroupPermissionResult = $this->userGroupPermission->updateMultipleUserGroupPermission($permissionIds, $userGroupId);
 
                 $this->ensureSuccess($userGroupPermissionResult, 'User group permission update failed!');
 

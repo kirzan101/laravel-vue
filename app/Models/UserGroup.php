@@ -49,6 +49,17 @@ class UserGroup extends Model
         return $this->hasMany(UserGroupPermission::class);
     }
 
+
+    /**
+     * Get the profile user groups associated with the user group.
+     *
+     * @return HasMany
+     */
+    public function profileUserGroups(): HasMany
+    {
+        return $this->hasMany(ProfileUserGroup::class, 'user_group_id');
+    }
+
     /**
      * Get the permission list of the user group.
      *

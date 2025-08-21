@@ -21,7 +21,7 @@ class UserDTO extends BaseDTO
         public readonly string $status = Helper::ACCOUNT_STATUS_ACTIVE,
         public readonly bool $is_admin = false,
         public readonly bool $is_first_login = true,
-        public readonly ?int $id = null,
+        ?int $id = null,
     ) {
         // If no password is provided, default to the username (if set)
         $rawPassword = $password ?? $this->username;

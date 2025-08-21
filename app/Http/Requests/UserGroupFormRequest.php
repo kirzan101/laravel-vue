@@ -49,8 +49,8 @@ class UserGroupFormRequest extends FormRequest
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'permissions' => 'required|array',
-            'permissions.*' => 'integer|exists:permissions,id', // Each permission should be a distinct string
+            'permissionIds' => 'required|array',
+            'permissionIds.*' => 'integer|exists:permissions,id', // Each permission should be a distinct string
         ];
     }
 }

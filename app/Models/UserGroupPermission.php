@@ -30,14 +30,14 @@ class UserGroupPermission extends Model
     public function clearPermissionCache()
     {
         // Ensure permission + user group are loaded
-        $this->loadMissing('permission', 'userGroup.profileUserGroup.profile');
+        $this->loadMissing('permission', 'userGroup.profileUserGroups.profile');
 
         $module = $this->permission?->module;
         if (!$module) {
             return;
         }
 
-        foreach ($this->userGroup->profileUserGroup as $profileUserGroup) {
+        foreach ($this->userGroup->profileUserGroups as $profileUserGroup) {
             $profile = $profileUserGroup->profile;
             if ($profile) {
                 Cache::forget($this->getPermissionCacheKey($profile->id, $module));

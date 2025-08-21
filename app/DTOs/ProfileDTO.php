@@ -18,9 +18,9 @@ class ProfileDTO extends AuditableDTO
         public readonly ?string $type = null,
         public readonly array $contact_numbers = [],
         public readonly ?int $user_id = null,
-        public readonly ?int $id = null,
-        public readonly ?int $created_by = null,
-        public readonly ?int $updated_by = null,
+        ?int $id = null,
+        ?int $created_by = null,
+        ?int $updated_by = null,
     ) {
         $this->contact_numbers = is_array($contact_numbers) ? $contact_numbers : [];
     }

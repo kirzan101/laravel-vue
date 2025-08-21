@@ -10,6 +10,6 @@ class ProfileUserGroupDTO extends BaseDTO
     public function __construct(
         public readonly ?int $profile_id = null,
         public readonly ?int $user_group_id = null,
-        public readonly ?int $id = null,
+        ?int $id = null,
     ) {}
 }
