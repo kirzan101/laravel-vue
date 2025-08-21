@@ -26,6 +26,9 @@ abstract class BaseDTO
             unset($data[$field]);
         }
 
+        // Also remove 'hidden' itself to avoid Mockery issues
+        unset($data['hidden']);
+
         return $data;
     }
 
@@ -41,7 +44,19 @@ abstract class BaseDTO
         $reflection = new ReflectionClass(static::class);
         return $reflection->newInstanceArgs(
             array_map(
-                fn($param) => $data[$param->getName()] ?? $param->getDefaultValue(),
+                function ($param) use ($data) {
+                    $name = $param->getName();
+
+                    if (array_key_exists($name, $data)) {
+                        return $data[$name];
+                    }
+
+                    if ($param->isDefaultValueAvailable()) {
+                        return $param->getDefaultValue();
+                    }
+
+                    return null; // fallback for non-optional params
+                },
                 $reflection->getConstructor()->getParameters()
             )
         );

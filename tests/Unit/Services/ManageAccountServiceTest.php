@@ -2,7 +2,12 @@
 
 namespace Tests\Unit\Services;
 
+use App\DTOs\AccountDTO;
+use App\DTOs\ProfileDTO;
+use App\DTOs\ProfileUserGroupDTO;
+use App\DTOs\UserDTO;
 use App\Helpers\Helper;
+use App\Interfaces\BaseInterface;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\ProfileInterface;
@@ -27,6 +32,9 @@ class ManageAccountServiceTest extends TestCase
     /** @var \Mockery\MockInterface&BaseFetchInterface */
     protected BaseFetchInterface $fetch;
 
+    /** @var \Mockery\MockInterface&BaseInterface */
+    protected BaseInterface $base;
+
     /** @var \Mockery\MockInterface&UserInterface */
     protected UserInterface $user;
 
@@ -46,6 +54,7 @@ class ManageAccountServiceTest extends TestCase
         parent::setUp();
 
         $this->fetch = $this->mockBaseFetchInterface();
+        $this->base = $this->mockBaseInterface();
         $this->user = Mockery::mock(UserInterface::class);
         $this->profile = Mockery::mock(ProfileInterface::class);
         $this->profileUserGroup = Mockery::mock(ProfileUserGroupInterface::class);
@@ -53,6 +62,7 @@ class ManageAccountServiceTest extends TestCase
 
         $this->service = new ManageAccountService(
             $this->fetch,
+            $this->base,
             $this->user,
             $this->profile,
             $this->profileUserGroup,
@@ -77,7 +87,6 @@ class ManageAccountServiceTest extends TestCase
      */
     public function it_registers_a_user_and_profile_successfully()
     {
-        // Full Auth::user() mock — most reliable inside DB::transaction
         $fakeUser = (object)[
             'profile' => (object)['id' => 99],
         ];
@@ -100,17 +109,25 @@ class ManageAccountServiceTest extends TestCase
             'is_admin' => true,
             'is_first_login' => true,
             'password' => 'testuser',
+            'user_group_id' => 1,
         ];
+
+        // 🔑 Wrap into DTO
+        $accountDTO = new AccountDTO(
+            user: UserDTO::fromArray($request),
+            profile: ProfileDTO::fromArray($request),
+            user_group_id: $request['user_group_id'],
+        );
 
         $this->user->shouldReceive('storeUser')
             ->once()
+            ->with(Mockery::type(UserDTO::class))
             ->andReturn([
                 'success' => true,
-                'lastId' => 1,
+                'last_id' => 1,
                 'data' => (object)['id' => 1],
             ]);
 
-        //This anonymous class extends Model and gives you a mock Eloquent object.
         $profileData = new class(['id' => 123, 'first_name' => 'Test']) extends Model {
             protected $guarded = [];
             public $timestamps = false;
@@ -118,12 +135,21 @@ class ManageAccountServiceTest extends TestCase
 
         $this->profile->shouldReceive('storeProfile')
             ->once()
+            ->with(Mockery::type(ProfileDTO::class))
             ->andReturn([
                 'success' => true,
                 'data' => $profileData,
             ]);
 
-        $response = $this->service->register($request);
+        $this->profileUserGroup->shouldReceive('storeProfileUserGroup')
+            ->once()
+            ->with(Mockery::type(ProfileUserGroupDTO::class))
+            ->andReturn([
+                'success' => true,
+                'data' => (object)['id' => 999],
+            ]);
+
+        $response = $this->service->register($accountDTO);
 
         $this->assertEquals(201, $response['code']);
         $this->assertEquals(Helper::SUCCESS, $response['status']);
@@ -148,21 +174,29 @@ class ManageAccountServiceTest extends TestCase
             'email' => 'fail@example.com',
             'first_name' => 'Fail',
             'password' => 'failuser',
+            'user_group_id' => 1,
         ];
 
-        // Simulate user creation failure with no data
+        // Wrap into DTO
+        $accountDTO = new AccountDTO(
+            user: UserDTO::fromArray($request),
+            profile: ProfileDTO::fromArray($request),
+            user_group_id: $request['user_group_id'],
+        );
+
+        // Simulate user creation failure
         $this->user->shouldReceive('storeUser')
             ->once()
+            ->with(Mockery::type(UserDTO::class))
             ->andReturn([
                 'status' => Helper::ERROR,
                 'message' => 'User creation failed!',
             ]);
 
-
-        // Make sure storeProfile is never called
+        // Ensure profile is never stored
         $this->profile->shouldNotReceive('storeProfile');
 
-        $response = $this->service->register($request);
+        $response = $this->service->register($accountDTO);
 
         $this->assertEquals(500, $response['code']);
         $this->assertEquals(Helper::ERROR, $response['status']);
@@ -180,25 +214,42 @@ class ManageAccountServiceTest extends TestCase
             ->once()
             ->andReturn(99);
 
+        $request = [
+            'username' => 'testuser',
+            'email' => 'user@example.com',
+            'first_name' => 'FailProfile',
+            'password' => 'testuser',
+            'user_group_id' => 1,
+        ];
+
+        // Wrap into DTO
+        $accountDTO = new AccountDTO(
+            user: UserDTO::fromArray($request),
+            profile: ProfileDTO::fromArray($request),
+            user_group_id: $request['user_group_id'],
+        );
+
+        // Mock successful user creation
         $this->user->shouldReceive('storeUser')
             ->once()
             ->andReturn([
-                'success' => true,
-                'lastId' => 1,
-                'data' => (object)['id' => 1],
+                'code'     => 201,
+                'status'   => Helper::SUCCESS,
+                'message'  => 'User created successfully!',
+                'data'     => (object)['id' => 1],
+                'last_id'  => 1,
             ]);
 
+        // Simulate profile creation failure
         $this->profile->shouldReceive('storeProfile')
             ->once()
+            ->with(Mockery::type(ProfileDTO::class))
             ->andReturn([
                 'status' => Helper::ERROR,
                 'message' => 'Profile creation failed!',
             ]);
 
-        $response = $this->service->register([
-            'username' => 'testuser',
-            'email' => 'user@example.com',
-        ]);
+        $response = $this->service->register($accountDTO);
 
         $this->assertEquals(500, $response['code']);
         $this->assertEquals(Helper::ERROR, $response['status']);
@@ -219,7 +270,7 @@ class ManageAccountServiceTest extends TestCase
             ->andReturn(99);
 
         // Request data for update
-        $request = [
+        $requestData = [
             'avatar' => 'avatar.png',
             'first_name' => 'Updated',
             'middle_name' => 'Middle',
@@ -232,6 +283,13 @@ class ManageAccountServiceTest extends TestCase
             'password' => 'newpassword123', // this will be bcrypt-ed
             'user_group_id' => 5,
         ];
+
+        // Wrap request into DTOs
+        $accountDTO = new AccountDTO(
+            user: UserDTO::fromArray($requestData),
+            profile: ProfileDTO::fromArray($requestData),
+            user_group_id: $requestData['user_group_id'],
+        );
 
         // Create a fake profile and associated user
         $mockProfile = new class extends Model {
@@ -269,28 +327,26 @@ class ManageAccountServiceTest extends TestCase
             ->with(Profile::class, $profileId)
             ->andReturn($fakeQueryBuilder);
 
-        // Mock profile update
+        // Mock profile update to accept a ProfileDTO
         $this->profile->shouldReceive('updateProfile')
             ->once()
-            ->with(Mockery::type('array'), $profileId)
+            ->with(Mockery::type(ProfileDTO::class), $profileId)
             ->andReturn(['success' => true]);
 
-        // Mock user update
+        // Mock user update to accept a UserDTO
         $this->user->shouldReceive('updateUser')
             ->once()
-            ->with(Mockery::on(function ($data) {
-                return !empty($data['password']); // Ensure password is processed
-            }), 1)
+            ->with(Mockery::type(UserDTO::class), 1)
             ->andReturn(['success' => true]);
 
         // Mock user group update
         $this->profileUserGroup->shouldReceive('updateProfileUserGroupWithProfileId')
             ->once()
-            ->with(['profile_id' => 123, 'user_group_id' => 5], $profileId)
+            ->with(Mockery::type(ProfileUserGroupDTO::class), $profileId)
             ->andReturn(['success' => true]);
 
-        // Run the method
-        $response = $this->service->updateUserProfile($request, $profileId);
+        // Run the method with AccountDTO
+        $response = $this->service->updateUserProfile($accountDTO, $profileId);
 
         $this->assertEquals(200, $response['code']);
         $this->assertEquals(Helper::SUCCESS, $response['status']);

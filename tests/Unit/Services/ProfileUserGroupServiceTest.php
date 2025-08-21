@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use App\DTOs\ProfileUserGroupDTO;
 use App\Helpers\Helper;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
@@ -64,10 +65,12 @@ class ProfileUserGroupServiceTest extends TestCase
             ])
             ->andReturn($fakeModel);
 
-        $response = $this->service->storeProfileUserGroup([
-            'profile_id' => 1,
-            'user_group_id' => 2,
-        ]);
+        $profileUserGroupDTO = new ProfileUserGroupDTO(
+            profile_id: 1,
+            user_group_id: 2
+        );
+
+        $response = $this->service->storeProfileUserGroup($profileUserGroupDTO);
 
         $this->assertEquals(201, $response['code']);
         $this->assertEquals(Helper::SUCCESS, $response['status']);
@@ -79,9 +82,14 @@ class ProfileUserGroupServiceTest extends TestCase
     public function it_updates_profile_user_group_successfully()
     {
         $profileUserGroupId = 1;
-        $existingModel = new ProfileUserGroup(['profile_id' => 1, 'user_group_id' => 2]);
+
+        $existingModel = new ProfileUserGroup([
+            'profile_id' => 1,
+            'user_group_id' => 2,
+        ]);
         $existingModel->id = $profileUserGroupId;
 
+        // Mock the query builder and firstOrFail
         $builder = Mockery::mock(Builder::class);
         $builder->shouldReceive('firstOrFail')->once()->andReturn($existingModel);
 
@@ -90,21 +98,27 @@ class ProfileUserGroupServiceTest extends TestCase
             ->with(ProfileUserGroup::class, $profileUserGroupId)
             ->andReturn($builder);
 
+        // Create DTO with updated data
+        $profileUserGroupDTO = new ProfileUserGroupDTO(
+            profile_id: 1,
+            user_group_id: 3 // Updated user_group_id
+        );
+
+        // Mock update with array returned by DTO->fromModel()->toArray()
         $this->base->shouldReceive('update')
             ->once()
-            ->with($existingModel, [
-                'profile_id' => 1,
-                'user_group_id' => 3,
-            ])
+            ->with(
+                $existingModel,
+                $profileUserGroupDTO->fromModel($existingModel)->toArray()
+            )
             ->andReturn($existingModel);
 
-        $response = $this->service->updateProfileUserGroup([
-            'profile_id' => 1,
-            'user_group_id' => 3,
-        ], $profileUserGroupId);
+        $response = $this->service->updateProfileUserGroup($profileUserGroupDTO, $profileUserGroupId);
 
         $this->assertEquals(200, $response['code']);
         $this->assertEquals(Helper::SUCCESS, $response['status']);
+        $this->assertEquals('Profile user group updated successfully!', $response['message']);
+        $this->assertEquals($existingModel, $response['data']);
     }
 
     #[Test]
@@ -136,9 +150,14 @@ class ProfileUserGroupServiceTest extends TestCase
     public function it_updates_profile_user_group_with_profile_id()
     {
         $profileId = 99;
-        $model = new ProfileUserGroup(['profile_id' => $profileId, 'user_group_id' => 1]);
+
+        $model = new ProfileUserGroup([
+            'profile_id' => $profileId,
+            'user_group_id' => 1
+        ]);
         $model->id = 7;
 
+        // Mock query builder and firstOrFail
         $builder = Mockery::mock(Builder::class);
         $builder->shouldReceive('firstOrFail')->once()->andReturn($model);
 
@@ -147,17 +166,30 @@ class ProfileUserGroupServiceTest extends TestCase
             ->with(ProfileUserGroup::class, $profileId, 'profile_id')
             ->andReturn($builder);
 
+        // Create DTO with updated data
+        $profileUserGroupDTO = new ProfileUserGroupDTO(
+            profile_id: $profileId,
+            user_group_id: 5 // new value
+        );
+
+        // Mock update with DTO array
         $this->base->shouldReceive('update')
             ->once()
-            ->with($model, ['user_group_id' => 5])
+            ->with(
+                $model,
+                $profileUserGroupDTO->toArray()
+            )
             ->andReturn($model);
 
-        $response = $this->service->updateProfileUserGroupWithProfileId([
-            'user_group_id' => 5,
-        ], $profileId);
+        $response = $this->service->updateProfileUserGroupWithProfileId(
+            $profileUserGroupDTO,
+            $profileId
+        );
 
         $this->assertEquals(200, $response['code']);
         $this->assertEquals(Helper::SUCCESS, $response['status']);
+        $this->assertEquals('Profile user group updated successfully!', $response['message']);
+        $this->assertEquals($model, $response['data']);
     }
 
     #[Test]

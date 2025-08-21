@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use App\DTOs\ActivityLogDTO;
 use App\Interfaces\ActivityLogInterface;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
@@ -63,15 +64,21 @@ class ActivityLogServiceTest extends TestCase
             ->once()
             ->andReturnUsing(fn($callback) => $callback());
 
-        $data = [
-            'module' => 'test_module',
-            'description' => 'created something',
-            'status' => 'success',
-            'type' => 'create',
-            'properties' => ['foo' => 'bar'],
-        ];
+        $dto = new ActivityLogDTO(
+            module: 'test_module',
+            description: 'created something',
+            status: 'success',
+            type: 'create',
+            properties: ['foo' => 'bar'],
+        );
 
-        $fakeModel = new ActivityLog($data);
+        $fakeModel = new ActivityLog([
+            'module' => $dto->module,
+            'description' => $dto->description,
+            'status' => $dto->status,
+            'type' => $dto->type,
+            'properties' => $dto->properties,
+        ]);
         $fakeModel->id = 1;
 
         $this->currentUser->shouldReceive('getProfileId')
@@ -89,7 +96,7 @@ class ActivityLogServiceTest extends TestCase
             ))
             ->andReturn($fakeModel);
 
-        $response = $this->service->storeActivityLog($data);
+        $response = $this->service->storeActivityLog($dto);
 
         $this->assertSame(201, $response['code']);
         $this->assertSame('success', $response['status']);
@@ -110,6 +117,7 @@ class ActivityLogServiceTest extends TestCase
             'status' => 'pending',
             'type' => 'update',
             'properties' => [],
+            'updated_by' => 1,
         ]);
 
         $updated = new ActivityLog([
@@ -119,9 +127,10 @@ class ActivityLogServiceTest extends TestCase
             'status' => 'pending',
             'type' => 'update',
             'properties' => [],
+            'updated_by' => 1,
         ]);
 
-        // Mock the query builder and firstOrFail() using Mockery
+
         $fakeQueryBuilder = \Mockery::mock(Builder::class);
         $fakeQueryBuilder
             ->shouldReceive('firstOrFail')
@@ -138,20 +147,22 @@ class ActivityLogServiceTest extends TestCase
             ->once()
             ->andReturn(1);
 
-
         $this->base
             ->shouldReceive('update')
             ->once()
-            ->with($existing, \Mockery::on(
-                fn($data) =>
-                $data['description'] === 'new description' &&
-                    $data['updated_by'] === 1
-            ))
+            ->with(
+                $existing,
+                \Mockery::on(
+                    fn($data) =>
+                    isset($data['updated_by']) &&
+                        $data['updated_by'] === 1
+                )
+            )
             ->andReturn($updated);
 
-        $request = ['description' => 'new description'];
+        $dto = new ActivityLogDTO(description: 'new description');
 
-        $response = $this->service->updateActivityLog($request, $id);
+        $response = $this->service->updateActivityLog($dto, $id);
 
         $this->assertSame(200, $response['code']);
         $this->assertSame('success', $response['status']);

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use App\DTOs\UserDTO;
 use App\Helpers\Helper;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
@@ -51,21 +52,34 @@ class UserServiceTest extends TestCase
             'is_first_login' => true,
         ];
 
+        // Create the DTO using the request data
+        $userDTO = new UserDTO(
+            username: $request['username'],
+            email: $request['email'],
+            is_admin: $request['is_admin'],
+            is_first_login: $request['is_first_login'],
+        );
+
+        // Mocked User model to return from base->store
         $mockUser = new User([
             'id' => 1,
             'username' => 'testuser',
             'email' => 'test@example.com',
+            'is_admin' => true,
+            'is_first_login' => true,
         ]);
 
-        $this->base->shouldReceive('store')
+        // Mock the base store call
+        $this->base
+            ->shouldReceive('store')
             ->once()
-            ->with(User::class, Mockery::on(function ($data) {
-                return $data['username'] === 'testuser';
-            }))
+            ->with(User::class, $userDTO->toArray())
             ->andReturn($mockUser);
 
-        $response = $this->service->storeUser($request);
+        // Call the service method
+        $response = $this->service->storeUser($userDTO);
 
+        // Assertions
         $this->assertEquals(201, $response['code']);
         $this->assertEquals(Helper::SUCCESS, $response['status']);
         $this->assertEquals('User created successfully!', $response['message']);
@@ -77,6 +91,7 @@ class UserServiceTest extends TestCase
     {
         $userId = 1;
 
+        // Original user model
         $mockUser = new User([
             'id' => $userId,
             'username' => 'olduser',
@@ -87,6 +102,7 @@ class UserServiceTest extends TestCase
             'is_first_login' => true,
         ]);
 
+        // Mock the query builder for showQuery()->firstOrFail()
         $mockBuilder = Mockery::mock(Builder::class);
         $mockBuilder->shouldReceive('firstOrFail')->once()->andReturn($mockUser);
 
@@ -95,26 +111,41 @@ class UserServiceTest extends TestCase
             ->with(User::class, $userId)
             ->andReturn($mockBuilder);
 
-        $this->base->shouldReceive('update')
-            ->once()
-            ->with($mockUser, Mockery::type('array'))
-            ->andReturn($mockUser);
-
+        // Request data to update
         $request = [
             'username' => 'newuser',
             'email' => 'new@example.com',
             'is_admin' => true,
             'status' => 'active',
             'is_first_login' => false,
-            'password' => 'newpassword'
+            'password' => 'newpassword',
         ];
 
-        $response = $this->service->updateUser($request, $userId);
+        // Create the DTO
+        $userDTO = new UserDTO(
+            username: $request['username'],
+            email: $request['email'],
+            is_admin: $request['is_admin'],
+            status: $request['status'],
+            is_first_login: $request['is_first_login'],
+            password: $request['password']
+        );
 
+        // Mock the base update call
+        $this->base->shouldReceive('update')
+            ->once()
+            ->with($mockUser, $userDTO->fromModel($mockUser)->toArray())
+            ->andReturn($mockUser);
+
+        // Call the service method
+        $response = $this->service->updateUser($userDTO, $userId);
+
+        // Assertions
         $this->assertEquals(200, $response['code']);
         $this->assertEquals(Helper::SUCCESS, $response['status']);
         $this->assertEquals('User updated successfully!', $response['message']);
         $this->assertEquals($mockUser, $response['data']);
+        $this->assertEquals($userId, $response['last_id']);
     }
 
     #[Test]

@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use App\DTOs\ProfileDTO;
 use App\Helpers\Helper;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
@@ -56,17 +57,35 @@ class ProfileServiceTest extends TestCase
     {
         $profile = new Profile(['id' => 1, 'first_name' => 'John']);
 
-        $this->currentUser->shouldReceive('getProfileId')->once()->andReturn(99);
-        $this->base->shouldReceive('store')->once()->andReturn($profile);
+        $this->currentUser
+            ->shouldReceive('getProfileId')
+            ->once()
+            ->andReturn(99);
 
+        // Prepare request data
         $request = [
             'first_name' => 'John',
             'last_name' => 'Doe',
             'contact_numbers' => ['123456'],
-            'user_id' => 1
+            'user_id' => 1,
         ];
 
-        $response = $this->service->storeProfile($request);
+        // Create DTO
+        $profileDTO = new ProfileDTO(
+            first_name: $request['first_name'],
+            last_name: $request['last_name'],
+            contact_numbers: $request['contact_numbers'],
+            user_id: $request['user_id']
+        );
+
+        // Mock store call with expected array including audit fields
+        $this->base
+            ->shouldReceive('store')
+            ->once()
+            ->with(Profile::class, $profileDTO->withDefaultAudit(99)->toArray())
+            ->andReturn($profile);
+
+        $response = $this->service->storeProfile($profileDTO);
 
         $this->assertSame(201, $response['code']);
         $this->assertSame(Helper::SUCCESS, $response['status']);
@@ -80,23 +99,43 @@ class ProfileServiceTest extends TestCase
         $profileId = 1;
         $mockProfile = new Profile(['id' => $profileId, 'first_name' => 'Old']);
 
-        $this->currentUser->shouldReceive('getProfileId')->once()->andReturn(99);
+        $this->currentUser
+            ->shouldReceive('getProfileId')
+            ->once()
+            ->andReturn(99);
 
+        // Mock the query builder and firstOrFail
         $builderMock = Mockery::mock(Builder::class);
-        $builderMock->shouldReceive('firstOrFail')->once()->andReturn($mockProfile);
+        $builderMock
+            ->shouldReceive('firstOrFail')
+            ->once()
+            ->andReturn($mockProfile);
 
-        $this->fetch->shouldReceive('showQuery')
+        $this->fetch
+            ->shouldReceive('showQuery')
             ->once()
             ->with(Profile::class, $profileId)
             ->andReturn($builderMock);
 
-        $this->base->shouldReceive('update')->once()->andReturn($mockProfile);
-
+        // Prepare the update request
         $request = [
             'first_name' => 'New',
         ];
 
-        $response = $this->service->updateProfile($request, $profileId);
+        // Create DTO
+        $profileDTO = new ProfileDTO(
+            first_name: $request['first_name']
+            // You can add other fields if needed, default null otherwise
+        );
+
+        // Mock update call with expected array including updated_by
+        $this->base
+            ->shouldReceive('update')
+            ->once()
+            ->with($mockProfile, $profileDTO->fromModel($mockProfile)->touchUpdatedBy(99)->toArray())
+            ->andReturn($mockProfile);
+
+        $response = $this->service->updateProfile($profileDTO, $profileId);
 
         $this->assertSame(200, $response['code']);
         $this->assertSame(Helper::SUCCESS, $response['status']);

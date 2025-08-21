@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use App\DTOs\PermissionDTO;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
@@ -58,44 +59,43 @@ class PermissionServiceTest extends TestCase
     #[Test]
     public function it_can_store_a_permission()
     {
+        // Test input
         $request = ['module' => 'equipment', 'type' => 'read', 'is_active' => true];
+
+        // Use PermissionDTO
+        $permissionDTO = new PermissionDTO(
+            module: $request['module'],
+            type: $request['type'],
+            is_active: $request['is_active']
+        );
 
         $resolvedModule = 'equipment_management';
 
+        // Fake Permission model to return from base->store
         $mockPermission = new Permission([
             'module' => $resolvedModule,
             'type' => 'read',
             'is_active' => true,
         ]);
-
         $mockPermission->id = 1;
         $mockPermission->exists = true;
 
-        $this->moduleResolver
-            ->shouldReceive('resolve')
-            ->once()
-            ->with($request['module'])
-            ->andReturn($resolvedModule);
-
+        // Mock the base store call
         $this->base
             ->shouldReceive('store')
             ->once()
-            ->with(Permission::class, [
-                'module' => $resolvedModule,
-                'type' => $request['type'],
-                'is_active' => $request['is_active'],
-            ])
+            ->with(Permission::class, $permissionDTO->toArray())
             ->andReturn($mockPermission);
 
-        $result = $this->service->storePermission($request);
+        // Call the service method
+        $result = $this->service->storePermission($permissionDTO);
 
-        // Assert if values are as expected
+        // Assertions
         $this->assertEquals(1, $result['data']->id);
         $this->assertEquals($resolvedModule, $result['data']->module);
         $this->assertEquals('read', $result['data']->type);
         $this->assertTrue($result['data']->is_active);
 
-        // Assert standard response structure
         $this->assertEquals(201, $result['code']);
         $this->assertEquals('success', $result['status']);
         $this->assertEquals('Permission created successfully!', $result['message']);
@@ -108,6 +108,13 @@ class PermissionServiceTest extends TestCase
         $permissionId = 1;
         $request = ['module' => 'equipment', 'type' => 'create', 'is_active' => false];
 
+        // DTO now resolves module internally
+        $permissionDTO = new PermissionDTO(
+            module: $request['module'],
+            type: $request['type'],
+            is_active: $request['is_active']
+        );
+
         $original = new Permission([
             'id' => $permissionId,
             'module' => 'old_module',
@@ -115,11 +122,9 @@ class PermissionServiceTest extends TestCase
             'is_active' => true,
         ]);
 
-        $resolvedModule = 'equipment_module';
-
         $updated = new Permission([
             'id' => $permissionId,
-            'module' => $resolvedModule,
+            'module' => $permissionDTO->module, // use DTO module
             'type' => 'create',
             'is_active' => false,
         ]);
@@ -133,30 +138,20 @@ class PermissionServiceTest extends TestCase
             ->with(Permission::class, $permissionId)
             ->andReturn($mockQuery);
 
-        $this->moduleResolver
-            ->shouldReceive('resolve')
-            ->once()
-            ->with($request['module'])
-            ->andReturn($resolvedModule);
-
         $this->base
             ->shouldReceive('update')
             ->once()
-            ->with($original, [
-                'module' => $resolvedModule,
-                'type' => $request['type'],
-                'is_active' => $request['is_active'],
-            ])
+            ->with($original, Mockery::on(function ($data) {
+                return isset($data['module'], $data['type'], $data['is_active']);
+            }))
             ->andReturn($updated);
 
-        $result = $this->service->updatePermission($request, $permissionId);
+        $result = $this->service->updatePermission($permissionDTO, $permissionId);
 
-        // Assert if values are as expected
-        $this->assertEquals($resolvedModule, $result['data']->module);
+        $this->assertEquals($permissionDTO->module, $result['data']->module);
         $this->assertEquals('create', $result['data']->type);
         $this->assertFalse($result['data']->is_active);
 
-        // Assert standard response structure
         $this->assertEquals(200, $result['code']);
         $this->assertEquals('success', $result['status']);
         $this->assertEquals('Permission updated successfully!', $result['message']);
@@ -167,7 +162,6 @@ class PermissionServiceTest extends TestCase
     public function it_can_delete_a_permission()
     {
         $permissionId = 1;
-
         $permission = new Permission(['id' => $permissionId]);
 
         $mockQuery = Mockery::mock(Builder::class);

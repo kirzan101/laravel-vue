@@ -2,6 +2,8 @@
 
 namespace Tests\Unit\Services;
 
+use App\DTOs\UserGroupDTO;
+use App\Helpers\Helper;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
@@ -66,39 +68,43 @@ class UserGroupServiceTest extends TestCase
     public function it_can_store_a_user_group()
     {
         $profileId = 1;
+
         $request = [
             'name' => 'Admins',
             'code' => 'ADM',
             'description' => 'System administrators'
         ];
 
+        // Create the DTO
+        $userGroupDTO = new UserGroupDTO(
+            name: $request['name'],
+            code: $request['code'],
+            description: $request['description']
+        );
+
         $userGroup = new UserGroup(['id' => 123] + $request);
 
-        $this->currentUser->shouldReceive('getProfileId')->andReturn($profileId);
+        // Mock current user profile ID
+        $this->currentUser->shouldReceive('getProfileId')->once()->andReturn($profileId);
 
+        // Mock store using DTO array
         $this->base
             ->shouldReceive('store')
             ->once()
-            ->with(UserGroup::class, [
-                'name' => $request['name'],
-                'code' => $request['code'],
-                'description' => $request['description'],
-                'created_by' => $profileId,
-                'updated_by' => $profileId,
-            ])
+            ->with(UserGroup::class, $userGroupDTO->withDefaultAudit($profileId)->toArray())
             ->andReturn($userGroup);
 
-        $result = $this->service->storeUserGroup($request);
+        $result = $this->service->storeUserGroup($userGroupDTO);
 
-        // Assert if values are as expected
+        // Assert returned values
         $this->assertEquals($request['name'], $result['data']->name);
         $this->assertEquals($request['code'], $result['data']->code);
         $this->assertEquals($request['description'], $result['data']->description);
         $this->assertEquals($userGroup->id, $result['data']->id);
 
-        // Assert standard response structure
+        // Assert standard response
         $this->assertEquals(201, $result['code']);
-        $this->assertEquals('success', $result['status']);
+        $this->assertEquals(Helper::SUCCESS, $result['status']);
         $this->assertEquals($userGroup->id, $result['last_id']);
     }
 
@@ -107,6 +113,7 @@ class UserGroupServiceTest extends TestCase
     {
         $profileId = 1;
         $userGroupId = 123;
+
         $existing = new UserGroup([
             'id' => $userGroupId,
             'name' => 'Old Name',
@@ -120,10 +127,9 @@ class UserGroupServiceTest extends TestCase
             'code' => 'NEW',
             'description' => 'New description',
         ]);
-        $updated->id = $userGroupId;
 
         $mockQuery = Mockery::mock(Builder::class);
-        $mockQuery->shouldReceive('firstOrFail')->andReturn($existing);
+        $mockQuery->shouldReceive('firstOrFail')->once()->andReturn($existing);
 
         $this->fetch
             ->shouldReceive('showQuery')
@@ -133,32 +139,30 @@ class UserGroupServiceTest extends TestCase
 
         $this->currentUser->shouldReceive('getProfileId')->once()->andReturn($profileId);
 
+        // Create the DTO
+        $userGroupDTO = new UserGroupDTO(
+            name: 'New Name',
+            code: 'NEW',
+            description: 'New description'
+        );
+
+        // Mock the update call
         $this->base
             ->shouldReceive('update')
             ->once()
-            ->with($existing, [
-                'name' => 'New Name',
-                'code' => 'NEW',
-                'description' => 'New description',
-                'updated_by' => $profileId,
-            ])
+            ->with($existing, $userGroupDTO->fromModel($existing)->touchUpdatedBy($profileId)->toArray())
             ->andReturn($updated);
 
-        $result = $this->service->updateUserGroup([
-            'name' => 'New Name',
-            'code' => 'NEW',
-            'description' => 'New description',
-        ], $userGroupId);
+        $result = $this->service->updateUserGroup($userGroupDTO, $userGroupId);
 
-        // Assert if values are as expected
+        // Assert values
         $this->assertEquals('New Name', $result['data']->name);
         $this->assertEquals('NEW', $result['data']->code);
         $this->assertEquals('New description', $result['data']->description);
-        $this->assertEquals($userGroupId, $result['data']->id);
 
-        // Assert standard response structure
+        // Assert standard response
         $this->assertEquals(200, $result['code']);
-        $this->assertEquals('success', $result['status']);
+        $this->assertEquals(Helper::SUCCESS, $result['status']);
         $this->assertEquals($userGroupId, $result['last_id']);
     }
 

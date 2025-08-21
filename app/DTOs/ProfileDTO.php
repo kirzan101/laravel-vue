@@ -21,9 +21,7 @@ class ProfileDTO extends AuditableDTO
         ?int $id = null,
         ?int $created_by = null,
         ?int $updated_by = null,
-    ) {
-        $this->contact_numbers = is_array($contact_numbers) ? $contact_numbers : [];
-    }
+    ) {}
 
     /**
      * Create a ProfileDTO with explicit user info.

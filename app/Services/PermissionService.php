@@ -16,7 +16,6 @@ use App\Traits\CheckIfColumnExistsTrait;
 use App\Traits\DetectsSoftDeletesTrait;
 use Illuminate\Support\Facades\DB;
 
-
 class PermissionService implements PermissionInterface
 {
     use HttpErrorCodeTrait,

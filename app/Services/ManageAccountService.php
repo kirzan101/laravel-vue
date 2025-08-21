@@ -7,6 +7,7 @@ use App\DTOs\ProfileDTO;
 use App\DTOs\ProfileUserGroupDTO;
 use App\DTOs\UserDTO;
 use App\Helpers\Helper;
+use App\Interfaces\BaseInterface;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelTrait;
 use App\Interfaces\CurrentUserInterface;
@@ -28,7 +29,7 @@ class ManageAccountService implements ManageAccountInterface
 
     public function __construct(
         private BaseFetchInterface $fetch,
-        private BaseService $base,
+        private BaseInterface $base,
         private UserInterface $user,
         private ProfileInterface $profile,
         private ProfileUserGroupInterface $profileUserGroup,
@@ -147,17 +148,16 @@ class ManageAccountService implements ManageAccountInterface
     /**
      * Change the password for the authenticated user's profile.
      *
-     * @param array $request
+     * @param UserDTO $userDTO
      * @param int $profileId
      * @return array<string, mixed>
      */
-    public function changeUserProfilePassword(array $request, int $profileId): array
+    public function changeUserProfilePassword(UserDTO $userDTO, int $profileId): array
     {
         try {
             // Get the profile by profile ID
             $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
 
-            // Get user associated with the profile
             $user = $profile->user;
 
             if (!$user) {
@@ -167,15 +167,14 @@ class ManageAccountService implements ManageAccountInterface
             // Update user password
             $user = $this->base->update($user, [
                 'is_first_login' => false,
-                'password' => bcrypt($request['password']),
+                'password' => bcrypt($userDTO->password), // Access DTO property
             ]);
 
-            // Ensure user password update was successful
             if (!$user) {
                 throw new RuntimeException('User password update failed!');
             }
 
-            //update profile updated_at and updated_by
+            // update profile updated_at and updated_by
             $profile = $this->base->update($profile, [
                 'updated_at' => now(),
                 'updated_by' => $this->currentUser->getProfileId(),
@@ -185,7 +184,13 @@ class ManageAccountService implements ManageAccountInterface
                 throw new RuntimeException('Profile update failed!');
             }
 
-            return $this->returnModel(200, Helper::SUCCESS, 'Password changed successfully!', $profile, $profileId);
+            return $this->returnModel(
+                200,
+                Helper::SUCCESS,
+                'Password changed successfully!',
+                $profile,
+                $profileId
+            );
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());

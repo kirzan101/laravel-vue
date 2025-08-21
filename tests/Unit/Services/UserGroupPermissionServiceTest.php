@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use App\DTOs\UserGroupPermissionDTO;
 use App\Helpers\Helper;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
@@ -56,21 +57,33 @@ class UserGroupPermissionServiceTest extends TestCase
             'is_active' => true,
         ];
 
-        $model = new UserGroupPermission($request);
+        // Use DTO instead of plain array
+        $userGroupPermissionDTO = new UserGroupPermissionDTO(
+            user_group_id: $request['user_group_id'],
+            permission_id: $request['permission_id'],
+            is_active: $request['is_active']
+        );
+
+        $model = new UserGroupPermission([
+            'user_group_id' => $request['user_group_id'],
+            'permission_id' => $request['permission_id'],
+            'is_active' => $request['is_active'],
+        ]);
         $model->id = 100;
 
         $this->base
             ->shouldReceive('store')
             ->once()
-            ->with(UserGroupPermission::class, $request)
+            ->with(UserGroupPermission::class, $userGroupPermissionDTO->toArray())
             ->andReturn($model);
 
-        $result = $this->service->storeUserGroupPermission($request);
+        $result = $this->service->storeUserGroupPermission($userGroupPermissionDTO);
 
         $this->assertEquals(201, $result['code']);
         $this->assertEquals(Helper::SUCCESS, $result['status']);
         $this->assertEquals($model->id, $result['last_id']);
     }
+
 
     #[Test]
     public function it_can_update_user_group_permission()
@@ -81,6 +94,13 @@ class UserGroupPermissionServiceTest extends TestCase
             'permission_id' => 3,
             'is_active' => false,
         ];
+
+        // Create DTO
+        $userGroupPermissionDTO = new UserGroupPermissionDTO(
+            user_group_id: $request['user_group_id'],
+            permission_id: $request['permission_id'],
+            is_active: $request['is_active']
+        );
 
         $existing = new UserGroupPermission([
             'user_group_id' => 1,
@@ -93,7 +113,7 @@ class UserGroupPermissionServiceTest extends TestCase
         $updated->permission_id = 3;
         $updated->is_active = false;
 
-        // Mock the query builder and firstOrFail() using Mockery
+        // Mock the query builder and firstOrFail()
         $fakeQueryBuilder = \Mockery::mock(Builder::class);
         $fakeQueryBuilder
             ->shouldReceive('firstOrFail')
@@ -105,13 +125,15 @@ class UserGroupPermissionServiceTest extends TestCase
             ->with(UserGroupPermission::class, $id)
             ->andReturn($fakeQueryBuilder);
 
+        // Use toArray() from DTO for the update
         $this->base
             ->shouldReceive('update')
-            ->with($existing, Mockery::subset($request))
+            ->once()
+            ->with($existing, $userGroupPermissionDTO->fromModel($existing)->toArray())
             ->andReturn($updated);
 
-        $result = $this->service->updateUserGroupPermission($request, $id);
-        // dd($result);
+        $result = $this->service->updateUserGroupPermission($userGroupPermissionDTO, $id);
+
         $this->assertEquals(200, $result['code']);
         $this->assertEquals(Helper::SUCCESS, $result['status']);
         $this->assertEquals($id, $result['last_id']);
