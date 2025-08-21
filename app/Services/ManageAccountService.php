@@ -47,7 +47,8 @@ class ManageAccountService implements ManageAccountInterface
     {
         try {
             return DB::transaction(function () use ($accountDTO) {
-                $currentProfileId = $this->currentUser->getProfileId();
+                // set to null if this function use in registration page.
+                $currentProfileId = $this->currentUser->getProfileId() ?? null;
 
                 // Create user
                 $userDto = $accountDTO->user;
@@ -59,7 +60,11 @@ class ManageAccountService implements ManageAccountInterface
                 $userId = $userResult['last_id'] ?? null;
 
                 // Create profile
-                $profileDTO = $accountDTO->profile->withUser($userId)->withDefaultAudit($currentProfileId);
+                $profileDTO = $accountDTO->profile->withUser($userId);
+                if ($currentProfileId) {
+                    $profileDTO = $profileDTO->withDefaultAudit($currentProfileId);
+                }
+
                 $profileResult = $this->profile->storeProfile($profileDTO);
 
                 // Ensure profile creation was successful
