@@ -157,6 +157,71 @@ class ManageAccountServiceTest extends TestCase
         $this->assertEquals($profileData, $response['data']);
     }
 
+    #[Test]
+    public function it_registers_a_user_as_guest()
+    {
+        $this->currentUser->shouldReceive('getProfileId')->once()->andReturn(null);
+
+        $request = [
+            'username' => 'testuser',
+            'email' => 'user@example.com',
+            'avatar' => 'avatar.png',
+            'first_name' => 'Test',
+            'middle_name' => 'M',
+            'last_name' => 'User',
+            'nickname' => 'T',
+            'type' => 'admin',
+            'contact_numbers' => ['123456789'],
+            'is_admin' => true,
+            'is_first_login' => true,
+            'password' => 'testuser',
+            'user_group_id' => 1,
+        ];
+
+        // 🔑 Wrap into DTO
+        $accountDTO = new AccountDTO(
+            user: UserDTO::fromArray($request),
+            profile: ProfileDTO::fromArray($request),
+            user_group_id: $request['user_group_id'],
+        );
+
+        $this->user->shouldReceive('storeUser')
+            ->once()
+            ->with(Mockery::type(UserDTO::class))
+            ->andReturn([
+                'success' => true,
+                'last_id' => 1,
+                'data' => (object)['id' => 1],
+            ]);
+
+        $profileData = new class(['id' => 123, 'first_name' => 'Test']) extends Model {
+            protected $guarded = [];
+            public $timestamps = false;
+        };
+
+        $this->profile->shouldReceive('storeProfile')
+            ->once()
+            ->with(Mockery::type(ProfileDTO::class))
+            ->andReturn([
+                'success' => true,
+                'data' => $profileData,
+            ]);
+
+        $this->profileUserGroup->shouldReceive('storeProfileUserGroup')
+            ->once()
+            ->with(Mockery::type(ProfileUserGroupDTO::class))
+            ->andReturn([
+                'success' => true,
+                'data' => (object)['id' => 999],
+            ]);
+
+        $response = $this->service->register($accountDTO);
+
+        $this->assertEquals(201, $response['code']);
+        $this->assertEquals(Helper::SUCCESS, $response['status']);
+        $this->assertEquals('Profile registration successfully!', $response['message']);
+        $this->assertEquals($profileData, $response['data']);
+    }
 
     #[Test]
     public function it_throws_error_if_user_creation_fails()

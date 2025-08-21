@@ -9,12 +9,12 @@ interface CurrentUserInterface
      *
      * @return integer
      */
-    public function getProfileId(): int;
+    public function getProfileId(): ?int;
 
     /**
      * Get the authenticated user's ID.
      *
      * @return integer
      */
-    public function getUserId(): int;
+    public function getUserId(): ?int;
 }

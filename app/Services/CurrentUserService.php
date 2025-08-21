@@ -28,7 +28,7 @@ class CurrentUserService implements CurrentUserInterface
      *
      * @return integer
      */
-    public function getProfileId(): int
+    public function getProfileId(): ?int
     {
         $user = Auth::user();
 
@@ -52,7 +52,7 @@ class CurrentUserService implements CurrentUserInterface
      *
      * @return integer
      */
-    public function getUserId(): int
+    public function getUserId(): ?int
     {
         $user = Auth::user();
 
