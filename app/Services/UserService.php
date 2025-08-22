@@ -35,7 +35,7 @@ class UserService implements UserInterface
         try {
             return DB::transaction(function () use ($userDTO) {
 
-                $userData = $userDTO->toArray();
+                $userData = $userDTO->toArray(includePassword: true);
                 $user = $this->base->store(User::class, $userData);
 
                 return $this->returnModel(201, Helper::SUCCESS, 'User created successfully!', $user, $user->id);

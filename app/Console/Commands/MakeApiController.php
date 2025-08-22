@@ -15,6 +15,7 @@ class MakeApiController extends Command
     {
         $name = $this->argument('name');
         $model = $this->option('model');
+        $controllerName = sprintf('%sApiController', $name);
 
         // Ensure it goes into API namespace
         // $controllerPath = "API/" . $name;
@@ -33,6 +34,6 @@ class MakeApiController extends Command
         // Call the artisan make:controller command
         Artisan::call('make:controller', $command);
 
-        $this->components->info("API controller [App\\Http\\Controllers\\API\\{$name}.php] created successfully.");
+        $this->components->info("API controller [App\\Http\\Controllers\\API\\{$controllerName}.php] created successfully.");
     }
 }

@@ -59,7 +59,7 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
             return DB::transaction(function () use ($profileUserGroupDTO, $profileUserGroupId) {
                 $profileUserGroup = $this->fetch->showQuery(ProfileUserGroup::class, $profileUserGroupId)->firstOrFail();
 
-                $profileUserGroupData = $profileUserGroupDTO->fromModel($profileUserGroup)->toArray();
+                $profileUserGroupData = ProfileUserGroupDTO::fromModel($profileUserGroup, $profileUserGroupDTO->toArray())->toArray();
                 $profileUserGroup = $this->base->update($profileUserGroup, $profileUserGroupData);
 
                 // $this->returnModel(code, status, message, model, last_id);

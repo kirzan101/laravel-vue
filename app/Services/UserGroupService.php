@@ -73,7 +73,7 @@ class UserGroupService implements UserGroupInterface
                 $currentProfileId = $this->currentUser->getProfileId();
                 $userGroup = $this->fetch->showQuery(UserGroup::class, $userGroupId)->firstOrFail();
 
-                $userGroupData = $userGroupDTO->fromModel($userGroup)
+                $userGroupData = UserGroupDTO::fromModel($userGroup, $userGroupDTO->toArray())
                     ->touchUpdatedBy($currentProfileId)
                     ->toArray();
                 $userGroup = $this->base->update($userGroup, $userGroupData);

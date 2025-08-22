@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Helpers\Helper;
+use App\Models\Profile;
 use App\Models\User;
 use App\Rules\UniqueIgnoringSoftDeletes;
 use App\Traits\TrimsInputTrait;
@@ -27,7 +29,22 @@ class ProfileFormRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $user = $this->user();
+        $routeParam = $this->route('profile');
+
+        // If the route parameter is numeric, treat it as an existing model (update)
+        if (is_numeric($routeParam)) {
+            $model = Profile::find($routeParam);
+            return $user->can(Helper::ACTION_TYPE_UPDATE, $model);
+        }
+
+        if ($routeParam instanceof Profile) {
+            // If the route parameter is an instance of Profile, treat it as an existing model (update)
+            return $user->can(Helper::ACTION_TYPE_UPDATE, $routeParam);
+        }
+        
+        // Otherwise, this is a create request
+        return $user->can(Helper::ACTION_TYPE_CREATE, Profile::class);
     }
 
     /**
@@ -41,7 +58,7 @@ class ProfileFormRequest extends FormRequest
             'username' => [
                 'required',
                 'string',
-                'max:255',
+                'max:50',
                 new UniqueIgnoringSoftDeletes(User::class, 'username', $this->user_id)
             ],
             'email' => [
@@ -50,12 +67,12 @@ class ProfileFormRequest extends FormRequest
                 'max:255',
                 new UniqueIgnoringSoftDeletes(User::class, 'email', $this->user_id)
             ],
-            'status' => 'required|in:active,inactive',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'nickname' => 'nullable|string|max:255',
-            'type' => 'required|in:user,admin',
+            'first_name' => 'required|string|max:50',
+            'middle_name' => 'nullable|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'nickname' => 'nullable|string|max:50',
+            'type' => 'required|in:' . implode(',', Helper::ACCOUNT_TYPES),
+            'user_group_id' => 'required|exists:user_groups,id',
             'contact_numbers' => 'nullable|array',
             'contact_numbers.*' => 'nullable|string|max:20', // Each contact number should be a string with a max length
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Optional avatar image

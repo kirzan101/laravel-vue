@@ -70,13 +70,12 @@ class {{ class }} implements {{ interface }}
             return DB::transaction(function () use (${{ dtoVariable }}, ${{ variable }}Id) {
                 ${{ variable }} = $this->fetch->showQuery({{ base }}::class, ${{ variable }}Id)->firstOrFail();
 
-                ${{ dtoVariable }} = ${{ dtoVariable }}->fromModel(${{ variable }});
+                ${{ dtoVariable }} = {{ dto }}::fromModel(${{ variable }}, ${{ dtoVariable }}->toArray());
                 
                 // Uncomment if there is an updated_by column in the model
                 // $currentUserProfileId = $this->currentUser->getProfileId(); // current logged in profile
                 // if ($this->modelHasColumn(${{ variable }}, 'updated_by')) {
-                //     ${{ dtoVariable }} = ${{ dtoVariable }}->fromModel(${{ variable }})
-                //         ->touchUpdatedBy($currentUserProfileId);
+                //     ${{ dtoVariable }} = ${{ dtoVariable }}->touchUpdatedBy($currentUserProfileId);
                 // }
 
                 ${{ variable }}Data = ${{ dtoVariable }}->toArray();

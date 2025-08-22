@@ -110,7 +110,8 @@ class ManageAccountService implements ManageAccountInterface
                 $currentProfileId = $this->currentUser->getProfileId();
 
                 // Update profile
-                $profileData = $accountDTO->profile->withDefaultAudit($currentProfileId);
+                $profileData = $accountDTO->profile;
+
                 $profileResult = $this->profile->updateProfile($profileData, $profileId);
 
                 // Ensure profile update was successful

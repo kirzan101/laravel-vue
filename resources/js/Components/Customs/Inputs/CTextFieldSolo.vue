@@ -5,6 +5,7 @@
         hide-details="auto"
         :color="computedColor"
         class="my-1"
+        :maxlength="maxlength"
         v-bind="$attrs"
     >
         <slot />
@@ -19,6 +20,10 @@ const props = defineProps({
     color: {
         type: String,
         default: null, // no color passed
+    },
+    maxlength: {
+        type: [Number, String],
+        default: 50,
     },
 });
 

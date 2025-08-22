@@ -10,7 +10,10 @@ use Inertia\Inertia;
 //     return view('welcome');
 // });
 
-Route::get('/login', [AuthController::class, 'index'])->name('login');
+Route::middleware(['guest'])->group(function () {
+    Route::get('/login', [AuthController::class, 'index'])->name('login');
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -31,4 +34,5 @@ Route::middleware(['auth'])->group(function () {
 
     // Route::get('user-groups', [UserGroupController::class, 'index']);
     Route::resource('user-groups', UserGroupController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('profiles', ProfileController::class)->only(['index', 'store', 'update']);
 });

@@ -2,11 +2,14 @@
 
 namespace App\Http\Resources;
 
+use App\Traits\ReturnDatetimeFormat;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserGroupResource extends JsonResource
 {
+    use ReturnDatetimeFormat;
+
     /**
      * Define relationships this resource may need.
      */
@@ -26,6 +29,8 @@ class UserGroupResource extends JsonResource
             'description' => $this->description,
             'createdBy' => $this->created_by ? $this->createdBy->getFullName() : null,
             'updatedBy' => $this->updated_by ? $this->updatedBy->getFullName() : null,
+            'created_at' => $this->returnShortDateTime($this->created_at),
+            'updated_at' => $this->returnShortDateTime($this->updated_at),
             'userGroupPermissions' => UserGroupPermissionResource::collection($this->userGroupPermissions),
         ];
     }

@@ -2,56 +2,73 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\AccountDTO;
 use App\DTOs\ActivityLogDTO;
 use App\DTOs\ProfileDTO;
+use App\DTOs\UserDTO;
 use App\Helpers\Helper;
 use App\Http\Requests\ProfileFormRequest;
+use App\Http\Resources\IndexResource\UserGroupIndexResource;
 use App\Http\Resources\ProfileResource;
 use App\Interfaces\ActivityLogInterface;
 use App\Interfaces\FetchInterfaces\ProfileFetchInterface;
+use App\Interfaces\FetchInterfaces\UserGroupFetchInterface;
+use App\Interfaces\ManageAccountInterface;
 use App\Interfaces\ProfileInterface;
 use App\Models\Profile;
+use App\Traits\ReturnModulePermissionTrait;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
+    use ReturnModulePermissionTrait;
+
     public function __construct(
-        private ProfileInterface $profile,
-        private ProfileFetchInterface $profileFetch,
+        private UserGroupFetchInterface $userGroupFetch,
+        private ManageAccountInterface $manageAccount,
         private ActivityLogInterface $activityLog
     ) {}
 
     /**
+     * Returns the permissions for the current user profile for the given model.
+     *
+     * @param Model $model The Eloquent model instance representing the target module (used to determine the table name).
+     *
+     * @return array An array of permission types (e.g., ['view', 'update', 'delete']) for the specified module.
+     */
+    protected function getModulePermissions(Model $model): array
+    {
+        $profileId = Auth::user()?->profile?->id;
+
+        if (!$profileId) {
+            return [];
+        }
+
+        return $this->returnPermissions($model, $profileId);
+    }
+
+    /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        [
-            'code' => $code,
-            'status' => $status,
-            'message' => $message,
-            'data' => $profiles,
-        ] = $this->profileFetch->indexProfiles($request->toArray(), true);
-
-        if ($status === Helper::ERROR) {
+        if (Gate::denies('view', new Profile())) {
             return Inertia::render('Error', [
-                'code' => $code,
-                'message' => $message
+                'code' => 403,
+                'message' => 'You do not have permission to view this page.'
             ]);
         }
-        // format the profiles data
-        $profiles = ProfileResource::collection($profiles);
+
+        $fetchedUserGroups = $this->userGroupFetch->indexUserGroups();
 
         return Inertia::render('System/Profiles', [
-            'profiles' => $profiles->all(),
-            'per_page' => $profiles->perPage(),
-            'current_page' => $profiles->currentPage(),
-            'total' => $profiles->total(),
-            'last_page' => $profiles->lastPage(),
-            'search' => $request->search,
-            'sort_by' => $request->sort_by,
-            'sort_direction' => $request->sort_direction,
+            'user_groups' => UserGroupIndexResource::collection($fetchedUserGroups['data'] ?? []),
+            'account_types' => Helper::ACCOUNT_TYPES,
+            'can' => $this->getModulePermissions(new Profile()),
         ]);
     }
 
@@ -60,13 +77,20 @@ class ProfileController extends Controller
      */
     public function store(ProfileFormRequest $request)
     {
+        $userDTO = UserDTO::fromArray($request->all());
         $profileDTO = ProfileDTO::fromArray($request->all());
 
+        $accountDTO = new AccountDTO(
+            user: $userDTO,
+            profile: $profileDTO,
+            user_group_id: $request->input('user_group_id'),
+        );
+        
         [
             'code' => $code,
             'status' => $status,
             'message' => $message
-        ] = $this->profile->storeProfile($profileDTO);
+        ] = $this->manageAccount->register($accountDTO);
 
         if ($status === Helper::ERROR) {
             return Inertia::render('Error', [
@@ -93,13 +117,20 @@ class ProfileController extends Controller
      */
     public function update(ProfileFormRequest $request, int $id)
     {
+        $userDTO = UserDTO::fromArray($request->all());
         $profileDTO = ProfileDTO::fromArray($request->all());
 
+        $accountDTO = new AccountDTO(
+            user: $userDTO,
+            profile: $profileDTO,
+            user_group_id: $request->input('user_group_id'),
+        );
+        
         [
             'code' => $code,
             'status' => $status,
             'message' => $message
-        ] = $this->profile->updateProfile($profileDTO, $id);
+        ] = $this->manageAccount->updateUserProfile($accountDTO, $id);
 
         if ($status === Helper::ERROR) {
             return Inertia::render('Error', [
@@ -115,39 +146,6 @@ class ProfileController extends Controller
             'status' => $status,
             'type' => 'delete',
             'properties' => $request->toArray(),
-        ]);
-        $this->activityLog->storeActivityLog($activityLogData);
-
-        return redirect()->back()->with($status, $message);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(int $id)
-    {
-        [
-            'code' => $code,
-            'status' => $status,
-            'message' => $message
-        ] = $this->profile->deleteProfile($id);
-
-        if ($status === Helper::ERROR) {
-            return Inertia::render('Error', [
-                'code' => $code,
-                'message' => $message
-            ]);
-        }
-
-        // Log the activity
-        $activityLogData = ActivityLogDTO::fromArray([
-            'module' => 'profiles',
-            'description' => $message,
-            'status' => $status,
-            'type' => 'delete',
-            'properties' => [
-                'profile_id' => $id,
-            ],
         ]);
         $this->activityLog->storeActivityLog($activityLogData);
 

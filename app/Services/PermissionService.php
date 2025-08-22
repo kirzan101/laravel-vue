@@ -66,7 +66,7 @@ class PermissionService implements PermissionInterface
             return DB::transaction(function () use ($permissionDTO, $permissionId) {
                 $permission = $this->fetch->showQuery(Permission::class, $permissionId)->firstOrFail();
 
-                $permissionData = $permissionDTO->fromModel($permission)->toArray();
+                $permissionData = PermissionDTO::fromModel($permission, $permissionDTO->toArray())->toArray();
                 $permission = $this->base->update($permission, $permissionData);
 
                 return $this->returnModel(200, 'success', 'Permission updated successfully!', $permission, $permissionId);

@@ -231,13 +231,13 @@ With the following API methods:
 
 ➤ **Generate a basic API controller**
 ```bash
-php artisan make:api-controller ProductController
+php artisan make:api-controller Product
 ```
-> Creates: `app/Http/Controllers/API/ProductController.php`
+> Creates: `app/Http/Controllers/API/ProductApiController.php`
 
 ➤ **Generate an API controller with model binding**
 ```bash
-php artisan make:api-controller ProductController --model=Product
+php artisan make:api-controller Product --model=Product
 ```
 > Binds `App\Models\Product` to the controller resource routes
 

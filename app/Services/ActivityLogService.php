@@ -68,9 +68,10 @@ class ActivityLogService implements ActivityLogInterface
                 $activityLog = $this->fetch->showQuery(ActivityLog::class, $activityLogId)->firstOrFail();
 
                 $currentProfileId = $this->currentUser->getProfileId();
-                $activityLogData = $activityLogDTO->fromModel($activityLog)
+                $activityLogData = ActivityLogDTO::fromModel($activityLog, $activityLogDTO->toArray())
                     ->touchUpdatedBy($currentProfileId)
                     ->toArray();
+
                 $activityLog = $this->base->update($activityLog, $activityLogData);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'Activity log updated successfully!', $activityLog, $activityLogId);

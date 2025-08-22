@@ -44,10 +44,14 @@ class UserDTO extends BaseDTO
     /**
      * Convert to array but hide password by default.
      */
-    public function toArray(): array
+    public function toArray(bool $includePassword = false): array
     {
         $array = parent::toArray();
-        unset($array['password']); // Remove password from array
+
+        if (!$includePassword) {
+            unset($array['password']);
+        }
+
         return $array;
     }
 }

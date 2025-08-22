@@ -73,7 +73,7 @@ class UserServiceTest extends TestCase
         $this->base
             ->shouldReceive('store')
             ->once()
-            ->with(User::class, $userDTO->toArray())
+            ->with(User::class, $userDTO->toArray(true)) // include password
             ->andReturn($mockUser);
 
         // Call the service method

@@ -61,7 +61,7 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
             return DB::transaction(function () use ($userGroupPermissionDTO, $userGroupPermissionId) {
                 $userGroupPermission = $this->fetch->showQuery(UserGroupPermission::class, $userGroupPermissionId)->firstOrFail();
 
-                $userGroupPermissionData = $userGroupPermissionDTO->fromModel($userGroupPermission)->toArray();
+                $userGroupPermissionData = UserGroupPermissionDTO::fromModel($userGroupPermission, $userGroupPermissionDTO->toArray())->toArray();
                 $userGroupPermission = $this->base->update($userGroupPermission, $userGroupPermissionData);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'User group permission updated successfully!', $userGroupPermission, $userGroupPermissionId);

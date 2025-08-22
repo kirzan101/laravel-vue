@@ -70,9 +70,10 @@ class ProfileService implements ProfileInterface
                 $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
 
                 // Update the profile with the provided data
-                $profileData = $profileDTO->fromModel($profile)
+                $profileData = ProfileDTO::fromModel($profile, $profileDTO->toArray())
                     ->touchUpdatedBy($currentUserProfileId)
                     ->toArray();
+
                 $profile = $this->base->update($profile, $profileData);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'Profile updated successfully!', $profile, $profile->id);

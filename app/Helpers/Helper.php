@@ -150,9 +150,11 @@ class Helper
      * account types
      */
     const ACCOUNT_TYPES = [
-        'user'
+        'ADMIN',
+        'USER'
     ];
-    const ACCOUNT_TYPE_USER = 'user';
+    const ACCOUNT_TYPE_ADMIN = 'ADMIN';
+    const ACCOUNT_TYPE_USER = 'USER';
 
     /**
      * account statuses

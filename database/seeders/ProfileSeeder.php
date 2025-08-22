@@ -27,7 +27,7 @@ class ProfileSeeder extends Seeder
                 'first_name' => 'Admin',
                 'last_name' => 'User',
                 'nickname' => 'Admin',
-                'type' => 'admin',
+                'type' => Helper::ACCOUNT_TYPE_ADMIN,
                 'contact_numbers' => [
                     '0999999999'
                 ],
@@ -44,7 +44,7 @@ class ProfileSeeder extends Seeder
                 'first_name' => 'User',
                 'last_name' => 'Account',
                 'nickname' => 'user',
-                'type' => 'user',
+                'type' => Helper::ACCOUNT_TYPE_USER,
                 'contact_numbers' => [
                     '0999999991'
                 ],

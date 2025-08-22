@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Traits\EnsureSuccessTrait;
 use App\Traits\HttpErrorCodeTrait;
 use App\Traits\ReturnModelTrait;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -55,6 +56,7 @@ class AuthService implements AuthInterface
                 // Generate a new token
                 $token = Str::random(60);
                 $user->api_token = $token;
+                $user->last_login_at = Carbon::now(); // Update last login time
                 $user->save();
 
                 Auth::getSession()->regenerate();
@@ -82,6 +84,7 @@ class AuthService implements AuthInterface
                 // Invalidate the user's API token
                 $user = User::find(Auth::id());
                 $user->api_token = null;
+                $user->last_login_at = Carbon::now(); // Update last login time
                 $user->save();
 
                 Auth::logout();
