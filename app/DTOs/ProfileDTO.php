@@ -26,9 +26,12 @@ class ProfileDTO extends AuditableDTO
     /**
      * Create a ProfileDTO with explicit user info.
      */
-    public static function withUser(int $userId, array $data = []): self
+    public function withUser(int $userId): self
     {
-        $data['user_id'] = $userId;
+        $data = array_merge($this->toArray(), [
+            'user_id' => $userId,
+        ]);
+
         return self::fromArray($data);
     }
 }

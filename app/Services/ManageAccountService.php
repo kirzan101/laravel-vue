@@ -50,6 +50,7 @@ class ManageAccountService implements ManageAccountInterface
                 // set to null if this function use in registration page.
                 $currentProfileId = $this->currentUser->getProfileId() ?? null;
 
+
                 // Create user
                 $userDto = $accountDTO->user;
                 $userResult = $this->user->storeUser($userDto);

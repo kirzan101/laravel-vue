@@ -87,6 +87,9 @@ class ManageUserGroupPermissionService implements ManageUserGroupPermissionInter
                 $userGroupDTO = $userGroupWithPermissionDTO->userGroup
                     ->fromModel($userGroup)
                     ->touchUpdatedBy($currentProfileId);
+
+                $userGroupDTO = UserGroupDTO::fromModel($userGroup, $userGroupWithPermissionDTO->userGroup->toArray())->touchUpdatedBy($currentProfileId);
+
                 $userGroupResult = $this->userGroup->updateUserGroup($userGroupDTO, $userGroupId);
 
                 $this->ensureSuccess($userGroupResult, 'User group update failed!');

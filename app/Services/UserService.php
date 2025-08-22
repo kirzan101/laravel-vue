@@ -59,7 +59,7 @@ class UserService implements UserInterface
             return DB::transaction(function () use ($userDTO, $userId) {
                 $user = $this->fetch->showQuery(User::class, $userId)->firstOrFail();
 
-                $userData = $userDTO->fromModel($user)->toArray();
+                $userData = UserDTO::fromModel($user, $userDTO->toArray())->toArray();
                 $user = $this->base->update($user, $userData);
 
                 return $this->returnModel(200, Helper::SUCCESS, 'User updated successfully!', $user, $userId);
