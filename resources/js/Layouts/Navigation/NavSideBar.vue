@@ -12,6 +12,11 @@
 
         <v-list nav>
             <v-list-item title="Navigation drawer" link></v-list-item>
+            <v-list-item href="/user-groups" @click.prevent>
+                <v-list-item-title @click="router.visit('/user-groups')"
+                    >User group
+                </v-list-item-title>
+            </v-list-item>
         </v-list>
 
         <template v-slot:append>
@@ -38,7 +43,7 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import NavBar from "./NavBar.vue";
-import { usePage } from "@inertiajs/vue3";
+import { usePage, Link, router } from "@inertiajs/vue3";
 import { useDisplay } from "vuetify";
 
 defineProps({
