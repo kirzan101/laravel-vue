@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\ChangePasswordDTO;
 use App\Helpers\ErrorHelper;
 use App\Helpers\Helper;
 use App\Http\Requests\System\ChangePasswordFormRequest;
@@ -59,26 +60,92 @@ class AuthController extends Controller
     }
 
     /**
-     * change user password
+     * Change the user's password.
      */
     public function changePassword(ChangePasswordFormRequest $request)
     {
-        $profileId = Auth::user()->profile->id;
+        // Prefer using request->filled() over exists() for clarity
+        $profileId = $request->filled('profile_id')
+            ? $request->input('profile_id')
+            : Auth::user()->profile->id;
 
+        // Merge the resolved profile_id back into the request so DTO sees it
+        $request->merge(['profile_id' => $profileId]);
+
+        // Build the DTO from the request
+        $changePasswordDTO = ChangePasswordDTO::fromArray($request->toArray());
+
+        // Call service
         [
-            'code' => $code,
-            'status' => $status,
+            'code'    => $code,
+            'status'  => $status,
             'message' => $message
-        ] = $this->manageAccount->changeUserProfilePassword($request->toArray(), $profileId);
+        ] = $this->manageAccount->changeUserProfilePassword($changePasswordDTO, $profileId);
 
+        // Normalize error message for production
         $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
+
+        // Handle error
         if ($status === Helper::ERROR) {
             return Inertia::render('Error', [
-                'code' => $code,
-                'message' => $productionErrorMessage
+                'code'    => $code,
+                'message' => $productionErrorMessage,
             ]);
         }
 
+        // Success → redirect back with flash message
+        return redirect()->back()->with($status, $message);
+    }
+
+    /**
+     * Reset the user's password.
+     */
+    public function resetPassword(int $userId)
+    {
+        [
+            'code' => $code,
+            'status'  => $status,
+            'message' => $message
+        ] = $this->manageAccount->resetPassword($userId);
+
+        // Normalize error message for production
+        $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
+
+        // Handle error
+        if ($status === Helper::ERROR) {
+            return Inertia::render('Error', [
+                'code'    => $code,
+                'message' => $productionErrorMessage,
+            ]);
+        }
+
+        // Success → redirect back with flash message
+        return redirect()->back()->with($status, $message);
+    }
+
+    /**
+     * Set the user's active status.
+     */
+    public function setUserStatus(int $userId)
+    {
+        [
+            'code' => $code,
+            'status'  => $status,
+            'message' => $message
+        ] = $this->manageAccount->setUserActiveStatus($userId);
+
+        // Normalize error message for production
+        $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
+
+        // Handle error
+        if ($status === Helper::ERROR) {
+            return Inertia::render('Error', [
+                'code'    => $code,
+                'message' => $productionErrorMessage,
+            ]);
+        }
+
+        // Success → redirect back with flash message
         return redirect()->back()->with($status, $message);
     }
 }

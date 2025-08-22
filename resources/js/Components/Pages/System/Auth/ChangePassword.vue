@@ -98,6 +98,13 @@ const form = ref({
 const toggleDialog = () => {
     dialog.value = !dialog.value;
 
+    // clear form if dialog is closed
+    if (dialog.value === false) {
+        Object.keys(form.value).forEach((key) => {
+            form.value[key] = null;
+        });
+    }
+
     // clear errors when dialog is toggled
     formErrors.value = {};
 };

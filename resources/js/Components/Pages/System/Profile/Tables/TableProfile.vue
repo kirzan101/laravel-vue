@@ -19,6 +19,20 @@
         <template #item.last_login_at="{ item }">
             {{ item.last_login_at ?? "-" }}
         </template>
+        <template #item.actions="{ item }">
+            <ResetPassword
+                :profile="item"
+                :can="can"
+                :flash="flash"
+                :errors="errors"
+            />
+            <SetAccountStatus
+                :profile="item"
+                :can="can"
+                :flash="flash"
+                :errors="errors"
+            />
+        </template>
     </c-data-table-server>
 </template>
 
@@ -26,6 +40,8 @@
 import { ref } from "vue";
 
 import EditProfile from "../Actions/EditProfile.vue";
+import ResetPassword from "../Actions/ResetPassword.vue";
+import SetAccountStatus from "../Actions/SetAccountStatus.vue";
 
 // Define props
 const props = defineProps({
@@ -66,6 +82,12 @@ const headers = ref([
         align: "start",
         sortable: false,
         key: "created_at",
+    },
+    {
+        title: "",
+        align: "start",
+        sortable: false,
+        key: "actions",
     },
 ]);
 

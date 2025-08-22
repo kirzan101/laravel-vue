@@ -53,6 +53,7 @@ class ChangePasswordFormRequest extends FormRequest
                 'max:50',
                 'same:new_password',
             ],
+            'profile_id' => 'nullable|integer',
         ];
     }
 

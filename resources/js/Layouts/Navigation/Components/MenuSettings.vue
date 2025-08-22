@@ -32,7 +32,7 @@
         :errors="errors"
         :flash="flash"
         :can="can"
-        ref="changePassworRef"
+        ref="changePasswordRef"
     />
 </template>
 
@@ -50,14 +50,14 @@ defineProps({
 
 // const items = [{ title: "Change Password" }];
 
-const changePassworRef = ref(null);
+const changePasswordRef = ref(null);
 const handleChangePassword = () => {
-    if (!changePassworRef.value) {
-        console.error("ChangePassword component is not available.");
+    if (!changePasswordRef.value) {
+        console.error("Change Password component is not available.");
         return;
     }
 
-    changePassworRef.value.toggleDialog();
+    changePasswordRef.value.toggleDialog();
 };
 
 const handleLogout = () => {

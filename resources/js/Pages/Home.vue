@@ -1,6 +1,6 @@
 <template>
     <Head :title="pageTitle" />
-    <main-layout>
+    <main-layout :errors="errors" :flash="flash">
         <v-container>
             <c-card>
                 <h1>Laravel - Vue3</h1>

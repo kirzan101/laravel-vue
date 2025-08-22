@@ -3,6 +3,7 @@
 namespace App\Interfaces;
 
 use App\DTOs\AccountDTO;
+use App\DTOs\ChangePasswordDTO;
 use App\DTOs\UserDTO;
 
 interface ManageAccountInterface
@@ -28,9 +29,24 @@ interface ManageAccountInterface
     /**
      * Change the password for the authenticated user's profile.
      *
-     * @param UserDTO $userDTO
-     * @param int $profileId
+     * @param ChangePasswordDTO $changePasswordDTO
      * @return array<string, mixed>
      */
-    public function changeUserProfilePassword(UserDTO $userDTO, int $profileId): array;
+    public function changeUserProfilePassword(ChangePasswordDTO $changePasswordDTO): array;
+
+    /**
+     * Reset user password
+     *
+     * @param integer $userId
+     * @return array
+     */
+    public function resetPassword(int $userId): array;
+
+    /**
+     * Set user active status
+     *
+     * @param integer $userId
+     * @return array
+     */
+    public function setUserActiveStatus(int $userId): array;
 }

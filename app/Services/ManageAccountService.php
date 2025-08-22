@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DTOs\AccountDTO;
+use App\DTOs\ChangePasswordDTO;
 use App\DTOs\ProfileDTO;
 use App\DTOs\ProfileUserGroupDTO;
 use App\DTOs\UserDTO;
@@ -17,8 +18,10 @@ use App\Interfaces\ProfileInterface;
 use App\Interfaces\ProfileUserGroupInterface;
 use App\Interfaces\UserInterface;
 use App\Models\Profile;
+use App\Models\User;
 use App\Traits\EnsureSuccessTrait;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use RuntimeException;
 
 class ManageAccountService implements ManageAccountInterface
@@ -107,8 +110,10 @@ class ManageAccountService implements ManageAccountInterface
             return DB::transaction(function () use ($accountDTO, $profileId) {
 
                 // Get the profile by profile ID
-                $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
-                $currentProfileId = $this->currentUser->getProfileId();
+                $profile = $this->fetch
+                    ->showQuery(Profile::class, $profileId)
+                    ->with('user')
+                    ->firstOrFail();
 
                 // Update profile
                 $profileData = $accountDTO->profile;
@@ -155,15 +160,17 @@ class ManageAccountService implements ManageAccountInterface
     /**
      * Change the password for the authenticated user's profile.
      *
-     * @param UserDTO $userDTO
-     * @param int $profileId
+     * @param ChangePasswordDTO $changePasswordDTO
      * @return array<string, mixed>
      */
-    public function changeUserProfilePassword(UserDTO $userDTO, int $profileId): array
+    public function changeUserProfilePassword(ChangePasswordDTO $changePasswordDTO): array
     {
         try {
             // Get the profile by profile ID
-            $profile = $this->fetch->showQuery(Profile::class, $profileId)->firstOrFail();
+            $profile = $this->fetch
+                ->showQuery(Profile::class, $changePasswordDTO->profile_id)
+                ->with('user')
+                ->firstOrFail();
 
             $user = $profile->user;
 
@@ -171,10 +178,18 @@ class ManageAccountService implements ManageAccountInterface
                 throw new RuntimeException('User associated with the profile not found.');
             }
 
+            // check if password is valid
+            $checkResult = $this->checkPasswordIsCorrect($user->id, $changePasswordDTO->current_password);
+
+            if (!$checkResult) {
+                // rollback is automatic when throwing inside transaction
+                throw new RuntimeException('Invalid current password!');
+            }
+
             // Update user password
             $user = $this->base->update($user, [
                 'is_first_login' => false,
-                'password' => bcrypt($userDTO->password), // Access DTO property
+                'password' => bcrypt($changePasswordDTO->new_password), // Access DTO property
             ]);
 
             if (!$user) {
@@ -196,11 +211,89 @@ class ManageAccountService implements ManageAccountInterface
                 Helper::SUCCESS,
                 'Password changed successfully!',
                 $profile,
-                $profileId
+                $profile->id
             );
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
             return $this->returnModel($code, Helper::ERROR, $th->getMessage());
         }
+    }
+
+    /**
+     * Reset user password
+     *
+     * @param integer $userId
+     * @return array
+     */
+    public function resetPassword(int $userId): array
+    {
+        try {
+            return DB::transaction(function () use ($userId) {
+                $user = $this->fetch->showQuery(User::class, $userId)->firstOrFail();
+
+                // set default password to username
+                $new_password = bcrypt($user->username);
+
+                $user->update([
+                    'password' => $new_password,
+                    'is_first_login' => true,
+                ]);
+
+                return $this->returnModel(200, Helper::SUCCESS, 'Successfully reset password!');
+            });
+        } catch (\Throwable $th) {
+            $code = $this->httpCode($th);
+            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+        }
+    }
+
+    /**
+     * Set user active status
+     *
+     * @param integer $userId
+     * @return array
+     */
+    public function setUserActiveStatus(int $userId): array
+    {
+        try {
+            return DB::transaction(function () use ($userId) {
+                $user = $this->fetch->showQuery(User::class, $userId)->firstOrFail();
+
+                $currentStatus = $user->status;
+
+                $newStatus = match ($currentStatus) {
+                    Helper::ACCOUNT_STATUS_ACTIVE   => Helper::ACCOUNT_STATUS_INACTIVE,
+                    Helper::ACCOUNT_STATUS_INACTIVE => Helper::ACCOUNT_STATUS_ACTIVE,
+                    default => null,
+                };
+
+                if (is_null($newStatus)) {
+                    throw new RuntimeException("User status is in an unexpected state: {$currentStatus}");
+                }
+
+                $user->update(['status' => $newStatus]);
+
+                return $this->returnModel(200, Helper::SUCCESS, "Successfully changed status to {$newStatus}!");
+            });
+        } catch (\Throwable $th) {
+            $code = $this->httpCode($th);
+            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+        }
+    }
+
+
+    /**
+     * check if the inputed password is correct
+     *
+     * @param integer $userId
+     * @param string $currentPassword
+     * @return boolean
+     */
+    private function checkPasswordIsCorrect(int $userId, string $currentPassword): bool
+    {
+        $user = $this->fetch->showQuery(User::class, $userId)->firstOrFail();
+        $result = Hash::check($currentPassword, $user->password);
+
+        return $result;
     }
 }

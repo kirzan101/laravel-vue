@@ -20,6 +20,7 @@
                     @click="$emit('submit')"
                     :disabled="btnDisabled"
                     :loading="btnDisabled"
+                    :label="submitName"
                 />
             </template>
         </v-card>
@@ -47,6 +48,10 @@ defineProps({
     btnDisabled: {
         type: Boolean,
         default: false,
+    },
+    submitName: {
+        type: String,
+        default: "Submit",
     },
 });
 

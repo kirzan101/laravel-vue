@@ -18,6 +18,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::put('/change-password', [AuthController::class, 'changePassword'])->name('change-password');
+    Route::put('/reset-password/{userId}', [AuthController::class, 'resetPassword'])->name('reset-password');
+    Route::put('/set-user-status/{userId}', [AuthController::class, 'setUserStatus'])->name('set-user-status');
 
     Route::get('/errors', function () {
         return Inertia::render('Error', [
