@@ -38,6 +38,10 @@ class UserGroupFetchService implements UserGroupFetchInterface
                 $query->with($resourceClass::$relations ?? []);
             }
 
+            if (array_key_exists('id', $request) && !empty($request['id'])) {
+                $query->where('id', $request['id']);
+            }
+
             if (!empty($request['search'])) {
                 $search = $request['search'];
                 $query->where(function ($q) use ($search) {

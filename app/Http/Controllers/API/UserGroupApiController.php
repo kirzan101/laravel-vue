@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\IndexResource\UserGroupIndexResource;
 use App\Http\Resources\UserGroupResource;
 use App\Interfaces\FetchInterfaces\UserGroupFetchInterface;
 use Illuminate\Http\Request;
@@ -39,6 +40,33 @@ class UserGroupApiController extends Controller
             'search' => $request->input('search'),
             'sort_by' => $request->input('sort_by'),
             'sort_direction' => $request->input('sort'),
+            'code' => $code,
+            'status' => $status,
+            'message' => $message
+        ], $code);
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function searchIndex(Request $request)
+    {
+        // Set default pagination and sorting
+        $request->merge([
+            'per_page' => $request->get('per_page', 50),
+            'sort_by' => $request->get('sort_by', 'name'),
+            'sort' => $request->get('sort', 'asc'),
+        ]);
+
+        $results = $this->userGroupFetch->indexUserGroups($request->toArray(), true, UserGroupIndexResource::class);
+
+        $data = $results['data'];
+        $code = $results['code'];
+        $status = $results['status'];
+        $message = $results['message'];
+
+        return response()->json([
+            'data' => UserGroupIndexResource::collection($data->all()),
             'code' => $code,
             'status' => $status,
             'message' => $message
