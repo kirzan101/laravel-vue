@@ -66,13 +66,6 @@
                     @filteredContactNo="getContactNumbers"
                 />
             </c-col>
-
-            <c-col>
-                <UserGroupField
-                    v-model="form.user_group_id"
-                    :error-messages="formErrors.user_group_id"
-                />
-            </c-col>
         </c-row>
     </c-form>
 </template>
@@ -83,7 +76,6 @@ import { ref, watch } from "vue";
 import UserGroupSelect from "./Components/UserGroupSelect.vue";
 import ContactNumbersField from "@/Components/Utilities/ContactNumbersField.vue";
 import AccountTypeSelect from "./Components/AccountTypeSelect.vue";
-import UserGroupField from "@/Components/Utilities/SearchBoxes/UserGroupField.vue";
 
 const props = defineProps({
     profile: Object,
