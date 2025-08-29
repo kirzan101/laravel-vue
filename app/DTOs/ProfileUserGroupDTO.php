@@ -11,5 +11,7 @@ class ProfileUserGroupDTO extends BaseDTO
         public readonly ?int $profile_id = null,
         public readonly ?int $user_group_id = null,
         ?int $id = null,
-    ) {}
+    ) {
+        parent::__construct($id);
+    }
 }

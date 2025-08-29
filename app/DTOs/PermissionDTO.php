@@ -22,5 +22,7 @@ class PermissionDTO extends BaseDTO
         ?int $id = null
     ) {
         $this->module = Helper::getModuleName($module);
+
+        parent::__construct($id);
     }
 }

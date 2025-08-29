@@ -21,7 +21,9 @@ class ProfileDTO extends AuditableDTO
         ?int $id = null,
         ?int $created_by = null,
         ?int $updated_by = null,
-    ) {}
+    ) {
+        parent::__construct($id, $created_by, $updated_by);
+    }
 
     /**
      * Create a ProfileDTO with explicit user info.

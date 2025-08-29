@@ -9,5 +9,7 @@ class UserGroupPermissionDTO extends BaseDTO
         public readonly ?int $permission_id = null,
         public readonly bool $is_active = true,
         ?int $id = null,
-    ) {}
+    ) {
+        parent::__construct($id);
+    }
 }

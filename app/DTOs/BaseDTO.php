@@ -7,6 +7,10 @@ use ReflectionClass;
 
 abstract class BaseDTO
 {
+    public function __construct(
+        public ?int $id = null,
+    ) {}
+
     /**
      * Fields that should not be included in toArray().
      *
