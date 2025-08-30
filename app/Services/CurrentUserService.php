@@ -9,6 +9,7 @@ use App\Traits\ReturnModelCollectionTrait;
 use App\Traits\ReturnModelTrait;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use RuntimeException;
 
@@ -23,6 +24,8 @@ class CurrentUserService implements CurrentUserInterface
         private BaseFetchInterface $fetch,
     ) {}
 
+    private ?User $cachedUser = null;
+
     /**
      * get the authenticated user's profile ID.
      *
@@ -30,7 +33,7 @@ class CurrentUserService implements CurrentUserInterface
      */
     public function getProfileId(): ?int
     {
-        $user = Auth::user();
+        $user = $this->getUser();
 
         if (app()->environment('local')) {
             // If no user or profile in local, return fallback
@@ -54,7 +57,7 @@ class CurrentUserService implements CurrentUserInterface
      */
     public function getUserId(): ?int
     {
-        $user = Auth::user();
+        $user = $this->getUser();
 
         if (app()->environment('local')) {
             // If no user or profile in local, return fallback
@@ -70,4 +73,21 @@ class CurrentUserService implements CurrentUserInterface
 
         return $user->id;
     }
+
+
+    #methods start
+    /**
+     * Get the authenticated user.
+     *
+     * @return User
+     */
+    private function getUser(): User
+    {
+        if ($this->cachedUser === null) {
+            $this->cachedUser = Auth::user();
+        }
+
+        return $this->cachedUser;
+    }
+    #methods end
 }

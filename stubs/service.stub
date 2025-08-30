@@ -13,6 +13,8 @@ use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Traits\CheckIfColumnExistsTrait;
 use App\Traits\DetectsSoftDeletesTrait;
+use App\Traits\EnsureDataTrait;
+use App\Traits\EnsureSuccessTrait;
 use Illuminate\Support\Facades\DB;
 
 class {{ class }} implements {{ interface }}
@@ -21,7 +23,9 @@ class {{ class }} implements {{ interface }}
         ReturnModelCollectionTrait,
         ReturnModelTrait,
         DetectsSoftDeletesTrait,
-        CheckIfColumnExistsTrait;
+        CheckIfColumnExistsTrait,
+        EnsureSuccessTrait,
+        EnsureDataTrait;
 
     public function __construct(
         private BaseInterface $base,

@@ -36,6 +36,7 @@ class UserService implements UserInterface
             return DB::transaction(function () use ($userDTO) {
 
                 $userData = $userDTO->toArray(includePassword: true);
+                $userData['password'] = bcrypt($userData['password']); // Hash the password here!
                 $user = $this->base->store(User::class, $userData);
 
                 return $this->returnModel(201, Helper::SUCCESS, 'User created successfully!', $user, $user->id);

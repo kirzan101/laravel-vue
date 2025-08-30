@@ -27,7 +27,7 @@ class UserDTO extends BaseDTO
         $rawPassword = $password ?? $this->username;
 
         // If still null (username also not set), leave as null
-        $this->password = $rawPassword !== null ? bcrypt($rawPassword) : null;
+        $this->password = $rawPassword !== null ? $rawPassword : null;
 
         parent::__construct($id);
     }
