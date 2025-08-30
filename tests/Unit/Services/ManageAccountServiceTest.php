@@ -322,17 +322,13 @@ class ManageAccountServiceTest extends TestCase
     }
 
     #[Test]
-    public function it_updates_user_profile_successfully_with_password_change()
+    public function it_updates_user_profile_successfully()
     {
         $profileId = 123;
 
         // Mock Auth::user() to return a profile ID
         $currentUserUser = (object)['profile' => (object)['id' => 99]];
         Auth::shouldReceive('user')->andReturn($currentUserUser);
-
-        $this->currentUser->shouldReceive('getProfileId')
-            ->once()
-            ->andReturn(99);
 
         // Request data for update
         $requestData = [
@@ -345,7 +341,6 @@ class ManageAccountServiceTest extends TestCase
             'contact_numbers' => ['123456789'],
             'username' => 'updateduser',
             'email' => 'updated@example.com',
-            'password' => 'newpassword123', // this will be bcrypt-ed
             'user_group_id' => 5,
         ];
 
@@ -374,13 +369,18 @@ class ManageAccountServiceTest extends TestCase
                     public $id = 1;
                     public $username = 'olduser';
                     public $email = 'old@example.com';
-                    public $password = 'oldhashedpw';
                 };
             }
         };
 
         // Mock the query builder and firstOrFail() using Mockery
         $fakeQueryBuilder = \Mockery::mock(Builder::class);
+        $fakeQueryBuilder
+            ->shouldReceive('with')
+            ->once()
+            ->with('user')
+            ->andReturnSelf();
+
         $fakeQueryBuilder
             ->shouldReceive('firstOrFail')
             ->once()
