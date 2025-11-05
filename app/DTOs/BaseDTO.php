@@ -82,7 +82,7 @@ abstract class BaseDTO
                     $name = $param->getName();
 
                     // 1. From data (highest priority)
-                    if (array_key_exists($name, $data)) {
+                    if (array_key_exists($name, $data) && $data[$name] !== null) {
                         return $data[$name];
                     }
 
