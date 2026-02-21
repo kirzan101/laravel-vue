@@ -2,21 +2,20 @@
 
 namespace App\Services\FetchServices;
 
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
+use App\Data\PaginateResponse;
 use App\Helpers\Helper;
 use App\Interfaces\FetchInterfaces\ActivityLogFetchInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Models\ActivityLog;
 use App\Traits\DefaultPaginateFilterTrait;
 use App\Traits\HttpErrorCodeTrait;
-use App\Traits\ReturnModelCollectionTrait;
-use App\Traits\ReturnModelTrait;
 use Illuminate\Pagination\Paginator;
 
 class ActivityLogFetchService implements ActivityLogFetchInterface
 {
     use HttpErrorCodeTrait,
-        ReturnModelCollectionTrait,
-        ReturnModelTrait,
         DefaultPaginateFilterTrait;
 
     public function __construct(private BaseFetchInterface $fetch) {}
@@ -27,9 +26,9 @@ class ActivityLogFetchService implements ActivityLogFetchInterface
      * @param array $request
      * @param bool $isPaginated
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return PaginateResponse|CollectionResponse
      */
-    public function indexActivityLogs(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
+    public function indexActivityLogs(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse
     {
         try {
             $query = $this->fetch->indexQuery(ActivityLog::class);
@@ -70,16 +69,16 @@ class ActivityLogFetchService implements ActivityLogFetchInterface
                 Paginator::currentPageResolver(fn() => $current_page ?? 1);
 
                 $activityLogs = $query->orderBy($sort_by, $sort)->paginate($per_page);
+                return PaginateResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $activityLogs);
             } else {
 
                 $activityLogs = $query->get();
+                return CollectionResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $activityLogs);
             }
-
-            return $this->returnModelCollection(200, Helper::SUCCESS, 'Successfully fetched!', $activityLogs);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
+            return CollectionResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -88,9 +87,9 @@ class ActivityLogFetchService implements ActivityLogFetchInterface
      *
      * @param integer $id
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return ModelResponse
      */
-    public function showActivityLog(int $id, ?string $resourceClass = null): array
+    public function showActivityLog(int $id, ?string $resourceClass = null): ModelResponse
     {
         try {
             $query = $this->fetch->showQuery(ActivityLog::class, $id);
@@ -101,11 +100,11 @@ class ActivityLogFetchService implements ActivityLogFetchInterface
 
             $activityLog = $query->firstOrFail();
 
-            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $activityLog, $id);
+            return ModelResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $activityLog, $id);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

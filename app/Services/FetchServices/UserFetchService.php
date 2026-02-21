@@ -2,21 +2,20 @@
 
 namespace App\Services\FetchServices;
 
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
+use App\Data\PaginateResponse;
 use App\Helpers\Helper;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\FetchInterfaces\UserFetchInterface;
 use App\Models\User;
 use App\Traits\DefaultPaginateFilterTrait;
 use App\Traits\HttpErrorCodeTrait;
-use App\Traits\ReturnModelCollectionTrait;
-use App\Traits\ReturnModelTrait;
 use Illuminate\Pagination\Paginator;
 
 class UserFetchService implements UserFetchInterface
 {
     use HttpErrorCodeTrait,
-        ReturnModelCollectionTrait,
-        ReturnModelTrait,
         DefaultPaginateFilterTrait;
 
     public function __construct(private BaseFetchInterface $fetch) {}
@@ -27,9 +26,9 @@ class UserFetchService implements UserFetchInterface
      * @param array $request
      * @param bool $isPaginated
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return PaginateResponse|CollectionResponse The response containing the list of users, either paginated or as a collection.
      */
-    public function indexUsers(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
+    public function indexUsers(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse
     {
         try {
             $query = $this->fetch->indexQuery(User::class);
@@ -60,16 +59,16 @@ class UserFetchService implements UserFetchInterface
                 Paginator::currentPageResolver(fn() => $current_page ?? 1);
 
                 $users = $query->orderBy($sort_by, $sort)->paginate($per_page);
+                return PaginateResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $users);
             } else {
 
                 $users = $query->get();
+                return CollectionResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $users);
             }
-
-            return $this->returnModelCollection(200, Helper::SUCCESS, 'Successfully fetched!', $users);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
+            return CollectionResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -78,9 +77,9 @@ class UserFetchService implements UserFetchInterface
      *
      * @param integer $userId
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return ModelResponse
      */
-    public function showUser(int $userId, ?string $resourceClass = null): array
+    public function showUser(int $userId, ?string $resourceClass = null): ModelResponse
     {
         try {
             $query = $this->fetch->showQuery(User::class, $userId);
@@ -91,11 +90,11 @@ class UserFetchService implements UserFetchInterface
 
             $user = $query->firstOrFail();
 
-            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $user, $userId);
+            return ModelResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $user, $userId);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

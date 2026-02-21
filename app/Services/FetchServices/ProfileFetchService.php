@@ -2,21 +2,20 @@
 
 namespace App\Services\FetchServices;
 
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
+use App\Data\PaginateResponse;
 use App\Helpers\Helper;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\FetchInterfaces\ProfileFetchInterface;
 use App\Models\Profile;
 use App\Traits\DefaultPaginateFilterTrait;
 use App\Traits\HttpErrorCodeTrait;
-use App\Traits\ReturnModelCollectionTrait;
-use App\Traits\ReturnModelTrait;
 use Illuminate\Pagination\Paginator;
 
 class ProfileFetchService implements ProfileFetchInterface
 {
     use HttpErrorCodeTrait,
-        ReturnModelCollectionTrait,
-        ReturnModelTrait,
         DefaultPaginateFilterTrait;
 
     public function __construct(private BaseFetchInterface $fetch) {}
@@ -27,9 +26,9 @@ class ProfileFetchService implements ProfileFetchInterface
      * @param array $request
      * @param bool $isPaginated
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return PaginateResponse|CollectionResponse
      */
-    public function indexProfiles(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
+    public function indexProfiles(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse
     {
         try {
             $query = $this->fetch->indexQuery(Profile::class);
@@ -62,16 +61,16 @@ class ProfileFetchService implements ProfileFetchInterface
                 Paginator::currentPageResolver(fn() => $current_page ?? 1);
 
                 $profiles = $query->orderBy($sort_by, $sort)->paginate($per_page);
+                return PaginateResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $profiles);
             } else {
 
                 $profiles = $query->get();
+                return CollectionResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $profiles);
             }
-
-            return $this->returnModelCollection(200, Helper::SUCCESS, 'Successfully fetched!', $profiles);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
+            return CollectionResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -80,9 +79,9 @@ class ProfileFetchService implements ProfileFetchInterface
      *
      * @param int $profileId
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return ModelResponse
      */
-    public function showProfile(int $profileId, ?string $resourceClass = null): array
+    public function showProfile(int $profileId, ?string $resourceClass = null): ModelResponse
     {
         try {
             $query = $this->fetch->showQuery(Profile::class, $profileId);
@@ -93,11 +92,11 @@ class ProfileFetchService implements ProfileFetchInterface
 
             $profile = $query->firstOrFail();
 
-            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $profile, $profileId);
+            return ModelResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $profile, $profileId);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

@@ -2,6 +2,10 @@
 
 namespace App\Interfaces\FetchInterfaces;
 
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
+use App\Data\PaginateResponse;
+
 interface ActivityLogFetchInterface
 {
     /**
@@ -10,16 +14,16 @@ interface ActivityLogFetchInterface
      * @param array $request Optional parameters for filtering or pagination.
      * @param bool $isPaginated Whether to paginate the results.
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resource The resource class to transform the results.
-     * @return array An array of activity logs.
+     * @return PaginateResponse|CollectionResponse
      */
-    public function indexActivityLogs(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array;
+    public function indexActivityLogs(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse;
 
     /**
      * Fetch a specific activity log by their ID.
      *
      * @param integer $activityLogId
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return ModelResponse
      */
-    public function showActivityLog(int $activityLogId, ?string $resourceClass = null): array;
+    public function showActivityLog(int $activityLogId, ?string $resourceClass = null): ModelResponse;
 }

@@ -2,6 +2,10 @@
 
 namespace App\Interfaces\FetchInterfaces;
 
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
+use App\Data\PaginateResponse;
+
 interface ProfileFetchInterface
 {
     /**
@@ -10,16 +14,16 @@ interface ProfileFetchInterface
      * @param array $request Optional parameters for filtering or pagination.
      * @param bool $isPaginated Whether to paginate the results.
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass The resource class to transform the results.
-     * @return array An array of profiles.
+     * @return PaginateResponse|CollectionResponse The response containing the list of profiles, either paginated or as a collection.
      */
-    public function indexProfiles(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array;
+    public function indexProfiles(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse;
 
     /**
      * Fetch a specific profile by their ID.
      *
-     * @param integer $profileId
-     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @param integer $profileId The ID of the profile to fetch.
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass The resource class to transform the result.
+     * @return ModelResponse The response containing the profile data.
      */
-    public function showProfile(int $profileId, ?string $resourceClass = null): array;
+    public function showProfile(int $profileId, ?string $resourceClass = null): ModelResponse;
 }

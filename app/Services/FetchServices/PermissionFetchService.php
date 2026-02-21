@@ -2,21 +2,20 @@
 
 namespace App\Services\FetchServices;
 
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
+use App\Data\PaginateResponse;
 use App\Helpers\Helper;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\FetchInterfaces\PermissionFetchInterface;
 use App\Models\Permission;
 use App\Traits\DefaultPaginateFilterTrait;
 use App\Traits\HttpErrorCodeTrait;
-use App\Traits\ReturnModelCollectionTrait;
-use App\Traits\ReturnModelTrait;
 use Illuminate\Pagination\Paginator;
 
 class PermissionFetchService implements PermissionFetchInterface
 {
     use HttpErrorCodeTrait,
-        ReturnModelCollectionTrait,
-        ReturnModelTrait,
         DefaultPaginateFilterTrait;
 
     public function __construct(private BaseFetchInterface $fetch) {}
@@ -27,9 +26,9 @@ class PermissionFetchService implements PermissionFetchInterface
      * @param array $request
      * @param bool $isPaginated
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return PaginateResponse|CollectionResponse
      */
-    public function indexPermissions(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
+    public function indexPermissions(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse
     {
         try {
             $query = $this->fetch->indexQuery(Permission::class);
@@ -60,15 +59,16 @@ class PermissionFetchService implements PermissionFetchInterface
                 Paginator::currentPageResolver(fn() => $current_page ?? 1);
 
                 $permissions = $query->orderBy($sort_by, $sort)->paginate($per_page);
+                return PaginateResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $permissions);
             } else {
-                $permissions = $query->get();
-            }
 
-            return $this->returnModelCollection(200, Helper::SUCCESS, 'Successfully fetched!', $permissions);
+                $permissions = $query->get();
+                return CollectionResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $permissions);
+            }
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
+            return CollectionResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -77,9 +77,9 @@ class PermissionFetchService implements PermissionFetchInterface
      *
      * @param integer $id
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return ModelResponse
      */
-    public function showPermission(int $permissionId, ?string $resourceClass = null): array
+    public function showPermission(int $permissionId, ?string $resourceClass = null): ModelResponse
     {
         try {
             $query = $this->fetch->showQuery(Permission::class, $permissionId);
@@ -90,11 +90,11 @@ class PermissionFetchService implements PermissionFetchInterface
 
             $permission = $query->firstOrFail();
 
-            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $permission, $permissionId);
+            return ModelResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $permission, $permissionId);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

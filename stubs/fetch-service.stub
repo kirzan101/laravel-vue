@@ -9,8 +9,6 @@ use App\Helpers\Helper;
 use App\Models\{{ base }};
 use App\Interfaces\FetchInterfaces\{{ interface }};
 use App\Traits\HttpErrorCodeTrait;
-use App\Traits\ReturnModelCollectionTrait;
-use App\Traits\ReturnModelTrait;
 use App\Traits\DefaultPaginateFilterTrait;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
@@ -21,8 +19,6 @@ use Illuminate\Pagination\Paginator;
 class {{ class }} extends BaseFetchService implements {{ interface }}
 {
     use HttpErrorCodeTrait,
-        ReturnModelCollectionTrait,
-        ReturnModelTrait,
         DefaultPaginateFilterTrait;
 
     /**
@@ -31,7 +27,7 @@ class {{ class }} extends BaseFetchService implements {{ interface }}
      * @param array $request
      * @param bool $isPaginated
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return PaginateResponse|CollectionResponse
+     * @return PaginateResponse|CollectionResponse A response containing the list of {{ descriptionPlural }}, either paginated or as a collection.
      */
     public function index{{ basePlural }}(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse
     {
@@ -74,7 +70,7 @@ class {{ class }} extends BaseFetchService implements {{ interface }}
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return PaginateResponse::error($code, Helper::ERROR, $th->getMessage());
+            return CollectionResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 

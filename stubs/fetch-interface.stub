@@ -14,7 +14,7 @@ interface {{ base }}FetchInterface
      * @param array $request Optional parameters for filtering or pagination.
      * @param bool $isPaginated Whether to paginate the results.
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass The resource class to transform the results.
-     * @return PaginateResponse|CollectionResponse A response containing the {{ description }}s.
+     * @return PaginateResponse|CollectionResponse A response containing the list of {{ descriptionPlural }}, either paginated or as a collection.
      */
     public function index{{ basePlural }}(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse;
 

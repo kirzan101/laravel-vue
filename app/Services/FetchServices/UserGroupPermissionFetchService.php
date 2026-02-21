@@ -2,6 +2,9 @@
 
 namespace App\Services\FetchServices;
 
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
+use App\Data\PaginateResponse;
 use App\Helpers\Helper;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\FetchInterfaces\UserGroupPermissionFetchInterface;
@@ -27,9 +30,9 @@ class UserGroupPermissionFetchService implements UserGroupPermissionFetchInterfa
      * @param array $request
      * @param bool $isPaginated
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return PaginateResponse|CollectionResponse The response containing the list of user group permissions, either paginated or as a collection.
      */
-    public function indexUserGroupPermissions(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
+    public function indexUserGroupPermissions(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse
     {
         try {
             $query = $this->fetch->indexQuery(UserGroupPermission::class);
@@ -52,15 +55,16 @@ class UserGroupPermissionFetchService implements UserGroupPermissionFetchInterfa
                 Paginator::currentPageResolver(fn() => $current_page ?? 1);
 
                 $userGroupPermissions = $query->orderBy($sort_by, $sort)->paginate($per_page);
+                return PaginateResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $userGroupPermissions);
             } else {
+
                 $userGroupPermissions = $query->get();
+                return CollectionResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $userGroupPermissions);
             }
-
-            return $this->returnModelCollection(200, Helper::SUCCESS, 'Successfully fetched!', $userGroupPermissions);
         } catch (\Throwable $th) {
-            $code = $this->httpCode($th);
 
-            return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
+            $code = $this->httpCode($th);
+            return CollectionResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -69,9 +73,9 @@ class UserGroupPermissionFetchService implements UserGroupPermissionFetchInterfa
      *
      * @param integer $id
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return ModelResponse The response containing the user group permission data.
      */
-    public function showUserGroupPermission(int $userGroupPermissionId, ?string $resourceClass = null): array
+    public function showUserGroupPermission(int $userGroupPermissionId, ?string $resourceClass = null): ModelResponse
     {
         try {
             $query = $this->fetch->showQuery(UserGroupPermission::class, $userGroupPermissionId);
@@ -82,11 +86,11 @@ class UserGroupPermissionFetchService implements UserGroupPermissionFetchInterfa
 
             $userGroupPermission = $query->firstOrFail();
 
-            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $userGroupPermission, $userGroupPermissionId);
+            return ModelResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $userGroupPermission, $userGroupPermissionId);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

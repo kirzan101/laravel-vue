@@ -2,6 +2,9 @@
 
 namespace App\Services\FetchServices;
 
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
+use App\Data\PaginateResponse;
 use App\Helpers\Helper;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\FetchInterfaces\UserGroupFetchInterface;
@@ -27,9 +30,9 @@ class UserGroupFetchService implements UserGroupFetchInterface
      * @param array $request
      * @param bool $isPaginated
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return PaginateResponse|CollectionResponse The response containing the list of user groups, either paginated or as a collection.
      */
-    public function indexUserGroups(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
+    public function indexUserGroups(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse
     {
         try {
             $query = $this->fetch->indexQuery(UserGroup::class);
@@ -65,16 +68,16 @@ class UserGroupFetchService implements UserGroupFetchInterface
                 Paginator::currentPageResolver(fn() => $current_page ?? 1);
 
                 $userGroups = $query->orderBy($sort_by, $sort)->paginate($per_page);
+                return PaginateResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $userGroups);
             } else {
 
                 $userGroups = $query->get();
+                return CollectionResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $userGroups);
             }
-
-            return $this->returnModelCollection(200, Helper::SUCCESS, 'Successfully fetched!', $userGroups);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
+            return CollectionResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -83,9 +86,9 @@ class UserGroupFetchService implements UserGroupFetchInterface
      *
      * @param integer $id
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return ModelResponse The response containing the user group data.
      */
-    public function showUserGroup(int $userGroupId, ?string $resourceClass = null): array
+    public function showUserGroup(int $userGroupId, ?string $resourceClass = null): ModelResponse
     {
         try {
             $query = $this->fetch->showQuery(UserGroup::class, $userGroupId);
@@ -96,11 +99,11 @@ class UserGroupFetchService implements UserGroupFetchInterface
 
             $userGroup = $query->firstOrFail();
 
-            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $userGroup, $userGroupId);
+            return ModelResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $userGroup, $userGroupId);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

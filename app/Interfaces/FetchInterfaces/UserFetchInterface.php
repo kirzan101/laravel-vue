@@ -2,6 +2,10 @@
 
 namespace App\Interfaces\FetchInterfaces;
 
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
+use App\Data\PaginateResponse;
+
 interface UserFetchInterface
 {
     /**
@@ -10,16 +14,16 @@ interface UserFetchInterface
      * @param array $request Optional parameters for filtering or pagination.
      * @param bool $isPaginated Whether to paginate the results.
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass The resource class to transform the results.
-     * @return array An array of users.
+     * @return PaginateResponse|CollectionResponse The response containing the list of users, either paginated or as a collection.
      */
-    public function indexUsers(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array;
+    public function indexUsers(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse;
 
     /**
      * Fetch a specific user by their ID.
      *
-     * @param integer $userId
-     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @param integer $userId The ID of the user to fetch.
+     * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass The resource class to transform the result.
+     * @return ModelResponse The response containing the user data.
      */
-    public function showUser(int $userId, ?string $resourceClass = null): array;
+    public function showUser(int $userId, ?string $resourceClass = null): ModelResponse;
 }

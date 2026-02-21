@@ -19,8 +19,9 @@ class MakeFetchServiceCommand extends Command
         $variableName = Str::camel($baseName);                 // e.g., "userGroup"
         $className = "{$baseName}FetchService";                // e.g., "UserGroupFetchService"
         $interfaceName = "{$baseName}FetchInterface";          // e.g., "UserGroupFetchInterface"
-        $readableLabel = ucfirst(strtolower(preg_replace('/(?<!^)[A-Z]/', ' $0', $baseName)));
-        $readableDescription = strtolower(strtolower(preg_replace('/(?<!^)[A-Z]/', ' $0', $baseName)));
+        $readableLabel = ucfirst(strtolower(preg_replace('/(?<!^)[A-Z]/', ' $0', $baseName))); // e.g., "User Group"
+        $readableDescription = strtolower(strtolower(preg_replace('/(?<!^)[A-Z]/', ' $0', $baseName))); // e.g., "user group"
+        $readableDescriptionPlural = strtolower(strtolower(preg_replace('/(?<!^)[A-Z]/', ' $0', $basePlural))); // e.g., "user groups"
 
         // Paths
         $servicePath = app_path("Services/FetchServices/{$className}.php");
@@ -48,8 +49,8 @@ class MakeFetchServiceCommand extends Command
         // Generate service file
         $serviceStub = File::get($serviceStubPath);
         $serviceContent = str_replace(
-            ['{{ namespace }}', '{{ class }}', '{{ base }}', '{{ interface }}', '{{ readable }}', '{{ description }}', '{{ variable }}', '{{ basePlural }}', '{{ variablePlural }}'],
-            ['App\\Services\\FetchServices', $className, $baseName, $interfaceName, $readableLabel, $readableDescription, $variableName, $basePlural, $variablePlural],
+            ['{{ namespace }}', '{{ class }}', '{{ base }}', '{{ interface }}', '{{ readable }}', '{{ description }}', '{{ variable }}', '{{ basePlural }}', '{{ variablePlural }}', '{{ descriptionPlural }}'],
+            ['App\\Services\\FetchServices', $className, $baseName, $interfaceName, $readableLabel, $readableDescription, $variableName, $basePlural, $variablePlural, $readableDescriptionPlural],
             $serviceStub
         );
         File::ensureDirectoryExists(app_path('Services\\FetchServices'));
@@ -58,8 +59,8 @@ class MakeFetchServiceCommand extends Command
         // Generate interface file
         $interfaceStub = File::get($interfaceStubPath);
         $interfaceContent = str_replace(
-            ['{{ namespace }}', '{{ interface }}', '{{ base }}', '{{ readable }}', '{{ description }}', '{{ variable }}', '{{ basePlural }}', '{{ variablePlural }}'],
-            ['App\\Interfaces\\FetchInterfaces', $interfaceName, $baseName, $readableLabel, $readableDescription, $variableName, $basePlural, $variablePlural],
+            ['{{ namespace }}', '{{ interface }}', '{{ base }}', '{{ readable }}', '{{ description }}', '{{ variable }}', '{{ basePlural }}', '{{ variablePlural }}', '{{ descriptionPlural }}'],
+            ['App\\Interfaces\\FetchInterfaces', $interfaceName, $baseName, $readableLabel, $readableDescription, $variableName, $basePlural, $variablePlural, $readableDescriptionPlural],
             $interfaceStub
         );
         File::ensureDirectoryExists(app_path('Interfaces\\FetchInterfaces'));
