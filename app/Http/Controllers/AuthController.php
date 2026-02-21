@@ -32,11 +32,11 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        ['code' => $code, 'message' => $message] = $this->auth->login($request->toArray());
+        $loginResult = $this->auth->login($request->toArray());
 
-        if ($code == 422) {
+        if ($loginResult->code == 422) {
             return back()->withErrors([
-                'error' => $message,
+                'error' => $loginResult->message,
             ]);
         }
 
@@ -48,11 +48,11 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        $data = $this->auth->logout();
+        $logoutResult = $this->auth->logout();
 
-        if ($data['code'] != 200) {
+        if ($logoutResult->code != 200) {
             return back()->withErrors([
-                'error' => $data['message'],
+                'error' => $logoutResult->message,
             ]);
         }
 
@@ -76,25 +76,21 @@ class AuthController extends Controller
         $changePasswordDTO = ChangePasswordDTO::fromArray($request->toArray());
 
         // Call service
-        [
-            'code'    => $code,
-            'status'  => $status,
-            'message' => $message
-        ] = $this->manageAccount->changeUserProfilePassword($changePasswordDTO, $profileId);
+        $changePasswordResult = $this->manageAccount->changeUserProfilePassword($changePasswordDTO, $profileId);
 
         // Normalize error message for production
-        $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
+        $productionErrorMessage = ErrorHelper::productionErrorMessage($changePasswordResult->code, $changePasswordResult->message);
 
         // Handle error
-        if ($status === Helper::ERROR) {
+        if ($changePasswordResult->status === Helper::ERROR) {
             return Inertia::render('Error', [
-                'code'    => $code,
+                'code'    => $changePasswordResult->code,
                 'message' => $productionErrorMessage,
             ]);
         }
 
         // Success → redirect back with flash message
-        return redirect()->back()->with($status, $message);
+        return redirect()->back()->with($changePasswordResult->status, $changePasswordResult->message);
     }
 
     /**
@@ -102,25 +98,21 @@ class AuthController extends Controller
      */
     public function resetPassword(int $userId)
     {
-        [
-            'code' => $code,
-            'status'  => $status,
-            'message' => $message
-        ] = $this->manageAccount->resetPassword($userId);
+        $resetResult = $this->manageAccount->resetPassword($userId);
 
         // Normalize error message for production
-        $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
+        $productionErrorMessage = ErrorHelper::productionErrorMessage($resetResult->code, $resetResult->message);
 
         // Handle error
-        if ($status === Helper::ERROR) {
+        if ($resetResult->status === Helper::ERROR) {
             return Inertia::render('Error', [
-                'code'    => $code,
+                'code'    => $resetResult->code,
                 'message' => $productionErrorMessage,
             ]);
         }
 
         // Success → redirect back with flash message
-        return redirect()->back()->with($status, $message);
+        return redirect()->back()->with($resetResult->status, $resetResult->message);
     }
 
     /**
@@ -128,24 +120,20 @@ class AuthController extends Controller
      */
     public function setUserStatus(int $userId)
     {
-        [
-            'code' => $code,
-            'status'  => $status,
-            'message' => $message
-        ] = $this->manageAccount->setUserActiveStatus($userId);
+        $statusResult = $this->manageAccount->setUserActiveStatus($userId);
 
         // Normalize error message for production
-        $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
+        $productionErrorMessage = ErrorHelper::productionErrorMessage($statusResult->code, $statusResult->message);
 
         // Handle error
-        if ($status === Helper::ERROR) {
+        if ($statusResult->status === Helper::ERROR) {
             return Inertia::render('Error', [
-                'code'    => $code,
+                'code'    => $statusResult->code,
                 'message' => $productionErrorMessage,
             ]);
         }
 
         // Success → redirect back with flash message
-        return redirect()->back()->with($status, $message);
+        return redirect()->back()->with($statusResult->status, $statusResult->message);
     }
 }

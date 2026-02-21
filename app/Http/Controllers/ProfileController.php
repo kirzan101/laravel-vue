@@ -85,31 +85,27 @@ class ProfileController extends Controller
             profile: $profileDTO,
             user_group_id: $request->input('user_group_id'),
         );
-        
-        [
-            'code' => $code,
-            'status' => $status,
-            'message' => $message
-        ] = $this->manageAccount->register($accountDTO);
 
-        if ($status === Helper::ERROR) {
+        $registerResult = $this->manageAccount->register($accountDTO);
+
+        if ($registerResult->status === Helper::ERROR) {
             return Inertia::render('Error', [
-                'code' => $code,
-                'message' => $message
+                'code' => $registerResult->code,
+                'message' => $registerResult->message
             ]);
         }
 
         // Log the activity
         $activityLogData = ActivityLogDTO::fromArray([
             'module' => 'profiles',
-            'description' => $message,
-            'status' => $status,
-            'type' => 'delete',
+            'description' => $registerResult->message,
+            'status' => $registerResult->status,
+            'type' => 'create',
             'properties' => $request->toArray(),
         ]);
         $this->activityLog->storeActivityLog($activityLogData);
 
-        return redirect()->back()->with($status, $message);
+        return redirect()->back()->with($registerResult->status, $registerResult->message);
     }
 
     /**
@@ -125,30 +121,26 @@ class ProfileController extends Controller
             profile: $profileDTO,
             user_group_id: $request->input('user_group_id'),
         );
-        
-        [
-            'code' => $code,
-            'status' => $status,
-            'message' => $message
-        ] = $this->manageAccount->updateUserProfile($accountDTO, $id);
 
-        if ($status === Helper::ERROR) {
+        $updateResult = $this->manageAccount->updateUserProfile($accountDTO, $id);
+
+        if ($updateResult->status === Helper::ERROR) {
             return Inertia::render('Error', [
-                'code' => $code,
-                'message' => $message
+                'code' => $updateResult->code,
+                'message' => $updateResult->message
             ]);
         }
 
         // Log the activity
         $activityLogData = ActivityLogDTO::fromArray([
             'module' => 'profiles',
-            'description' => $message,
-            'status' => $status,
-            'type' => 'delete',
+            'description' => $updateResult->message,
+            'status' => $updateResult->status,
+            'type' => 'update',
             'properties' => $request->toArray(),
         ]);
         $this->activityLog->storeActivityLog($activityLogData);
 
-        return redirect()->back()->with($status, $message);
+        return redirect()->back()->with($updateResult->status, $updateResult->message);
     }
 }

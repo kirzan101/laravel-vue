@@ -95,21 +95,17 @@ class UserGroupController extends Controller
             permissionIds: $permissionIds
         );
 
-        [
-            'code' => $code,
-            'status' => $status,
-            'message' => $message
-        ] = $this->manageUserGroupPermission->storeUserGroupWithPermissions($userGroupPermissionDTO);
+        $storeResult = $this->manageUserGroupPermission->storeUserGroupWithPermissions($userGroupPermissionDTO);
 
-        $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
-        if ($status === Helper::ERROR) {
+        $productionErrorMessage = ErrorHelper::productionErrorMessage($storeResult->code, $storeResult->message);
+        if ($storeResult->status === Helper::ERROR) {
             return Inertia::render('Error', [
-                'code' => $code,
+                'code' => $storeResult->code,
                 'message' => $productionErrorMessage
             ]);
         }
 
-        return redirect()->back()->with($status, $productionErrorMessage);
+        return redirect()->back()->with($storeResult->status, $productionErrorMessage);
     }
 
     /**
@@ -132,21 +128,17 @@ class UserGroupController extends Controller
             permissionIds: $permissionIds
         );
 
-        [
-            'code' => $code,
-            'status' => $status,
-            'message' => $message
-        ] = $this->manageUserGroupPermission->updateUserGroupWithPermissions($userGroupPermissionDTO, $id);
+        $updateResult = $this->manageUserGroupPermission->updateUserGroupWithPermissions($userGroupPermissionDTO, $id);
 
-        $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
-        if ($status === Helper::ERROR) {
+        $productionErrorMessage = ErrorHelper::productionErrorMessage($updateResult->code, $updateResult->message);
+        if ($updateResult->status === Helper::ERROR) {
             return Inertia::render('Error', [
-                'code' => $code,
+                'code' => $updateResult->code,
                 'message' => $productionErrorMessage
             ]);
         }
 
-        return redirect()->back()->with($status, $productionErrorMessage);
+        return redirect()->back()->with($updateResult->status, $productionErrorMessage);
     }
 
     /**
@@ -162,20 +154,16 @@ class UserGroupController extends Controller
             ]);
         }
 
-        [
-            'code' => $code,
-            'status' => $status,
-            'message' => $message
-        ] = $this->userGroup->deleteUserGroup($id);
+        $deleteResult = $this->userGroup->deleteUserGroup($id);
 
-        $productionErrorMessage = ErrorHelper::productionErrorMessage($code, $message);
-        if ($status === Helper::ERROR) {
+        $productionErrorMessage = ErrorHelper::productionErrorMessage($deleteResult->code, $deleteResult->message);
+        if ($deleteResult->status === Helper::ERROR) {
             return Inertia::render('Error', [
-                'code' => $code,
+                'code' => $deleteResult->code,
                 'message' => $productionErrorMessage
             ]);
         }
 
-        return redirect()->back()->with($status, $productionErrorMessage);
+        return redirect()->back()->with($deleteResult->status, $productionErrorMessage);
     }
 }
