@@ -2,6 +2,7 @@
 
 namespace App\Interfaces;
 
+use App\Data\ModelResponse;
 use App\DTOs\PermissionDTO;
 
 interface PermissionInterface
@@ -10,24 +11,24 @@ interface PermissionInterface
      * Store a new permission in the database.
      *
      * @param PermissionDTO $permissionDTO
-     * @return array
+     * @return ModelResponse
      */
-    public function storePermission(PermissionDTO $permissionDTO): array;
+    public function storePermission(PermissionDTO $permissionDTO): ModelResponse;
 
     /**
      * update an existing permission in the database.
      *
      * @param PermissionDTO $permissionDTO
      * @param integer $permissionId
-     * @return array
+     * @return ModelResponse
      */
-    public function updatePermission(PermissionDTO $permissionDTO, int $permissionId): array;
+    public function updatePermission(PermissionDTO $permissionDTO, int $permissionId): ModelResponse;
 
     /**
      * delete a permission from the database.
      *
      * @param integer $permissionId
-     * @return array
+     * @return ModelResponse
      */
-    public function deletePermission(int $permissionId): array;
+    public function deletePermission(int $permissionId): ModelResponse;
 }

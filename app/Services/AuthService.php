@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\ModelResponse;
 use App\Helpers\Helper;
 use App\Interfaces\AuthInterface;
 use App\Models\User;
@@ -26,9 +27,9 @@ class AuthService implements AuthInterface
      * Log in a user using either username or email.
      *
      * @param array $request
-     * @return array<string, mixed>
+     * @return ModelResponse
      */
-    public function login(array $request): array
+    public function login(array $request): ModelResponse
     {
         try {
             $isLoggedIn = false;
@@ -50,7 +51,7 @@ class AuthService implements AuthInterface
             if ($isLoggedIn) {
                 if (Auth::user()->status !== Helper::ACCOUNT_STATUS_ACTIVE) {
                     Auth::logout();
-                    return $this->returnModel(403, Helper::ERROR, 'Account is inactive.');
+                    return ModelResponse::error(403, Helper::ERROR, 'Account is inactive.');
                 }
 
                 // Retrieve the user model from the database to ensure it's an Eloquent model
@@ -64,22 +65,22 @@ class AuthService implements AuthInterface
 
                 Auth::getSession()->regenerate();
 
-                return $this->returnModel(200, Helper::SUCCESS, 'Logged in successfully!', Auth::user(), Auth::id());
+                return ModelResponse::success(200, Helper::SUCCESS, 'Logged in successfully!', Auth::user(), Auth::id());
             }
 
-            return $this->returnModel(422, Helper::ERROR, 'The provided credentials do not match our records.');
+            return ModelResponse::error(422, Helper::ERROR, 'The provided credentials do not match our records.');
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
     /**
      * Log out the currently authenticated user.
      *
-     * @return array<string, mixed>
+     * @return ModelResponse
      */
-    public function logout(): array
+    public function logout(): ModelResponse
     {
         try {
             if (Auth::check()) {
@@ -96,13 +97,13 @@ class AuthService implements AuthInterface
                 Session::invalidate();
                 Session::regenerateToken();
 
-                return $this->returnModel(200, Helper::SUCCESS, 'Logged out successfully!');
+                return ModelResponse::success(200, Helper::SUCCESS, 'Logged out successfully!');
             }
 
-            return $this->returnModel(401, Helper::ERROR, 'No authenticated user to log out.');
+            return ModelResponse::error(401, Helper::ERROR, 'No authenticated user to log out.');
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 

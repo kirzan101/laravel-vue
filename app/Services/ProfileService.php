@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\ModelResponse;
 use App\DTOs\ProfileDTO;
 use App\Helpers\Helper;
 use App\Interfaces\CurrentUserInterface;
@@ -35,9 +36,9 @@ class ProfileService implements ProfileInterface
      * Store a new profile in the database.
      *
      * @param ProfileDTO $profileDTO
-     * @return array
+     * @return ModelResponse
      */
-    public function storeProfile(ProfileDTO $profileDTO): array
+    public function storeProfile(ProfileDTO $profileDTO): ModelResponse
     {
         try {
             return DB::transaction(function () use ($profileDTO) {
@@ -46,11 +47,11 @@ class ProfileService implements ProfileInterface
                 $profileData = $profileDTO->withDefaultAudit($currentUserProfileId)->toArray();
                 $profile = $this->base->store(Profile::class, $profileData);
 
-                return $this->returnModel(201, Helper::SUCCESS, 'Profile created successfully!', $profile, $profile->id);
+                return ModelResponse::success(201, Helper::SUCCESS, 'Profile created successfully!', $profile, $profile->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -59,9 +60,9 @@ class ProfileService implements ProfileInterface
      *
      * @param ProfileDTO $profileDTO
      * @param integer $profileId
-     * @return array
+     * @return ModelResponse
      */
-    public function updateProfile(ProfileDTO $profileDTO, int $profileId): array
+    public function updateProfile(ProfileDTO $profileDTO, int $profileId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($profileDTO, $profileId) {
@@ -76,11 +77,11 @@ class ProfileService implements ProfileInterface
 
                 $profile = $this->base->update($profile, $profileData);
 
-                return $this->returnModel(200, Helper::SUCCESS, 'Profile updated successfully!', $profile, $profile->id);
+                return ModelResponse::success(200, Helper::SUCCESS, 'Profile updated successfully!', $profile, $profile->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -88,9 +89,9 @@ class ProfileService implements ProfileInterface
      * delete a profile from the database.
      *
      * @param integer $profileId
-     * @return array
+     * @return ModelResponse
      */
-    public function deleteProfile(int $profileId): array
+    public function deleteProfile(int $profileId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($profileId) {
@@ -107,11 +108,11 @@ class ProfileService implements ProfileInterface
 
                 $this->base->delete($profile);
 
-                return $this->returnModel(204, Helper::SUCCESS, 'Profile deleted successfully!', null, $profileId);
+                return ModelResponse::success(204, Helper::SUCCESS, 'Profile deleted successfully!', null, $profileId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

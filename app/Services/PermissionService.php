@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\ModelResponse;
 use App\DTOs\PermissionDTO;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\CurrentUserInterface;
@@ -35,9 +36,9 @@ class PermissionService implements PermissionInterface
      * Store a new permission in the database.
      *
      * @param PermissionDTO $permissionDTO
-     * @return array
+     * @return ModelResponse
      */
-    public function storePermission(PermissionDTO $permissionDTO): array
+    public function storePermission(PermissionDTO $permissionDTO): ModelResponse
     {
         try {
             return DB::transaction(function () use ($permissionDTO) {
@@ -45,11 +46,11 @@ class PermissionService implements PermissionInterface
                 $permissionData = $permissionDTO->toArray();
                 $permission = $this->base->store(Permission::class, $permissionData);
 
-                return $this->returnModel(201, 'success', 'Permission created successfully!', $permission, $permission->id);
+                return ModelResponse::success(201, 'success', 'Permission created successfully!', $permission, $permission->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, 'error', $th->getMessage());
+            return ModelResponse::error($code, 'error', $th->getMessage());
         }
     }
 
@@ -58,9 +59,9 @@ class PermissionService implements PermissionInterface
      *
      * @param PermissionDTO $permissionDTO
      * @param int $permissionId
-     * @return array
+     * @return ModelResponse
      */
-    public function updatePermission(PermissionDTO $permissionDTO, int $permissionId): array
+    public function updatePermission(PermissionDTO $permissionDTO, int $permissionId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($permissionDTO, $permissionId) {
@@ -69,11 +70,11 @@ class PermissionService implements PermissionInterface
                 $permissionData = PermissionDTO::fromModel($permission, $permissionDTO->toArray())->toArray();
                 $permission = $this->base->update($permission, $permissionData);
 
-                return $this->returnModel(200, 'success', 'Permission updated successfully!', $permission, $permissionId);
+                return ModelResponse::success(200, 'success', 'Permission updated successfully!', $permission, $permissionId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, 'error', $th->getMessage());
+            return ModelResponse::error($code, 'error', $th->getMessage());
         }
     }
 
@@ -81,9 +82,9 @@ class PermissionService implements PermissionInterface
      * Delete a permission from the database.
      *
      * @param int $permissionId
-     * @return array
+     * @return ModelResponse
      */
-    public function deletePermission(int $permissionId): array
+    public function deletePermission(int $permissionId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($permissionId) {
@@ -100,11 +101,11 @@ class PermissionService implements PermissionInterface
 
                 $this->base->delete($permission);
 
-                return $this->returnModel(204, 'success', 'Permission deleted successfully!', null, $permissionId);
+                return ModelResponse::success(204, 'success', 'Permission deleted successfully!', null, $permissionId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, 'error', $th->getMessage());
+            return ModelResponse::error($code, 'error', $th->getMessage());
         }
     }
 }

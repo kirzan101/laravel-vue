@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\ModelResponse;
 use App\DTOs\UserGroupDTO;
 use App\Helpers\Helper;
 use App\Interfaces\CurrentUserInterface;
@@ -15,15 +16,11 @@ use App\Traits\CheckIfColumnExistsTrait;
 use App\Traits\DetectsSoftDeletesTrait;
 use App\Traits\EnsureSuccessTrait;
 use App\Traits\HttpErrorCodeTrait;
-use App\Traits\ReturnModelCollectionTrait;
-use App\Traits\ReturnModelTrait;
 use Illuminate\Support\Facades\DB;
 
 class UserGroupService implements UserGroupInterface
 {
     use HttpErrorCodeTrait,
-        ReturnModelCollectionTrait,
-        ReturnModelTrait,
         EnsureSuccessTrait,
         DetectsSoftDeletesTrait,
         CheckIfColumnExistsTrait;
@@ -40,9 +37,9 @@ class UserGroupService implements UserGroupInterface
      * Store a new user group in the database.
      *
      * @param UserGroupDTO $userGroupDTO
-     * @return array
+     * @return ModelResponse
      */
-    public function storeUserGroup(UserGroupDTO $userGroupDTO): array
+    public function storeUserGroup(UserGroupDTO $userGroupDTO): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userGroupDTO) {
@@ -51,11 +48,11 @@ class UserGroupService implements UserGroupInterface
                 $userGroupData = $userGroupDTO->withDefaultAudit($currentProfileId)->toArray();
                 $userGroup = $this->base->store(UserGroup::class, $userGroupData);
 
-                return $this->returnModel(201, Helper::SUCCESS, 'User group created successfully!', $userGroup, $userGroup->id);
+                return ModelResponse::success(201, Helper::SUCCESS, 'User group created successfully!', $userGroup, $userGroup->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -64,9 +61,9 @@ class UserGroupService implements UserGroupInterface
      *
      * @param integer $userGroupId
      * @param array $request
-     * @return array
+     * @return ModelResponse
      */
-    public function updateUserGroup(UserGroupDTO $userGroupDTO, int $userGroupId): array
+    public function updateUserGroup(UserGroupDTO $userGroupDTO, int $userGroupId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userGroupDTO, $userGroupId) {
@@ -78,12 +75,12 @@ class UserGroupService implements UserGroupInterface
                     ->toArray();
                 $userGroup = $this->base->update($userGroup, $userGroupData);
 
-                return $this->returnModel(200, Helper::SUCCESS, 'User group updated successfully!', $userGroup, $userGroupId);
+                return ModelResponse::success(200, Helper::SUCCESS, 'User group updated successfully!', $userGroup, $userGroupId);
             });
         } catch (\Throwable $th) {
 
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -91,9 +88,9 @@ class UserGroupService implements UserGroupInterface
      * Delete a user group from the database.
      *
      * @param integer $userGroupId
-     * @return array
+     * @return ModelResponse
      */
-    public function deleteUserGroup(int $userGroupId): array
+    public function deleteUserGroup(int $userGroupId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userGroupId) {
@@ -110,11 +107,11 @@ class UserGroupService implements UserGroupInterface
 
                 $this->base->delete($userGroup); // only soft delete
 
-                return $this->returnModel(204, Helper::SUCCESS, 'User group deleted successfully!', null, $userGroupId);
+                return ModelResponse::success(204, Helper::SUCCESS, 'User group deleted successfully!', null, $userGroupId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

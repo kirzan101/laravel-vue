@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\ModelResponse;
 use App\DTOs\UserGroupDTO;
 use App\DTOs\UserGroupWithPermissionDTO;
 use App\Helpers\Helper;
@@ -17,6 +18,7 @@ use App\Interfaces\UserGroupPermissionInterface;
 use App\Models\UserGroup;
 use App\Traits\CheckIfColumnExistsTrait;
 use App\Traits\DetectsSoftDeletesTrait;
+use App\Traits\EnsureDataTrait;
 use App\Traits\EnsureSuccessTrait;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +29,8 @@ class ManageUserGroupPermissionService implements ManageUserGroupPermissionInter
         ReturnModelTrait,
         DetectsSoftDeletesTrait,
         CheckIfColumnExistsTrait,
-        EnsureSuccessTrait;
+        EnsureSuccessTrait,
+        EnsureDataTrait;
 
     public function __construct(
         private BaseInterface $base,
@@ -41,9 +44,9 @@ class ManageUserGroupPermissionService implements ManageUserGroupPermissionInter
      * Store a new user group with permissions in the database.
      *
      * @param array $request
-     * @return array
+     * @return ModelResponse
      */
-    public function storeUserGroupWithPermissions(UserGroupWithPermissionDTO $userGroupWithPermissionDTO): array
+    public function storeUserGroupWithPermissions(UserGroupWithPermissionDTO $userGroupWithPermissionDTO): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userGroupWithPermissionDTO) {
@@ -51,22 +54,23 @@ class ManageUserGroupPermissionService implements ManageUserGroupPermissionInter
                 $userGroupDTO = $userGroupWithPermissionDTO->userGroup;
                 $userGroupResult = $this->userGroup->storeUserGroup($userGroupDTO);
 
-                $this->ensureSuccess($userGroupResult, 'User group creation failed!');
+                $this->ensureSuccess($userGroupResult->toArray(), 'User group creation failed!');
 
-                $userGroup = $userGroupResult['data'] ?? null;
-                $userGroupId = $userGroupResult['last_id'] ?? null;
+                $userGroup = $userGroupResult->data;
+                $this->ensureModel($userGroup, 'User group creation failed!');
+                $userGroupId = $userGroupResult->lastId ?? null;
 
                 // Store user group permissions
                 $permissionIds = $userGroupWithPermissionDTO->permissionIds ?? [];
                 $userGroupPermissionResult = $this->userGroupPermission->storeMultipleUserGroupPermission($permissionIds, $userGroupId);
 
-                $this->ensureSuccess($userGroupPermissionResult, 'User group permission creation failed!');
+                $this->ensureSuccess($userGroupPermissionResult->toArray(), 'User group permission creation failed!');
 
-                return $this->returnModel(201, Helper::SUCCESS, 'User group created successfully!', $userGroup, $userGroupId);
+                return ModelResponse::success(201, Helper::SUCCESS, 'User group created successfully!', $userGroup, $userGroupId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -75,9 +79,9 @@ class ManageUserGroupPermissionService implements ManageUserGroupPermissionInter
      *
      * @param UserGroupWithPermissionDTO $userGroupWithPermissionDTO
      * @param integer $userGroupId
-     * @return array
+     * @return ModelResponse
      */
-    public function updateUserGroupWithPermissions(UserGroupWithPermissionDTO $userGroupWithPermissionDTO, int $userGroupId): array
+    public function updateUserGroupWithPermissions(UserGroupWithPermissionDTO $userGroupWithPermissionDTO, int $userGroupId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userGroupWithPermissionDTO, $userGroupId) {
@@ -92,21 +96,22 @@ class ManageUserGroupPermissionService implements ManageUserGroupPermissionInter
 
                 $userGroupResult = $this->userGroup->updateUserGroup($userGroupDTO, $userGroupId);
 
-                $this->ensureSuccess($userGroupResult, 'User group update failed!');
+                $this->ensureSuccess($userGroupResult->toArray(), 'User group update failed!');
 
-                $userGroup = $userGroupResult['data'] ?? null;
+                $userGroup = $userGroupResult->data ?? null;
+                $this->ensureModel($userGroup, 'User group update failed!');
 
                 // Update user group permissions
                 $permissionIds = $userGroupWithPermissionDTO->permissionIds ?? [];
                 $userGroupPermissionResult = $this->userGroupPermission->updateMultipleUserGroupPermission($permissionIds, $userGroupId);
 
-                $this->ensureSuccess($userGroupPermissionResult, 'User group permission update failed!');
+                $this->ensureSuccess($userGroupPermissionResult->toArray(), 'User group permission update failed!');
 
-                return $this->returnModel(200, Helper::SUCCESS, 'User group updated successfully!', $userGroup, $userGroupId);
+                return ModelResponse::success(200, Helper::SUCCESS, 'User group updated successfully!', $userGroup, $userGroupId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

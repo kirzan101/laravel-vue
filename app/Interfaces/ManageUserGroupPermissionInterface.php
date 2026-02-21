@@ -2,6 +2,7 @@
 
 namespace App\Interfaces;
 
+use App\Data\ModelResponse;
 use App\DTOs\UserGroupWithPermissionDTO;
 
 interface ManageUserGroupPermissionInterface
@@ -10,16 +11,16 @@ interface ManageUserGroupPermissionInterface
      * Store a new user group with permissions in the database.
      *
      * @param UserGroupWithPermissionDTO $userGroupWithPermissionDTO
-     * @return array
+     * @return ModelResponse
      */
-    public function storeUserGroupWithPermissions(UserGroupWithPermissionDTO $userGroupWithPermissionDTO): array;
+    public function storeUserGroupWithPermissions(UserGroupWithPermissionDTO $userGroupWithPermissionDTO): ModelResponse;
 
     /**
-     * update an existing user group with permissions in the database.
+     * Update an existing user group with permissions in the database.
      *
      * @param UserGroupWithPermissionDTO $userGroupWithPermissionDTO
      * @param integer $userGroupId
-     * @return array
+     * @return ModelResponse
      */
-    public function updateUserGroupWithPermissions(UserGroupWithPermissionDTO $userGroupWithPermissionDTO, int $userGroupId): array;
+    public function updateUserGroupWithPermissions(UserGroupWithPermissionDTO $userGroupWithPermissionDTO, int $userGroupId): ModelResponse;
 }

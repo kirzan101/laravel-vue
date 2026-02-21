@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\ModelResponse;
 use App\DTOs\UserDTO;
 use App\Helpers\Helper;
 use App\Interfaces\BaseInterface;
@@ -28,9 +29,9 @@ class UserService implements UserInterface
      * Store a new user in the database.
      *
      * @param UserDTO $userDTO
-     * @return array
+     * @return ModelResponse
      */
-    public function storeUser(UserDTO $userDTO): array
+    public function storeUser(UserDTO $userDTO): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userDTO) {
@@ -39,11 +40,11 @@ class UserService implements UserInterface
                 $userData['password'] = bcrypt($userData['password']); // Hash the password here!
                 $user = $this->base->store(User::class, $userData);
 
-                return $this->returnModel(201, Helper::SUCCESS, 'User created successfully!', $user, $user->id);
+                return ModelResponse::success(201, Helper::SUCCESS, 'User created successfully!', $user, $user->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -52,9 +53,9 @@ class UserService implements UserInterface
      *
      * @param integer $userId
      * @param UserDTO $userDTO
-     * @return array
+     * @return ModelResponse
      */
-    public function updateUser(UserDTO $userDTO, int $userId): array
+    public function updateUser(UserDTO $userDTO, int $userId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userDTO, $userId) {
@@ -63,11 +64,11 @@ class UserService implements UserInterface
                 $userData = UserDTO::fromModel($user, $userDTO->toArray())->toArray();
                 $user = $this->base->update($user, $userData);
 
-                return $this->returnModel(200, Helper::SUCCESS, 'User updated successfully!', $user, $userId);
+                return ModelResponse::success(200, Helper::SUCCESS, 'User updated successfully!', $user, $userId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -75,9 +76,9 @@ class UserService implements UserInterface
      * delete a user from the database.
      *
      * @param integer $userId
-     * @return array
+     * @return ModelResponse
      */
-    public function deleteUser(int $userId): array
+    public function deleteUser(int $userId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userId) {
@@ -86,11 +87,11 @@ class UserService implements UserInterface
 
                 $this->base->delete($user);
 
-                return $this->returnModel(204, Helper::SUCCESS, 'User deleted successfully!', null, $userId);
+                return ModelResponse::success(204, Helper::SUCCESS, 'User deleted successfully!', null, $userId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\ModelResponse;
 use App\DTOs\AccountDTO;
 use App\DTOs\ChangePasswordDTO;
 use App\DTOs\ProfileDTO;
@@ -19,6 +20,7 @@ use App\Interfaces\ProfileUserGroupInterface;
 use App\Interfaces\UserInterface;
 use App\Models\Profile;
 use App\Models\User;
+use App\Traits\EnsureDataTrait;
 use App\Traits\EnsureSuccessTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -28,7 +30,8 @@ class ManageAccountService implements ManageAccountInterface
 {
     use HttpErrorCodeTrait,
         ReturnModelTrait,
-        EnsureSuccessTrait;
+        EnsureSuccessTrait,
+        EnsureDataTrait;
 
     public function __construct(
         private BaseFetchInterface $fetch,
@@ -43,10 +46,10 @@ class ManageAccountService implements ManageAccountInterface
      * Register a new user with profile.
      *
      * @param array $request
-     * @return array<string, mixed>
+     * @return ModelResponse
      * @throws \Throwable
      */
-    public function register(AccountDTO $accountDTO): array
+    public function register(AccountDTO $accountDTO): ModelResponse
     {
         try {
             return DB::transaction(function () use ($accountDTO) {
@@ -59,9 +62,9 @@ class ManageAccountService implements ManageAccountInterface
                 $userResult = $this->user->storeUser($userDto);
 
                 // Ensure user creation was successful
-                $this->ensureSuccess($userResult, 'User creation failed!');
+                $this->ensureSuccess($userResult->toArray(), 'User creation failed!');
 
-                $userId = $userResult['last_id'] ?? null;
+                $userId = $userResult->lastId ?? null;
 
                 // Create profile
                 $profileDTO = $accountDTO->profile->withUser($userId);
@@ -72,10 +75,11 @@ class ManageAccountService implements ManageAccountInterface
                 $profileResult = $this->profile->storeProfile($profileDTO);
 
                 // Ensure profile creation was successful
-                $this->ensureSuccess($profileResult, 'Profile creation failed!');
+                $this->ensureSuccess($profileResult->toArray(), 'Profile creation failed!');
 
                 // Get the profile data
-                $profile = $profileResult['data'];
+                $profile = $profileResult->data;
+                $this->ensureModel($profile, 'Profile creation failed!');
 
                 // create profile user group
                 if (!empty($accountDTO->user_group_id)) {
@@ -86,14 +90,14 @@ class ManageAccountService implements ManageAccountInterface
                     $profileUserGroupResult = $this->profileUserGroup->storeProfileUserGroup($profileUserGroupDto);
 
                     // Ensure profile user group creation was successful
-                    $this->ensureSuccess($profileUserGroupResult, 'Profile user group creation failed!');
+                    $this->ensureSuccess($profileUserGroupResult->toArray(), 'Profile user group creation failed!');
                 }
 
-                return $this->returnModel(201, Helper::SUCCESS, 'Profile registration successfully!', $profile, $profile->id);
+                return ModelResponse::success(201, Helper::SUCCESS, 'Profile registration successfully!', $profile, $profile->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -102,9 +106,9 @@ class ManageAccountService implements ManageAccountInterface
      *
      * @param AccountDTO $accountDTO
      * @param int $profileId
-     * @return array<string, mixed>
+     * @return ModelResponse
      */
-    public function updateUserProfile(AccountDTO $accountDTO, int $profileId): array
+    public function updateUserProfile(AccountDTO $accountDTO, int $profileId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($accountDTO, $profileId) {
@@ -121,7 +125,7 @@ class ManageAccountService implements ManageAccountInterface
                 $profileResult = $this->profile->updateProfile($profileData, $profileId);
 
                 // Ensure profile update was successful
-                $this->ensureSuccess($profileResult, 'Profile update failed!');
+                $this->ensureSuccess($profileResult->toArray(), 'Profile update failed!');
 
                 // Get user associated with the profile
                 $user = $profile->user;
@@ -135,7 +139,7 @@ class ManageAccountService implements ManageAccountInterface
                 $userResult = $this->user->updateUser($userData, $user->id);
 
                 // Ensure user update was successful
-                $this->ensureSuccess($userResult, 'User update failed!');
+                $this->ensureSuccess($userResult->toArray(), 'User update failed!');
 
                 // Update user group if provided
                 if (!empty($accountDTO->user_group_id)) {
@@ -146,14 +150,14 @@ class ManageAccountService implements ManageAccountInterface
                     $profileUserGroupResult = $this->profileUserGroup->updateProfileUserGroupWithProfileId($profileUserGroupDto, $profileId);
 
                     // Ensure profile user group update was successful
-                    $this->ensureSuccess($profileUserGroupResult, 'Profile user group update failed!');
+                    $this->ensureSuccess($profileUserGroupResult->toArray(), 'Profile user group update failed!');
                 }
 
-                return $this->returnModel(200, Helper::SUCCESS, 'Profile updated successfully!', $profile, $profile->id);
+                return ModelResponse::success(200, Helper::SUCCESS, 'Profile updated successfully!', $profile, $profile->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -161,9 +165,9 @@ class ManageAccountService implements ManageAccountInterface
      * Change the password for the authenticated user's profile.
      *
      * @param ChangePasswordDTO $changePasswordDTO
-     * @return array<string, mixed>
+     * @return ModelResponse
      */
-    public function changeUserProfilePassword(ChangePasswordDTO $changePasswordDTO): array
+    public function changeUserProfilePassword(ChangePasswordDTO $changePasswordDTO): ModelResponse
     {
         try {
             // Get the profile by profile ID
@@ -206,7 +210,7 @@ class ManageAccountService implements ManageAccountInterface
                 throw new RuntimeException('Profile update failed!');
             }
 
-            return $this->returnModel(
+            return ModelResponse::success(
                 200,
                 Helper::SUCCESS,
                 'Password changed successfully!',
@@ -215,7 +219,7 @@ class ManageAccountService implements ManageAccountInterface
             );
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -223,9 +227,9 @@ class ManageAccountService implements ManageAccountInterface
      * Reset user password
      *
      * @param integer $userId
-     * @return array
+     * @return ModelResponse
      */
-    public function resetPassword(int $userId): array
+    public function resetPassword(int $userId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userId) {
@@ -239,11 +243,11 @@ class ManageAccountService implements ManageAccountInterface
                     'is_first_login' => true,
                 ]);
 
-                return $this->returnModel(200, Helper::SUCCESS, 'Successfully reset password!');
+                return ModelResponse::success(200, Helper::SUCCESS, 'Successfully reset password!');
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -251,9 +255,9 @@ class ManageAccountService implements ManageAccountInterface
      * Set user active status
      *
      * @param integer $userId
-     * @return array
+     * @return ModelResponse
      */
-    public function setUserActiveStatus(int $userId): array
+    public function setUserActiveStatus(int $userId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userId) {
@@ -273,11 +277,11 @@ class ManageAccountService implements ManageAccountInterface
 
                 $user->update(['status' => $newStatus]);
 
-                return $this->returnModel(200, Helper::SUCCESS, "Successfully changed status to {$newStatus}!");
+                return ModelResponse::success(200, Helper::SUCCESS, "Successfully changed status to {$newStatus}!");
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 

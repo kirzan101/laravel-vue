@@ -2,6 +2,10 @@
 
 namespace App\Interfaces\FetchInterfaces;
 
+use App\Data\PaginateResponse;
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
+
 interface {{ base }}FetchInterface
 {
     /**
@@ -10,16 +14,16 @@ interface {{ base }}FetchInterface
      * @param array $request Optional parameters for filtering or pagination.
      * @param bool $isPaginated Whether to paginate the results.
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass The resource class to transform the results.
-     * @return array An array of {{ description }}s.
+     * @return PaginateResponse|CollectionResponse A response containing the {{ description }}s.
      */
-    public function index{{ base }}s(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array;
+    public function index{{ basePlural }}(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse;
 
     /**
      * Fetch a single {{ description }} by ID.
      *
      * @param integer ${{ variable }}Id
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return ModelResponse A model response containing the {{ description }}.
      */
-    public function show{{ base }}(int ${{ variable }}Id, ?string $resourceClass = null): array;
+    public function show{{ base }}(int ${{ variable }}Id, ?string $resourceClass = null): ModelResponse;
 }

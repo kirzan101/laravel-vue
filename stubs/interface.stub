@@ -2,6 +2,7 @@
 
 namespace App\Interfaces;
 
+use App\Data\ModelResponse;
 use App\DTOs\{{ dto }};
 
 interface {{ interface }}
@@ -10,24 +11,24 @@ interface {{ interface }}
      * Store a new {{ description }} in the database.
      *
      * @param  {{ dto }} ${{ dtoVariable }}
-     * @return array
+     * @return ModelResponse
      */
-    public function store{{ base }}({{ dto }} ${{ dtoVariable }}): array;
+    public function store{{ base }}({{ dto }} ${{ dtoVariable }}): ModelResponse;
 
     /**
      * Update an existing {{ description }} in the database.
      *
      * @param  {{ dto }} ${{ dtoVariable }}
      * @param  int    ${{ variable }}Id
-     * @return array
+     * @return ModelResponse
      */
-    public function update{{ base }}({{ dto }} ${{ dtoVariable }}, int ${{ variable }}Id): array;
+    public function update{{ base }}({{ dto }} ${{ dtoVariable }}, int ${{ variable }}Id): ModelResponse;
 
     /**
      * Delete the given {{ description }} in the database.
      *
      * @param  int  ${{ variable }}Id
-     * @return array
+     * @return ModelResponse
      */
-    public function delete{{ base }}(int ${{ variable }}Id): array;
+    public function delete{{ base }}(int ${{ variable }}Id): ModelResponse;
 }

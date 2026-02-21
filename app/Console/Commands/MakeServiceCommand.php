@@ -80,6 +80,6 @@ class MakeServiceCommand extends Command
         // Success messages
         $this->components->info("Interface [app/Interfaces/{$interfaceName}.php] created successfully.");
         $this->components->info("Service [app/Services/{$className}.php] created successfully.");
-        $this->components->info("DTO [app/DTOs/{$className}.php] created successfully.");
+        $this->components->info("DTO [app/DTOs/{$dtoName}.php] created successfully.");
     }
 }

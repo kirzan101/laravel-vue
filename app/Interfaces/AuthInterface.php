@@ -2,22 +2,24 @@
 
 namespace App\Interfaces;
 
+use App\Data\ModelResponse;
+
 interface AuthInterface
 {
     /**
      * Log in a user with the provided credentials.
      *
      * @param array $request
-     * @return array<string, mixed>
+     * @return ModelResponse
      */
-    public function login(array $request): array;
+    public function login(array $request): ModelResponse;
 
     /**
      * Log out the currently authenticated user.
      *
-     * @return array<string, mixed>
+     * @return ModelResponse
      */
-    public function logout(): array;
+    public function logout(): ModelResponse;
 
     /**
      * Get the API token of the currently authenticated user.

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
 use App\DTOs\UserGroupPermissionDTO;
 use App\Helpers\Helper;
 use App\Interfaces\BaseInterface;
@@ -30,9 +32,9 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
      * Store a new user group permission in the database.
      *
      * @param UserGroupPermissionDTO $userGroupPermissionDTO
-     * @return array
+     * @return ModelResponse
      */
-    public function storeUserGroupPermission(UserGroupPermissionDTO $userGroupPermissionDTO): array
+    public function storeUserGroupPermission(UserGroupPermissionDTO $userGroupPermissionDTO): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userGroupPermissionDTO) {
@@ -40,11 +42,11 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
                 $userGroupPermissionData = $userGroupPermissionDTO->toArray();
                 $userGroupPermission = $this->base->store(UserGroupPermission::class, $userGroupPermissionData);
 
-                return $this->returnModel(201, Helper::SUCCESS, 'User group permission created successfully!', $userGroupPermission, $userGroupPermission->id);
+                return ModelResponse::success(201, Helper::SUCCESS, 'User group permission created successfully!', $userGroupPermission, $userGroupPermission->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -53,9 +55,9 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
      *
      * @param UserGroupPermissionDTO $userGroupPermissionDTO
      * @param integer $userGroupPermissionId
-     * @return array
+     * @return ModelResponse
      */
-    public function updateUserGroupPermission(UserGroupPermissionDTO $userGroupPermissionDTO, int $userGroupPermissionId): array
+    public function updateUserGroupPermission(UserGroupPermissionDTO $userGroupPermissionDTO, int $userGroupPermissionId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userGroupPermissionDTO, $userGroupPermissionId) {
@@ -64,11 +66,11 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
                 $userGroupPermissionData = UserGroupPermissionDTO::fromModel($userGroupPermission, $userGroupPermissionDTO->toArray())->toArray();
                 $userGroupPermission = $this->base->update($userGroupPermission, $userGroupPermissionData);
 
-                return $this->returnModel(200, Helper::SUCCESS, 'User group permission updated successfully!', $userGroupPermission, $userGroupPermissionId);
+                return ModelResponse::success(200, Helper::SUCCESS, 'User group permission updated successfully!', $userGroupPermission, $userGroupPermissionId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -76,9 +78,9 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
      * delete a user group permission from the database.
      *
      * @param integer $userGroupPermissionId
-     * @return array
+     * @return ModelResponse
      */
-    public function deleteUserGroupPermission(int $userGroupPermissionId): array
+    public function deleteUserGroupPermission(int $userGroupPermissionId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($userGroupPermissionId) {
@@ -86,11 +88,11 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
 
                 $this->base->delete($userGroupPermission);
 
-                return $this->returnModel(204, Helper::SUCCESS, 'User group permission deleted successfully!', null, $userGroupPermissionId);
+                return ModelResponse::success(204, Helper::SUCCESS, 'User group permission deleted successfully!', null, $userGroupPermissionId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -114,15 +116,12 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
      * 
      * @param array $permissionIds An array of permission IDs that should be marked as `active` for the user group.
      * @param int $userGroupId The ID of the user group for which permissions are being assigned.
-     * @return array Returns an array containing the result of the operation:
-     *               - HTTP status code
-     *               - Response message (success or error)
-     *               - Additional data (if applicable)
+     * @return CollectionResponse A structured response containing the HTTP status, status text, message, and a collection of the created user group permissions.
      * 
      * @throws \Throwable If an error occurs during the transaction, an exception will be thrown and caught,
      *                    triggering a rollback and returning the error message with an appropriate HTTP status code.
      */
-    public function storeMultipleUserGroupPermission(array $permissionIds, int $userGroupId): array
+    public function storeMultipleUserGroupPermission(array $permissionIds, int $userGroupId): CollectionResponse
     {
         try {
             return DB::transaction(function () use ($permissionIds, $userGroupId) {
@@ -146,11 +145,11 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
                     $userGroupPermissions
                 ]);
 
-                return $this->returnModelCollection(201, Helper::SUCCESS, 'User group permission created successfully!', $userGroupPermissionCollection);
+                return CollectionResponse::success(201, Helper::SUCCESS, 'User group permission created successfully!', $userGroupPermissionCollection);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
+            return CollectionResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -173,11 +172,11 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
      *
      * @param array $permissionIds List of permission IDs that should be marked as active.
      * @param int $userGroupId The ID of the user group whose permissions are being updated.
-     * @return array A structured response containing the HTTP status, status text, message, and updated data collection.
+     * @return CollectionResponse A structured response containing the HTTP status, status text, message, and updated data collection.
      *
      * @throws \Throwable If any exception is thrown during the update process, it will be caught and an error response returned.
      */
-    public function updateMultipleUserGroupPermission(array $permissionIds, int $userGroupId): array
+    public function updateMultipleUserGroupPermission(array $permissionIds, int $userGroupId): CollectionResponse
     {
         try {
             return DB::transaction(function () use ($permissionIds, $userGroupId) {
@@ -192,11 +191,11 @@ class UserGroupPermissionService implements UserGroupPermissionInterface
                     $this->base->update($userGroupPermission, ['is_active' => $isActive]);
                 }
 
-                return $this->returnModelCollection(200, Helper::SUCCESS, 'User group permissions updated successfully!', $userGroupPermissions);
+                return CollectionResponse::success(200, Helper::SUCCESS, 'User group permissions updated successfully!', $userGroupPermissions);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
+            return CollectionResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Data\ModelResponse;
 use App\DTOs\ProfileUserGroupDTO;
 use App\Helpers\Helper;
 use App\Interfaces\ProfileUserGroupInterface;
@@ -28,9 +29,9 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
      * Store a new profile user group in the database.
      * 
      * @param ProfileUserGroupDTO $profileUserGroupDTO
-     * @return array
+     * @return ModelResponse
      */
-    public function storeProfileUserGroup(ProfileUserGroupDTO $profileUserGroupDTO): array
+    public function storeProfileUserGroup(ProfileUserGroupDTO $profileUserGroupDTO): ModelResponse
     {
         try {
             return DB::transaction(function () use ($profileUserGroupDTO) {
@@ -38,11 +39,11 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
                 $profileUserGroupData = $profileUserGroupDTO->toArray();
                 $profileUserGroup = $this->base->store(ProfileUserGroup::class, $profileUserGroupData);
 
-                return $this->returnModel(201, Helper::SUCCESS, 'Profile user group created successfully!', $profileUserGroup, $profileUserGroup->id);
+                return ModelResponse::success(201, Helper::SUCCESS, 'Profile user group created successfully!', $profileUserGroup, $profileUserGroup->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -51,9 +52,9 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
      * 
      * @param ProfileUserGroupDTO $profileUserGroupDTO
      * @param int $profileUserGroupId
-     * @return array
+     * @return ModelResponse
      */
-    public function updateProfileUserGroup(ProfileUserGroupDTO $profileUserGroupDTO, int $profileUserGroupId): array
+    public function updateProfileUserGroup(ProfileUserGroupDTO $profileUserGroupDTO, int $profileUserGroupId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($profileUserGroupDTO, $profileUserGroupId) {
@@ -63,11 +64,11 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
                 $profileUserGroup = $this->base->update($profileUserGroup, $profileUserGroupData);
 
                 // $this->returnModel(code, status, message, model, last_id);
-                return $this->returnModel(200, Helper::SUCCESS, 'Profile user group updated successfully!', $profileUserGroup, $profileUserGroupId);
+                return ModelResponse::success(200, Helper::SUCCESS, 'Profile user group updated successfully!', $profileUserGroup, $profileUserGroupId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -76,9 +77,9 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
      * 
      * @param ProfileUserGroupDTO $profileUserGroupDTO
      * @param int $profileId
-     * @return array
+     * @return ModelResponse
      */
-    public function updateProfileUserGroupWithProfileId(ProfileUserGroupDTO $profileUserGroupDTO, int $profileId): array
+    public function updateProfileUserGroupWithProfileId(ProfileUserGroupDTO $profileUserGroupDTO, int $profileId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($profileUserGroupDTO, $profileId) {
@@ -88,11 +89,11 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
                 $profileUserGroup = $this->base->update($profileUserGroup, $profileUserGroupData);
 
                 // $this->returnModel(code, status, message, model, last_id);
-                return $this->returnModel(200, Helper::SUCCESS, 'Profile user group updated successfully!', $profileUserGroup, $profileUserGroup->id);
+                return ModelResponse::success(200, Helper::SUCCESS, 'Profile user group updated successfully!', $profileUserGroup, $profileUserGroup->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -100,9 +101,9 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
      * Delete the given profile user group in the database.
      * 
      * @param int $profileUserGroupId
-     * @return array
+     * @return ModelResponse
      */
-    public function deleteProfileUserGroup(int $profileUserGroupId): array
+    public function deleteProfileUserGroup(int $profileUserGroupId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($profileUserGroupId) {
@@ -110,11 +111,11 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
 
                 $this->base->delete($profileUserGroup);
 
-                return $this->returnModel(204, Helper::SUCCESS, 'Profile user group deleted successfully!', null, $profileUserGroupId);
+                return ModelResponse::success(204, Helper::SUCCESS, 'Profile user group deleted successfully!', null, $profileUserGroupId);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -122,9 +123,9 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
      * Delete the given profile user group in the database with profile id.
      * 
      * @param int $profileId
-     * @return array
+     * @return ModelResponse
      */
-    public function deleteProfileUserGroupWithProfileId(int $profileId): array
+    public function deleteProfileUserGroupWithProfileId(int $profileId): ModelResponse
     {
         try {
             return DB::transaction(function () use ($profileId) {
@@ -132,11 +133,11 @@ class ProfileUserGroupService implements ProfileUserGroupInterface
 
                 $this->base->delete($profileUserGroup);
 
-                return $this->returnModel(204, Helper::SUCCESS, 'Profile user group deleted successfully!', null, $profileUserGroup->id);
+                return ModelResponse::success(204, Helper::SUCCESS, 'Profile user group deleted successfully!', null, $profileUserGroup->id);
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

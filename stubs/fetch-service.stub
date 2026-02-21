@@ -2,6 +2,9 @@
 
 namespace {{ namespace }};
 
+use App\Data\PaginateResponse;
+use App\Data\CollectionResponse;
+use App\Data\ModelResponse;
 use App\Helpers\Helper;
 use App\Models\{{ base }};
 use App\Interfaces\FetchInterfaces\{{ interface }};
@@ -28,9 +31,9 @@ class {{ class }} extends BaseFetchService implements {{ interface }}
      * @param array $request
      * @param bool $isPaginated
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return PaginateResponse|CollectionResponse
      */
-    public function index{{ base }}s(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): array
+    public function index{{ basePlural }}(array $request = [], bool $isPaginated = false, ?string $resourceClass = null): PaginateResponse|CollectionResponse
     {
         try {
             $query = $this->indexQuery({{ base }}::class);
@@ -39,7 +42,7 @@ class {{ class }} extends BaseFetchService implements {{ interface }}
                 $query->with($resourceClass::$relations ?? []);
             }
 
-            //  //Uncomment this code if query has a seach functionality
+            //Uncomment this code if query has a seach functionality
             // //Search filter
             //if (isset($request['search']) && !empty($request['search'])) {
                 //$search = $request['search'];
@@ -62,17 +65,16 @@ class {{ class }} extends BaseFetchService implements {{ interface }}
                 // Manually set the current page
                 Paginator::currentPageResolver(fn() => $current_page ?? 1);
 
-                $users = $query->orderBy($sort_by, $sort)->paginate($per_page);
+                ${{ variablePlural }} = $query->orderBy($sort_by, $sort)->paginate($per_page);
+                return PaginateResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', ${{ variablePlural }});
             } else {
-
-                $users = $query->get();
+                ${{ variablePlural }} = $query->get();
+                return CollectionResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', ${{ variablePlural }});
             }
-
-            return $this->returnModelCollection(200, Helper::SUCCESS, 'Successfully fetched!', $users);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModelCollection($code, Helper::ERROR, $th->getMessage());
+            return PaginateResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 
@@ -81,9 +83,9 @@ class {{ class }} extends BaseFetchService implements {{ interface }}
      *
      * @param integer ${{ variable }}Id
      * @param class-string<\Illuminate\Http\Resources\Json\JsonResource>|null $resourceClass
-     * @return array
+     * @return ModelResponse
      */
-    public function show{{ base }}(int ${{ variable }}Id, ?string $resourceClass = null): array
+    public function show{{ base }}(int ${{ variable }}Id, ?string $resourceClass = null): ModelResponse
     {
         try {
             $query = $this->showQuery({{ base }}::class, ${{ variable }}Id);
@@ -94,11 +96,11 @@ class {{ class }} extends BaseFetchService implements {{ interface }}
 
             $model = $query->firstOrFail();
 
-            return $this->returnModel(200, Helper::SUCCESS, 'Successfully fetched!', $model, ${{ variable }}Id);
+            return ModelResponse::success(200, Helper::SUCCESS, 'Successfully fetched!', $model, ${{ variable }}Id);
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);
 
-            return $this->returnModel($code, Helper::ERROR, $th->getMessage());
+            return ModelResponse::error($code, Helper::ERROR, $th->getMessage());
         }
     }
 }

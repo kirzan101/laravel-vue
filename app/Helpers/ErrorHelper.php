@@ -11,7 +11,7 @@ class ErrorHelper
      * @param string $defaultMessage
      * @return string
      */
-    public static function productionErrorMessage(int $code = 500, string $defaultMessage): string
+    public static function productionErrorMessage(int $code = 500, string $defaultMessage = 'Something went wrong. Please try again later.'): string
     {
         if (env('APP_ENV') !== 'production') {
             return $defaultMessage;
