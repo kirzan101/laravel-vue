@@ -3,6 +3,7 @@
 namespace App\DTOs;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Request;
 use ReflectionClass;
 
 abstract class BaseDTO
@@ -99,5 +100,13 @@ abstract class BaseDTO
                 $reflection->getConstructor()->getParameters()
             )
         );
+    }
+
+    /**
+     * Create a new instance of the DTO from an HTTP request.
+     */
+    public static function fromRequest(Request $request): static
+    {
+        return self::fromArray($request->all());
     }
 }
