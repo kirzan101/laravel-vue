@@ -3,7 +3,7 @@
 namespace App\DTOs;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 use ReflectionClass;
 
 abstract class BaseDTO
