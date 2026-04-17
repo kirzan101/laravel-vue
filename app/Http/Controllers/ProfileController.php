@@ -20,6 +20,7 @@ use App\Traits\ReturnModulePermissionTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
@@ -63,10 +64,13 @@ class ProfileController extends Controller
             ]);
         }
 
-        $fetchedUserGroups = $this->userGroupFetch->indexUserGroups();
+        $userGroups = Cache::remember('user_groups_list', 60, function () {
+            $result = $this->userGroupFetch->indexUserGroups();
+            return $result->data ?? [];
+        });
 
         return Inertia::render('System/Profiles', [
-            'user_groups' => UserGroupIndexResource::collection($fetchedUserGroups['data'] ?? []),
+            'user_groups' => UserGroupIndexResource::collection($userGroups),
             'account_types' => Helper::ACCOUNT_TYPES,
             'can' => $this->getModulePermissions(new Profile()),
         ]);

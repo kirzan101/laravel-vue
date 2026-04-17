@@ -64,7 +64,7 @@ class UserGroupController extends Controller
         $permissions = Cache::remember('permission_fetch_list', 60, function () {
             // Fetch the result and extract only the 'data' part
             $result = $this->permissionFetch->indexPermissions();
-            return $result['data'] ?? []; // Only return 'data' part
+            return $result->data ?? []; // Only return 'data' part
         });
 
         return Inertia::render('System/UserGroups', [

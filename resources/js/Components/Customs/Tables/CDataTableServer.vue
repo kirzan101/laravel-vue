@@ -35,6 +35,10 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    keyParam: {
+        type: [String, Number, null],
+        default: null,
+    },
     hover: {
         type: Boolean,
         default: true,
@@ -51,6 +55,10 @@ const props = defineProps({
         type: String,
         default: "comfortable",
     },
+    startupFilters: {
+        type: Object,
+        default: () => ({}),
+    },
 });
 
 // Define state variables
@@ -62,6 +70,8 @@ const sortBy = ref(null);
 const sortDirection = ref(null);
 const total = ref(0);
 const isLoading = ref(true);
+const customFilters = ref({});
+const additionalData = ref([]);
 
 //compute row count of an item in the table
 const indexCount = computed(() => {
@@ -86,6 +96,18 @@ const loadData = async (setFilters = {}) => {
             searchParams.append(key, value ?? "");
         });
 
+        // if setFilters is not empty, add it to customFilters
+        if (Object.keys(setFilters).length > 0) {
+            customFilters.value = { ...setFilters };
+        }
+
+        // Add startup filters if any
+        if (props.startupFilters) {
+            Object.entries(props.startupFilters).forEach(([key, value]) => {
+                searchParams.append(key, value ?? "");
+            });
+        }
+
         // Add extra filters if passed
         if (
             setFilters &&
@@ -97,9 +119,22 @@ const loadData = async (setFilters = {}) => {
             });
         }
 
+        // keyParam handling
+        // use it like this: /module/keyParam; e.g. /bulk-purchases/1
         if (props.module && props.module.length > 0) {
+            let url = `/${props.module}`;
+            if (props.keyParam !== null && props.keyParam !== undefined) {
+                const sanitized = String(props.keyParam)
+                    .replace(/^\/+|\/+$/g, "") // trim leading/trailing slashes
+                    .replace(/\s+/g, ""); // remove spaces
+
+                if (sanitized.length > 0) {
+                    url += `/${sanitized}`;
+                }
+            }
+
             const response = await axiosInstance.get(
-                `/${props.module}?` + searchParams.toString()
+                url + "?" + searchParams.toString(),
             );
 
             const { data } = response.data; // Extract data directly from the response
@@ -113,6 +148,11 @@ const loadData = async (setFilters = {}) => {
                 sort_direction,
                 total: totalCount,
             } = response.data;
+
+            // retrieve additional data if any
+            if (response.data.additional_data) {
+                additionalData.value = response.data.additional_data;
+            }
 
             // Set pagination and sorting data
             currentPage.value = current_page;
@@ -151,10 +191,11 @@ const handleTableFilter = async ({
 
     isLoading.value = true;
 
-    await loadData();
+    await loadData(customFilters.value);
 };
 
 defineExpose({
     loadData,
+    additionalData,
 });
 </script>

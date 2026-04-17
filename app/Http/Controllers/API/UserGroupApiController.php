@@ -26,10 +26,10 @@ class UserGroupApiController extends Controller
 
         $results = $this->userGroupFetch->indexUserGroups($request->toArray(), true, UserGroupResource::class);
 
-        $data = $results['data'];
-        $code = $results['code'];
-        $status = $results['status'];
-        $message = $results['message'];
+        $data = $results->data;
+        $code = $results->code;
+        $status = $results->status;
+        $message = $results->message;
 
         return response()->json([
             'data' => UserGroupResource::collection($data->all()),
@@ -60,10 +60,10 @@ class UserGroupApiController extends Controller
 
         $results = $this->userGroupFetch->indexUserGroups($request->toArray(), true, UserGroupIndexResource::class);
 
-        $data = $results['data'];
-        $code = $results['code'];
-        $status = $results['status'];
-        $message = $results['message'];
+        $data = $results->data;
+        $code = $results->code;
+        $status = $results->status;
+        $message = $results->message;
 
         return response()->json([
             'data' => UserGroupIndexResource::collection($data->all()),

@@ -25,10 +25,10 @@ class ProfileApiController extends Controller
 
         $results = $this->profileFetch->indexProfiles($request->toArray(), true, ProfileResource::class);
 
-        $data = $results['data'];
-        $code = $results['code'];
-        $status = $results['status'];
-        $message = $results['message'];
+        $data = $results->data;
+        $code = $results->code;
+        $status = $results->status;
+        $message = $results->message;
 
         return response()->json([
             'data' => ProfileResource::collection($data->all()),
