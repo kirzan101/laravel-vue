@@ -52,6 +52,10 @@ class BaseService implements BaseInterface
     {
         $this->validateModelClass($modelClass);
 
+        if (empty($requests)) {
+            return false;
+        }
+
         // Added this code to ensure timestamps are set
         // When using the query builder's insert(), timestamps are not set automatically like in Eloquent.
         // Manually set 'created_at' and 'updated_at' for each record.
@@ -71,14 +75,20 @@ class BaseService implements BaseInterface
         $hasCreatedAt = $timestampColumns[$table]['created_at'];
         $hasUpdatedAt = $timestampColumns[$table]['updated_at'];
 
-        if ($hasCreatedAt && $hasUpdatedAt) {
-            $now = Carbon::now();
-            foreach ($requests as &$request) {
+        $now = Carbon::now();
+
+        foreach ($requests as &$request) {
+            unset($request['id']); // remove id if present
+
+            if ($hasCreatedAt) {
                 $request['created_at'] = $now;
+            }
+
+            if ($hasUpdatedAt) {
                 $request['updated_at'] = $now;
             }
-            unset($request);
         }
+        unset($request); // break the reference to the last item
 
         return $modelClass::insert($requests);
     }
