@@ -9,6 +9,7 @@ use App\Traits\ReturnModulePermissionTrait;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class RolePolicy
 {
@@ -33,11 +34,26 @@ class RolePolicy
     }
 
     /**
+     * Get the concatenated permission string for a given action type and model.
+     *
+     * @param string $actionType The type of action (e.g. 'view', 'update').
+     * @param Model $model The Eloquent model instance to determine the module (via table name).
+     * @return string The concatenated permission string (e.g. 'view-profile').
+     */
+    protected function getConcatinatedPermission(string $actionType, Model $model): string
+    {
+        $tableName = $model->getTable(); // Get the table name of the model
+
+        return Str::kebab("{$actionType}-{$tableName}"); // Concatenate action type and table name (e.g. 'view-profiles')
+
+    }
+
+    /**
      * Determine whether the user can view the model.
      */
     public function view(User $user, Role $role): bool
     {
-        return in_array(Helper::ACTION_TYPE_VIEW, $this->getCan($user, $role));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_VIEW, $role), $this->getCan($user, $role));
     }
 
     /**
@@ -45,7 +61,7 @@ class RolePolicy
      */
     public function create(User $user): bool
     {
-        return in_array(Helper::ACTION_TYPE_CREATE, $this->getCan($user, new Role()));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_CREATE, new Role()), $this->getCan($user, new Role()));
     }
 
     /**
@@ -53,7 +69,7 @@ class RolePolicy
      */
     public function update(User $user, Role $role): bool
     {
-        return in_array(Helper::ACTION_TYPE_UPDATE, $this->getCan($user, $role));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_UPDATE, $role), $this->getCan($user, $role));
     }
 
     /**
@@ -61,7 +77,7 @@ class RolePolicy
      */
     public function delete(User $user, Role $role): bool
     {
-        return in_array(Helper::ACTION_TYPE_DELETE, $this->getCan($user, $role));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_DELETE, $role), $this->getCan($user, $role));
     }
 
     /**
@@ -77,6 +93,6 @@ class RolePolicy
      */
     public function forceDelete(User $user, Role $role): bool
     {
-        return (bool) $user->is_admin && in_array(Helper::ACTION_TYPE_DELETE, $this->getCan($user, $role));
+        return (bool) $user->is_admin && in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_DELETE, $role), $this->getCan($user, $role));
     }
 }

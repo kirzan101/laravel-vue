@@ -52,7 +52,7 @@ class {{ base }}Policy
      */
     public function view(User $user, {{ base }} ${{ variable }}): bool
     {
-        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_VIEW, new UserGroup()), $this->getCan($user, ${{ variable }}));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_VIEW, ${{ variable }}), $this->getCan($user, ${{ variable }}));
     }
 
     /**
@@ -68,7 +68,7 @@ class {{ base }}Policy
      */
     public function update(User $user, {{ base }} ${{ variable }}): bool
     {
-        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_UPDATE, new UserGroup()), $this->getCan($user, ${{ variable }}));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_UPDATE, ${{ variable }}), $this->getCan($user, ${{ variable }}));
     }
 
     /**
@@ -76,7 +76,7 @@ class {{ base }}Policy
      */
     public function delete(User $user, {{ base }} ${{ variable }}): bool
     {
-        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_DELETE, new UserGroup()), $this->getCan($user, ${{ variable }}));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_DELETE, ${{ variable }}), $this->getCan($user, ${{ variable }}));
     }
 
     /**
@@ -92,6 +92,6 @@ class {{ base }}Policy
      */
     public function forceDelete(User $user, {{ base }} ${{ variable }}): bool
     {
-        return (bool) $user->is_admin && in_array(Helper::ACTION_TYPE_DELETE, $this->getCan($user, ${{ variable }}));
+        return (bool) $user->is_admin && in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_DELETE, ${{ variable }}), $this->getCan($user, ${{ variable }}));
     }
 }
