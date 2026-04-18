@@ -32,6 +32,11 @@ class PermissionSeeder extends Seeder
                 'icon' => 'mdi-shield-account',
                 'types' => ['create', 'view', 'update'],
             ],
+            [
+                'module' => 'modules',
+                'icon' => 'mdi-view-dashboard',
+                'types' => ['create', 'view', 'update'],
+            ],
         ];
 
         $accessTypes = ['create', 'view', 'update', 'delete'];
