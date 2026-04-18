@@ -19,7 +19,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="module in modules" :key="module">
+                <tr v-for="module in moduleLists" :key="module.id">
                     <td>
                         <TextModuleName :name="module" />
                     </td>
@@ -52,7 +52,7 @@ import TextModuleName from "./Components/TextModuleName.vue";
 const props = defineProps({
     rolePermissions: Array,
     permissions: Array,
-    modules: Array,
+    moduleLists: Array,
     errors: Object,
     flash: Object,
     can: Array,
@@ -145,7 +145,7 @@ const toggleAllPermissions = (module) => {
 
 // Watch for changes to update the select-all checkbox state
 watch(selectedPermissions, () => {
-    props.modules.forEach((module) => {
+    props.moduleLists.forEach((module) => {
         isChecked(module);
     });
 });

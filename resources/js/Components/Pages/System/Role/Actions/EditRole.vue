@@ -27,7 +27,7 @@
             <FormTablePermissions
                 :rolePermissions="rolePermissions"
                 :permissions="permissions"
-                :modules="modules"
+                :moduleLists="moduleLists"
                 :errors="errors"
                 :flash="flash"
                 :can="can"
@@ -64,7 +64,7 @@ const props = defineProps({
     },
     permissions: Array,
     user_groups: Array,
-    modules: Array,
+    moduleLists: Array,
     errors: Object,
     flash: Object,
     can: Array,

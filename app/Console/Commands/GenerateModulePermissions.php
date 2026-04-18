@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Helpers\Helper;
+use App\Models\Module;
 use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Console\Command;
@@ -72,8 +73,16 @@ class GenerateModulePermissions extends Command
                     );
                 }
             }
+
+            // Create the module entry
+            Module::create([
+                'name' => $modelName,
+                'icon' => 'mdi-home',
+                'route' => '/' . Str::kebab($modelName),
+                'category' => Helper::MODULE_CATEGORY_SYSTEM,
+            ]);
         });
 
-        $this->info('Permissions and roless links generated successfully.');
+        $this->info('Permissions and roles links generated successfully.');
     }
 }

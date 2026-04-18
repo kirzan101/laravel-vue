@@ -12,10 +12,13 @@
 
         <v-list nav>
             <v-list-item title="Navigation drawer" link></v-list-item>
-            <v-list-item href="/user-groups" @click.prevent>
-                <v-list-item-title @click="router.visit('/user-groups')"
-                    >User group
-                </v-list-item-title>
+            <v-list-item
+                v-for="module in modules"
+                :key="module.id"
+                :href="`${module.route}`"
+                @click.prevent="router.visit(`${module.route}`)"
+            >
+                <v-list-item-title>{{ module.name }}</v-list-item-title>
             </v-list-item>
         </v-list>
 
@@ -80,5 +83,9 @@ const emailAddress = computed(() => {
 
 const profileIcon = computed(() => {
     return page.props.auth.user.isAdmin ? "mdi-account-star" : "mdi-account";
+});
+
+const modules = computed(() => {
+    return page.props.modules ?? [];
 });
 </script>

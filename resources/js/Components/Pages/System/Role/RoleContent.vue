@@ -9,7 +9,7 @@
                         <AddRole
                             :permissions="permissions"
                             :user_groups="user_groups"
-                            :modules="modules"
+                            :moduleLists="moduleLists"
                             :showBtn="showAddBtn"
                             :errors="errors"
                             :flash="flash"
@@ -31,7 +31,7 @@
             <TableRole
                 :permissions="permissions"
                 :user_groups="user_groups"
-                :modules="modules"
+                :moduleLists="moduleLists"
                 :errors="errors"
                 :flash="flash"
                 :can="can"
@@ -52,7 +52,7 @@ import TableRole from "./Tables/TableRole.vue";
 const props = defineProps({
     permissions: Array,
     user_groups: Array,
-    modules: Array,
+    moduleLists: Array,
     errors: Object,
     flash: Object,
     can: Array,

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Helpers\Helper;
+use App\Models\Module;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -38,6 +39,10 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $modules = Cache::rememberForever('active_modules', function () {
+            return Module::where('is_active', true)->select('id', 'name', 'icon', 'route')->get();
+        });
+
         return array_merge(parent::share($request), [
             'appVersion' => env('APP_VERSION', '1.0.0'),
             'appName' => env('APP_NAME', 'Laravel'),
@@ -59,6 +64,7 @@ class HandleInertiaRequests extends Middleware
                 ],
             ] : null,
             'token' => Auth::check() ? Auth::user()->api_token : null,
+            'modules' => $modules
         ]);
     }
 }
