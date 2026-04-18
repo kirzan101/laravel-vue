@@ -15,7 +15,9 @@ use App\Traits\ReturnModelTrait;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\ManageAccountInterface;
+use App\Interfaces\ManageRoleInterface;
 use App\Interfaces\ProfileInterface;
+use App\Interfaces\ProfileRoleInterface;
 use App\Interfaces\ProfileUserGroupInterface;
 use App\Interfaces\UserInterface;
 use App\Models\Profile;
@@ -39,6 +41,8 @@ class ManageAccountService implements ManageAccountInterface
         private UserInterface $user,
         private ProfileInterface $profile,
         private ProfileUserGroupInterface $profileUserGroup,
+        private ManageRoleInterface $manageRole,
+        private ProfileRoleInterface $profileRole,
         private CurrentUserInterface $currentUser
     ) {}
 
@@ -91,6 +95,13 @@ class ManageAccountService implements ManageAccountInterface
 
                     // Ensure profile user group creation was successful
                     $this->ensureSuccess($profileUserGroupResult->toArray(), 'Profile user group creation failed!');
+                }
+
+                // assign roles to the profile
+                if (is_array($accountDTO->roleIds) && !empty($accountDTO->roleIds)) {
+                    // Assign roles to the profile
+                    $manageRoleResult = $this->profileRole->storeMultipleProfileRoles($profile->id, $accountDTO->roleIds);
+                    $this->ensureSuccess($manageRoleResult->toArray(), 'Profile roles assignment failed!');
                 }
 
                 return ModelResponse::success(201, Helper::SUCCESS, 'Profile registration successfully!', $profile, $profile->id);
@@ -151,6 +162,12 @@ class ManageAccountService implements ManageAccountInterface
 
                     // Ensure profile user group update was successful
                     $this->ensureSuccess($profileUserGroupResult->toArray(), 'Profile user group update failed!');
+                }
+
+                // Update profile roles
+                if (is_array($accountDTO->roleIds) && !empty($accountDTO->roleIds)) {
+                    $manageRoleResult = $this->profileRole->updateMultipleProfileRoles($profile->id, $accountDTO->roleIds);
+                    $this->ensureSuccess($manageRoleResult->toArray(), 'Profile roles update failed!');
                 }
 
                 return ModelResponse::success(200, Helper::SUCCESS, 'Profile updated successfully!', $profile, $profile->id);

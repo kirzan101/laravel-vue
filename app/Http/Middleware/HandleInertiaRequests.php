@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Helpers\Helper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -54,7 +56,7 @@ class HandleInertiaRequests extends Middleware
                     'isAdmin' => (bool) Auth::user()->is_admin,
                     'isFirstLogin' => (bool) Auth::user()->is_first_login,
                     'type' => Auth::user()->profile?->type,
-                ]
+                ],
             ] : null,
             'token' => Auth::check() ? Auth::user()->api_token : null,
         ]);

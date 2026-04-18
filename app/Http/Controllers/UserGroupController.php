@@ -9,6 +9,7 @@ use App\Helpers\ErrorHelper;
 use App\Helpers\Helper;
 use App\Http\Requests\UserGroupFormRequest;
 use App\Interfaces\FetchInterfaces\PermissionFetchInterface;
+use App\Interfaces\FetchInterfaces\UserGroupFetchInterface;
 use App\Interfaces\ManageUserGroupPermissionInterface;
 use App\Interfaces\UserGroupInterface;
 use App\Models\UserGroup;
@@ -27,7 +28,8 @@ class UserGroupController extends Controller
     public function __construct(
         private PermissionFetchInterface $permissionFetch,
         private ManageUserGroupPermissionInterface $manageUserGroupPermission,
-        private UserGroupInterface $userGroup
+        private UserGroupInterface $userGroup,
+        private UserGroupFetchInterface $userGroupFetch
     ) {}
 
     /**
@@ -61,16 +63,7 @@ class UserGroupController extends Controller
             ]);
         }
 
-        $permissions = Cache::remember('permission_fetch_list', 60, function () {
-            // Fetch the result and extract only the 'data' part
-            $result = $this->permissionFetch->indexPermissions();
-            return $result->data ?? []; // Only return 'data' part
-        });
-
         return Inertia::render('System/UserGroups', [
-            'permissions' => $permissions,
-            'user_group_types' => Helper::USER_GROUP_CODE_TYPES,
-            'modules' => Helper::getModuleList(),
             'can' => $this->getModulePermissions(new UserGroup())
         ]);
     }
@@ -89,13 +82,7 @@ class UserGroupController extends Controller
         }
 
         $userGroupDTO = UserGroupDTO::fromArray($request->all());
-        $permissionIds = $request->input('permissionIds', []);
-        $userGroupPermissionDTO = new UserGroupWithPermissionDTO(
-            userGroup: $userGroupDTO,
-            permissionIds: $permissionIds
-        );
-
-        $storeResult = $this->manageUserGroupPermission->storeUserGroupWithPermissions($userGroupPermissionDTO);
+        $storeResult = $this->userGroup->storeUserGroup($userGroupDTO);
 
         $productionErrorMessage = ErrorHelper::productionErrorMessage($storeResult->code, $storeResult->message);
         if ($storeResult->status === Helper::ERROR) {
@@ -122,13 +109,7 @@ class UserGroupController extends Controller
         }
 
         $userGroupDTO = UserGroupDTO::fromArray($request->all());
-        $permissionIds = $request->input('permissionIds', []);
-        $userGroupPermissionDTO = new UserGroupWithPermissionDTO(
-            userGroup: $userGroupDTO,
-            permissionIds: $permissionIds
-        );
-
-        $updateResult = $this->manageUserGroupPermission->updateUserGroupWithPermissions($userGroupPermissionDTO, $id);
+        $updateResult = $this->userGroup->updateUserGroup($userGroupDTO, $id);
 
         $productionErrorMessage = ErrorHelper::productionErrorMessage($updateResult->code, $updateResult->message);
         if ($updateResult->status === Helper::ERROR) {

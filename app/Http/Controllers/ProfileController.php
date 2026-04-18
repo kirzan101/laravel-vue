@@ -88,6 +88,7 @@ class ProfileController extends Controller
             user: $userDTO,
             profile: $profileDTO,
             user_group_id: $request->input('user_group_id'),
+            roleIds: $request->input('role_ids', []),
         );
 
         $registerResult = $this->manageAccount->register($accountDTO);
@@ -124,6 +125,7 @@ class ProfileController extends Controller
             user: $userDTO,
             profile: $profileDTO,
             user_group_id: $request->input('user_group_id'),
+            roleIds: $request->input('role_ids', []),
         );
 
         $updateResult = $this->manageAccount->updateUserProfile($accountDTO, $id);

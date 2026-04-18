@@ -20,39 +20,18 @@ class UserGroupSeeder extends Seeder
                 'name' => 'Admin',
                 'code' => 'ADMIN',
                 'description' => 'Administrator group',
-                'created_by' => null,
-                'updated_by' => null,
+                // 'created_by' => 1,
+                // 'updated_by' => 1,
             ],
             [
-                'name' => 'User',
+                'name' => 'System Users',
                 'code' => 'USER',
                 'description' => 'Users group',
-                'created_by' => null,
-                'updated_by' => null,
+                // 'created_by' => 1,
+                // 'updated_by' => 1,
             ],
         ];
 
-        foreach ($userGroups as $userGroup) {
-            $createdUserGroup = UserGroup::updateOrCreate(
-                ['code' => $userGroup['code']],
-                $userGroup
-            );
-
-            $permissions = Permission::all();
-
-            foreach ($permissions as $permission) {
-                $exists = UserGroupPermission::where('user_group_id', $createdUserGroup->id)
-                    ->where('permission_id', $permission->id)
-                    ->exists();
-
-                if (!$exists) {
-                    UserGroupPermission::create([
-                        'user_group_id' => $createdUserGroup->id,
-                        'permission_id' => $permission->id,
-                        'is_active' => ($userGroup['code'] === 'ADMIN') ? $permission->is_active : false,
-                    ]);
-                }
-            }
-        }
+        UserGroup::insert($userGroups);
     }
 }

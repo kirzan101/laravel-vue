@@ -7,9 +7,7 @@
                     <c-card-title>
                         User Groups
                         <AddUserGroup
-                            :permissions="permissions"
                             :user_group_types="user_group_types"
-                            :modules="modules"
                             :showBtn="showAddBtn"
                             :errors="errors"
                             :flash="flash"
@@ -28,9 +26,7 @@
                 </c-col>
             </c-row>
             <TableUserGroup
-                :permissions="permissions"
                 :user_group_types="user_group_types"
-                :modules="modules"
                 :errors="errors"
                 :flash="flash"
                 :can="can"
@@ -50,9 +46,7 @@ import AddUserGroup from "./Actions/AddUserGroup.vue";
 
 // Define props
 const props = defineProps({
-    permissions: Array,
     user_group_types: Array,
-    modules: Array,
     errors: Object,
     flash: Object,
     can: Array,
@@ -77,7 +71,7 @@ useDebouncedWatch(
         toggleLoadData(value);
     },
     undefined,
-    { deep: true }
+    { deep: true },
 );
 
 // reload data when flash message changes
@@ -86,7 +80,7 @@ watch(
     () => {
         toggleLoadData(filters.value);
     },
-    { immediate: true }
+    { immediate: true },
 );
 
 const { mobile } = useDisplay();
@@ -98,7 +92,7 @@ watch(
     (newVal) => {
         showAddBtn.value = !newVal; // Hide the button on mobile
     },
-    { immediate: true }
+    { immediate: true },
 );
 
 const addUserGroupRef = ref(null);

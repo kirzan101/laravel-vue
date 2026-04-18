@@ -42,11 +42,13 @@ interface BaseInterface
     public function delete(Model $model): void;
     /**
      * Delete multiple records.
+     * 
+     * Returns rows deleted count. If the model uses soft deletes, it will return the count of records soft-deleted.
      *
      * @param string $modelClass
      * @param array $ids
      * @param string|null $columnName
-     * @return void
+     * @return int The number of rows deleted.
      */
-    public function deleteMultiple(string $modelClass, array $ids, ?string $columnName = 'id'): void;
+    public function deleteMultiple(string $modelClass, array $ids, ?string $columnName = 'id'): int;
 }

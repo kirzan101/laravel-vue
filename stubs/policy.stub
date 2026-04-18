@@ -33,11 +33,26 @@ class {{ base }}Policy
     }
 
     /**
+     * Get the concatenated permission string for a given action type and model.
+     *
+     * @param string $actionType The type of action (e.g. 'view', 'update').
+     * @param Model $model The Eloquent model instance to determine the module (via table name).
+     * @return string The concatenated permission string (e.g. 'view-profile').
+     */
+    protected function getConcatinatedPermission(string $actionType, Model $model): string
+    {
+        $tableName = $model->getTable(); // Get the table name of the model
+
+        return Str::kebab("{$actionType}-{$tableName}"); // Concatenate action type and table name (e.g. 'view-profile')
+
+    }
+
+    /**
      * Determine whether the user can view the model.
      */
     public function view(User $user, {{ base }} ${{ variable }}): bool
     {
-        return in_array(Helper::ACTION_TYPE_VIEW, $this->getCan($user, ${{ variable }}));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_VIEW, new UserGroup()), $this->getCan($user, ${{ variable }}));
     }
 
     /**
@@ -45,7 +60,7 @@ class {{ base }}Policy
      */
     public function create(User $user): bool
     {
-        return in_array(Helper::ACTION_TYPE_CREATE, $this->getCan($user, new {{ base }}()));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_CREATE, new UserGroup()), $this->getCan($user, new {{ base }}()));
     }
 
     /**
@@ -53,7 +68,7 @@ class {{ base }}Policy
      */
     public function update(User $user, {{ base }} ${{ variable }}): bool
     {
-        return in_array(Helper::ACTION_TYPE_UPDATE, $this->getCan($user, ${{ variable }}));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_UPDATE, new UserGroup()), $this->getCan($user, ${{ variable }}));
     }
 
     /**
@@ -61,7 +76,7 @@ class {{ base }}Policy
      */
     public function delete(User $user, {{ base }} ${{ variable }}): bool
     {
-        return in_array(Helper::ACTION_TYPE_DELETE, $this->getCan($user, ${{ variable }}));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_DELETE, new UserGroup()), $this->getCan($user, ${{ variable }}));
     }
 
     /**

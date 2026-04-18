@@ -22,6 +22,10 @@ class PermissionSeeder extends Seeder
                 'module' => 'user_groups',
                 'types' => ['create', 'view', 'update'],
             ],
+            [
+                'module' => 'roles',
+                'types' => ['create', 'view', 'update'],
+            ],
         ];
 
         $accessTypes = ['create', 'view', 'update', 'delete'];

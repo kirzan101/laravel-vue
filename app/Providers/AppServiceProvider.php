@@ -2,46 +2,6 @@
 
 namespace App\Providers;
 
-use App\Interfaces\ActivityLogInterface;
-use App\Interfaces\AuthInterface;
-use App\Interfaces\BaseInterface;
-use App\Interfaces\CurrentUserInterface;
-use App\Interfaces\FetchInterfaces\ActivityLogFetchInterface;
-use App\Interfaces\FetchInterfaces\BaseFetchInterface;
-use App\Interfaces\FetchInterfaces\PermissionFetchInterface;
-use App\Interfaces\FetchInterfaces\ProfileFetchInterface;
-use App\Interfaces\FetchInterfaces\UserFetchInterface;
-use App\Interfaces\FetchInterfaces\UserGroupFetchInterface;
-use App\Interfaces\FetchInterfaces\UserGroupPermissionFetchInterface;
-use App\Interfaces\ManageAccountInterface;
-use App\Interfaces\ManageUserGroupPermissionInterface;
-use App\Interfaces\ModuleNameResolverInterface;
-use App\Interfaces\PermissionInterface;
-use App\Interfaces\ProfileInterface;
-use App\Interfaces\ProfileUserGroupInterface;
-use App\Interfaces\UserGroupInterface;
-use App\Interfaces\UserGroupPermissionInterface;
-use App\Interfaces\UserInterface;
-use App\Services\ActivityLogService;
-use App\Services\AuthService;
-use App\Services\BaseService;
-use App\Services\CurrentUserService;
-use App\Services\FetchServices\ActivityLogFetchService;
-use App\Services\FetchServices\BaseFetchService;
-use App\Services\FetchServices\PermissionFetchService;
-use App\Services\FetchServices\ProfileFetchService;
-use App\Services\FetchServices\UserFetchService;
-use App\Services\FetchServices\UserGroupFetchService;
-use App\Services\FetchServices\UserGroupPermissionFetchService;
-use App\Services\ManageAccountService;
-use App\Services\ManageUserGroupPermissionService;
-use App\Services\ModuleNameResolverService;
-use App\Services\PermissionService;
-use App\Services\ProfileService;
-use App\Services\ProfileUserGroupService;
-use App\Services\UserGroupPermissionService;
-use App\Services\UserGroupService;
-use App\Services\UserService;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\ServiceProvider;
 
@@ -59,28 +19,33 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // system services
-        $this->app->bind(BaseInterface::class, BaseService::class);
-        $this->app->bind(BaseFetchInterface::class, BaseFetchService::class);
-        $this->app->bind(AuthInterface::class, AuthService::class);
-        $this->app->bind(CurrentUserInterface::class, CurrentUserService::class);
-        $this->app->bind(ManageAccountInterface::class, ManageAccountService::class);
+        $this->app->bind(\App\Interfaces\BaseInterface::class, \App\Services\BaseService::class);
+        $this->app->bind(\App\Interfaces\FetchInterfaces\BaseFetchInterface::class, \App\Services\FetchServices\BaseFetchService::class);
+        $this->app->bind(\App\Interfaces\AuthInterface::class, \App\Services\AuthService::class);
+        $this->app->bind(\App\Interfaces\CurrentUserInterface::class, \App\Services\CurrentUserService::class);
+        $this->app->bind(\App\Interfaces\ManageAccountInterface::class, \App\Services\ManageAccountService::class);
 
         // module services
-        $this->app->bind(UserInterface::class, UserService::class);
-        $this->app->bind(UserFetchInterface::class, UserFetchService::class);
-        $this->app->bind(ProfileInterface::class, ProfileService::class);
-        $this->app->bind(ProfileFetchInterface::class, ProfileFetchService::class);
-        $this->app->bind(ModuleNameResolverInterface::class, ModuleNameResolverService::class);
-        $this->app->bind(ActivityLogInterface::class, ActivityLogService::class);
-        $this->app->bind(ActivityLogFetchInterface::class, ActivityLogFetchService::class);
-        $this->app->bind(UserGroupInterface::class, UserGroupService::class);
-        $this->app->bind(UserGroupFetchInterface::class, UserGroupFetchService::class);
-        $this->app->bind(PermissionInterface::class, PermissionService::class);
-        $this->app->bind(PermissionFetchInterface::class, PermissionFetchService::class);
-        $this->app->bind(UserGroupPermissionInterface::class, UserGroupPermissionService::class);
-        $this->app->bind(UserGroupPermissionFetchInterface::class, UserGroupPermissionFetchService::class);
-        $this->app->bind(ManageUserGroupPermissionInterface::class, ManageUserGroupPermissionService::class);
-        $this->app->bind(ProfileUserGroupInterface::class, ProfileUserGroupService::class);
+        $this->app->bind(\App\Interfaces\UserInterface::class, \App\Services\UserService::class);
+        $this->app->bind(\App\Interfaces\FetchInterfaces\UserFetchInterface::class, \App\Services\FetchServices\UserFetchService::class);
+        $this->app->bind(\App\Interfaces\ProfileInterface::class, \App\Services\ProfileService::class);
+        $this->app->bind(\App\Interfaces\FetchInterfaces\ProfileFetchInterface::class, \App\Services\FetchServices\ProfileFetchService::class);
+        $this->app->bind(\App\Interfaces\ModuleNameResolverInterface::class, \App\Services\ModuleNameResolverService::class);
+        $this->app->bind(\App\Interfaces\ActivityLogInterface::class, \App\Services\ActivityLogService::class);
+        $this->app->bind(\App\Interfaces\FetchInterfaces\ActivityLogFetchInterface::class, \App\Services\FetchServices\ActivityLogFetchService::class);
+        $this->app->bind(\App\Interfaces\UserGroupInterface::class, \App\Services\UserGroupService::class);
+        $this->app->bind(\App\Interfaces\FetchInterfaces\UserGroupFetchInterface::class, \App\Services\FetchServices\UserGroupFetchService::class);
+        $this->app->bind(\App\Interfaces\PermissionInterface::class, \App\Services\PermissionService::class);
+        $this->app->bind(\App\Interfaces\FetchInterfaces\PermissionFetchInterface::class, \App\Services\FetchServices\PermissionFetchService::class);
+        $this->app->bind(\App\Interfaces\UserGroupPermissionInterface::class, \App\Services\UserGroupPermissionService::class);
+        $this->app->bind(\App\Interfaces\FetchInterfaces\UserGroupPermissionFetchInterface::class, \App\Services\FetchServices\UserGroupPermissionFetchService::class);
+        $this->app->bind(\App\Interfaces\ManageUserGroupPermissionInterface::class, \App\Services\ManageUserGroupPermissionService::class);
+        $this->app->bind(\App\Interfaces\ProfileUserGroupInterface::class, \App\Services\ProfileUserGroupService::class);
+        $this->app->bind(\App\Interfaces\RoleInterface::class, \App\Services\RoleService::class);
+        $this->app->bind(\App\Interfaces\RolePermissionInterface::class, \App\Services\RolePermissionService::class);
+        $this->app->bind(\App\Interfaces\ManageRoleInterface::class, \App\Services\ManageRoleService::class);
+        $this->app->bind(\App\Interfaces\ProfileRoleInterface::class, \App\Services\ProfileRoleService::class);
+        $this->app->bind(\App\Interfaces\FetchInterfaces\RoleFetchInterface::class, \App\Services\FetchServices\RoleFetchService::class);
     }
 
     /**
