@@ -37,9 +37,6 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(\App\Interfaces\FetchInterfaces\UserGroupFetchInterface::class, \App\Services\FetchServices\UserGroupFetchService::class);
         $this->app->bind(\App\Interfaces\PermissionInterface::class, \App\Services\PermissionService::class);
         $this->app->bind(\App\Interfaces\FetchInterfaces\PermissionFetchInterface::class, \App\Services\FetchServices\PermissionFetchService::class);
-        $this->app->bind(\App\Interfaces\UserGroupPermissionInterface::class, \App\Services\UserGroupPermissionService::class);
-        $this->app->bind(\App\Interfaces\FetchInterfaces\UserGroupPermissionFetchInterface::class, \App\Services\FetchServices\UserGroupPermissionFetchService::class);
-        $this->app->bind(\App\Interfaces\ManageUserGroupPermissionInterface::class, \App\Services\ManageUserGroupPermissionService::class);
         $this->app->bind(\App\Interfaces\ProfileUserGroupInterface::class, \App\Services\ProfileUserGroupService::class);
         $this->app->bind(\App\Interfaces\RoleInterface::class, \App\Services\RoleService::class);
         $this->app->bind(\App\Interfaces\RolePermissionInterface::class, \App\Services\RolePermissionService::class);

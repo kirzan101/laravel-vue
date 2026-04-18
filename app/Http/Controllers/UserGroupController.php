@@ -3,14 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\DTOs\UserGroupDTO;
-use App\DTOs\UserGroupPermissionDTO;
-use App\DTOs\UserGroupWithPermissionDTO;
 use App\Helpers\ErrorHelper;
 use App\Helpers\Helper;
 use App\Http\Requests\UserGroupFormRequest;
 use App\Interfaces\FetchInterfaces\PermissionFetchInterface;
 use App\Interfaces\FetchInterfaces\UserGroupFetchInterface;
-use App\Interfaces\ManageUserGroupPermissionInterface;
 use App\Interfaces\UserGroupInterface;
 use App\Models\UserGroup;
 use App\Traits\ReturnModulePermissionTrait;
@@ -27,7 +24,6 @@ class UserGroupController extends Controller
 
     public function __construct(
         private PermissionFetchInterface $permissionFetch,
-        private ManageUserGroupPermissionInterface $manageUserGroupPermission,
         private UserGroupInterface $userGroup,
         private UserGroupFetchInterface $userGroupFetch
     ) {}

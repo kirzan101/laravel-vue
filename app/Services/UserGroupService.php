@@ -10,7 +10,6 @@ use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\PermissionInterface;
 use App\Interfaces\UserGroupInterface;
-use App\Interfaces\UserGroupPermissionInterface;
 use App\Models\UserGroup;
 use App\Traits\CheckIfColumnExistsTrait;
 use App\Traits\DetectsSoftDeletesTrait;
@@ -30,7 +29,6 @@ class UserGroupService implements UserGroupInterface
         private BaseFetchInterface $fetch,
         private CurrentUserInterface $currentUser,
         private PermissionInterface $permission,
-        private UserGroupPermissionInterface $userGroupPermission
     ) {}
 
     /**

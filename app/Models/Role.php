@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Role extends Model
 {
@@ -29,5 +30,13 @@ class Role extends Model
     public function rolePermissions(): HasMany
     {
         return $this->hasMany(RolePermission::class);
+    }
+
+    /**
+     * Get the profile roles associated with the role.
+     */
+    public function profileRoles(): HasMany
+    {
+        return $this->hasMany(ProfileRole::class);
     }
 }
