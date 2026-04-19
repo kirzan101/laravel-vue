@@ -50,7 +50,7 @@ const props = defineProps({
 
 const dialog = ref(false);
 const toggleDialog = () => {
-    if (!props.can.includes("update")) {
+    if (!props.can.includes("update-profiles")) {
         return;
     }
 
@@ -58,7 +58,7 @@ const toggleDialog = () => {
 };
 
 const hasAccess = computed(() => {
-    return props.can.includes("update");
+    return props.can.includes("update-profiles");
 });
 
 // notification

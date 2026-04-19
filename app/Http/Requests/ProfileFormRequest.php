@@ -73,8 +73,8 @@ class ProfileFormRequest extends FormRequest
             'nickname' => 'nullable|string|max:50',
             'type' => 'required|in:' . implode(',', Helper::ACCOUNT_TYPES),
             'user_group_id' => 'required|exists:user_groups,id',
-            'roleIds' => 'nullable|array',
-            'roleIds.*' => 'exists:roles,id', // Each role ID must exist in the roles table
+            'role_ids' => 'nullable|array',
+            'role_ids.*' => 'exists:roles,id', // Each role ID must exist in the roles table
             'contact_numbers' => 'nullable|array',
             'contact_numbers.*' => 'nullable|string|max:20', // Each contact number should be a string with a max length
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Optional avatar image

@@ -9,12 +9,16 @@
             <EditProfile
                 :profile="item"
                 :user_groups="user_groups"
+                :roles="roles"
                 :account_types="account_types"
                 :errors="errors"
                 :flash="flash"
                 :can="can"
                 ref="editProfileRef"
             />
+        </template>
+        <template #item.roles="{ item }">
+            <RoleChips :roles="roles" :role_ids="item.role_ids" />
         </template>
         <template #item.last_login_at="{ item }">
             {{ item.last_login_at ?? "-" }}
@@ -42,10 +46,12 @@ import { ref } from "vue";
 import EditProfile from "../Actions/EditProfile.vue";
 import ResetPassword from "../Actions/ResetPassword.vue";
 import SetAccountStatus from "../Actions/SetAccountStatus.vue";
+import RoleChips from "./Components/RoleChips.vue";
 
 // Define props
 const props = defineProps({
     user_groups: Array,
+    roles: Array,
     account_types: Array,
     errors: Object,
     flash: Object,
@@ -70,6 +76,12 @@ const headers = ref([
         align: "start",
         sortable: false,
         key: "email",
+    },
+    {
+        title: "Roles",
+        align: "start",
+        sortable: false,
+        key: "roles",
     },
     {
         title: "Last Login",

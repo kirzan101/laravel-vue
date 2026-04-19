@@ -98,9 +98,9 @@ class ManageAccountService implements ManageAccountInterface
                 }
 
                 // assign roles to the profile
-                if (is_array($accountDTO->roleIds) && !empty($accountDTO->roleIds)) {
+                if (is_array($accountDTO->role_ids) && !empty($accountDTO->role_ids)) {
                     // Assign roles to the profile
-                    $manageRoleResult = $this->profileRole->storeMultipleProfileRoles($profile->id, $accountDTO->roleIds);
+                    $manageRoleResult = $this->profileRole->storeMultipleProfileRoles($profile->id, $accountDTO->role_ids);
                     $this->ensureSuccess($manageRoleResult->toArray(), 'Profile roles assignment failed!');
                 }
 
@@ -165,8 +165,8 @@ class ManageAccountService implements ManageAccountInterface
                 }
 
                 // Update profile roles
-                if (is_array($accountDTO->roleIds) && !empty($accountDTO->roleIds)) {
-                    $manageRoleResult = $this->profileRole->updateMultipleProfileRoles($profile->id, $accountDTO->roleIds);
+                if (is_array($accountDTO->role_ids) && !empty($accountDTO->role_ids)) {
+                    $manageRoleResult = $this->profileRole->updateMultipleProfileRoles($profile->id, $accountDTO->role_ids);
                     $this->ensureSuccess($manageRoleResult->toArray(), 'Profile roles update failed!');
                 }
 

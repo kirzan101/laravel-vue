@@ -8,7 +8,7 @@
 
     <c-dialog
         v-model="dialog"
-        width="1000"
+        width="800"
         title="Add Profile"
         prependIcon="mdi-plus"
         persistent
@@ -19,6 +19,7 @@
         <c-container>
             <FormProfile
                 :user_groups="user_groups"
+                :roles="roles"
                 :account_types="account_types"
                 :errors="errors"
                 :flash="flash"
@@ -51,6 +52,7 @@ defineProps({
         default: true,
     },
     user_groups: Array,
+    roles: Array,
     account_types: Array,
     errors: Object,
     flash: Object,
@@ -84,7 +86,7 @@ const toggleSnackBar = (message, color) => {
 const btnDisabled = ref(false);
 const handleSubmit = () => {
     toggleFormProfileRef();
-    
+
     // submission here
     router.post("/profiles", form.value, {
         forceFormData: true,

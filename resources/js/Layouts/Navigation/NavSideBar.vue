@@ -17,6 +17,9 @@
                 :key="module.id"
                 :href="`${module.route}`"
                 @click.prevent="router.visit(`${module.route}`)"
+                :active="isActiveUrl(module.route)"
+                color="primary"
+                :prepend-icon="module.icon"
             >
                 <v-list-item-title>{{ module.name }}</v-list-item-title>
             </v-list-item>
@@ -87,5 +90,11 @@ const profileIcon = computed(() => {
 
 const modules = computed(() => {
     return page.props.modules ?? [];
+});
+
+const isActiveUrl = computed(() => {
+    return (url) => {
+        return url === page.url;
+    };
 });
 </script>

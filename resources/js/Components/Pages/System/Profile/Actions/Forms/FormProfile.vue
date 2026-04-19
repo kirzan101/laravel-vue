@@ -43,14 +43,14 @@
                     :error-messages="formErrors.user_group_id"
                 />
             </c-col>
-            <c-col md="3" lg="3" xl="3" xxl="3">
+            <c-col md="4" lg="4" xl="4" xxl="4">
                 <c-text-field
                     label="Username"
                     v-model="form.username"
                     :error-messages="formErrors.username"
                 />
             </c-col>
-            <c-col md="4" lg="4" xl="4" xxl="4">
+            <c-col md="8" lg="8" xl="8" xxl="8">
                 <c-text-field
                     label="Email"
                     v-model="form.email"
@@ -66,6 +66,14 @@
                     @filteredContactNo="getContactNumbers"
                 />
             </c-col>
+
+            <c-col md="7" lg="7" xl="7" xxl="7">
+                <RoleField
+                    v-model="form.role_ids"
+                    :roles="roles"
+                    :errors="errors"
+                />
+            </c-col>
         </c-row>
     </c-form>
 </template>
@@ -76,10 +84,12 @@ import { ref, watch } from "vue";
 import UserGroupSelect from "./Components/UserGroupSelect.vue";
 import ContactNumbersField from "@/Components/Utilities/ContactNumbersField.vue";
 import AccountTypeSelect from "./Components/AccountTypeSelect.vue";
+import RoleField from "./Components/RoleField.vue";
 
 const props = defineProps({
     profile: Object,
     user_groups: Array,
+    roles: Array,
     account_types: Array,
     errors: Object,
     flash: Object,
@@ -98,6 +108,7 @@ const form = ref({
     email: null,
     user_group_id: null,
     user_id: null,
+    role_ids: [],
 });
 
 watch(
@@ -119,7 +130,7 @@ watch(
             });
         }
     },
-    { immediate: true, deep: true }
+    { immediate: true, deep: true },
 );
 
 // set error start
@@ -129,7 +140,7 @@ watch(
     (newValue) => {
         formErrors.value = Object.assign({}, newValue);
     },
-    { deep: true }
+    { deep: true },
 );
 // set error end
 

@@ -10,12 +10,15 @@
                 :role="item"
                 :permissions="permissions"
                 :user_groups="user_groups"
-                :modules="modules"
+                :moduleLists="moduleLists"
                 :errors="errors"
                 :flash="flash"
                 :can="can"
                 ref="editRoleRef"
             />
+        </template>
+        <template #item.is_active="{ item }">
+            <ActiveChip :is_active="item.is_active" />
         </template>
     </c-data-table-server>
 </template>
@@ -24,12 +27,13 @@
 import { ref } from "vue";
 
 import EditRole from "../Actions/EditRole.vue";
+import ActiveChip from "./Components/ActiveChip.vue";
 
 // Define props
 const props = defineProps({
     permissions: Array,
     user_groups: Array,
-    modules: Array,
+    moduleLists: Array,
     errors: Object,
     flash: Object,
     can: Array,

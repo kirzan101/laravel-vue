@@ -18,6 +18,7 @@ class RoleResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
+            'is_active' => (bool) $this->is_active,
             'user_group_id' => $this->user_group_id,
             'rolePermissions' => RolePermissionResource::collection($this->rolePermissions),
         ];

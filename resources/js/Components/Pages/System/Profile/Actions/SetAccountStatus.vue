@@ -38,7 +38,7 @@ import SnackBar from "@/Components/Utilities/SnackBar.vue";
 
 const dialog = ref(false);
 const toggleDialog = () => {
-    if (!props.can.includes("update")) {
+    if (!props.can.includes("update-profiles")) {
         return;
     }
 
@@ -65,13 +65,11 @@ const btnColor = computed(() => {
 });
 
 const iconName = computed(() => {
-    return isActive.value === "inactive"
-        ? "mdi-circle"
-        : "mdi-minus-circle";
+    return isActive.value === "inactive" ? "mdi-circle" : "mdi-minus-circle";
 });
 
 const hasAccess = computed(() => {
-    return props.can.includes("update");
+    return props.can.includes("update-profiles");
 });
 
 const description = computed(() => {
@@ -113,7 +111,7 @@ const handleSubmit = () => {
             onFinish: () => {
                 btnDisabled.value = false;
             },
-        }
+        },
     );
 };
 

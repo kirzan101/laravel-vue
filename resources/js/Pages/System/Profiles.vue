@@ -3,6 +3,7 @@
     <main-layout :errors="errors" :flash="flash" :can="can">
         <ProfileContent
             :user_groups="user_groups"
+            :roles="roles"
             :account_types="account_types"
             :errors="errors"
             :flash="flash"
@@ -21,6 +22,7 @@ import ProfileContent from "../../Components/Pages/System/Profile/ProfileContent
 
 defineProps({
     user_groups: Array,
+    roles: Array,
     account_types: Array,
     errors: Object,
     flash: Object,
