@@ -1,5 +1,10 @@
 <template>
-    <c-btn-edit v-if="showBtn" :label="profile.name" @click="toggleDialog" />
+    <c-btn-edit
+        v-if="showBtn && hasAccess"
+        :label="profile.name"
+        @click="toggleDialog"
+    />
+    <p v-else class="text-wrap">{{ profile.name }}</p>
 
     <c-dialog
         v-model="dialog"
@@ -8,6 +13,7 @@
         prependIcon="mdi-pencil-circle"
         persistent
         :btnDisabled="btnDisabled"
+        :submittable="hasAccess"
         @close="toggleDialog"
         @submit="handleSubmit"
     >
@@ -81,6 +87,10 @@ const toggleSnackBar = (message, color) => {
 
     snackBarRef.value.showNotification(message, color);
 };
+
+const hasAccess = computed(() => {
+    return props.can.includes("update-profiles");
+});
 
 // handle submission
 const btnDisabled = ref(false);

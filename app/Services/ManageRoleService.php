@@ -13,6 +13,7 @@ use App\Traits\ReturnModelTrait;
 use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
+use App\Interfaces\ProfileRoleInterface;
 use App\Interfaces\RoleInterface;
 use App\Interfaces\RolePermissionInterface;
 use App\Traits\CheckIfColumnExistsTrait;
@@ -36,7 +37,8 @@ class ManageRoleService implements ManageRoleInterface
         private BaseFetchInterface $fetch,
         private CurrentUserInterface $currentUser,
         private RoleInterface $role,
-        private RolePermissionInterface $rolePermission
+        private RolePermissionInterface $rolePermission,
+        private ProfileRoleInterface $profileRole
     ) {}
 
     /**
@@ -94,6 +96,12 @@ class ManageRoleService implements ManageRoleInterface
 
                 $role = $roleResponse->data;
                 $this->ensureModel($role, 'Failed to update role.');
+
+                // if role is deactivated, delete the profile roles associated with the role
+                if (!$manageRoleDTO->is_active) {
+                    $deleteProfileRolesResponse = $this->profileRole->deleteProfileRolesByRoleId($roleId);
+                    $this->ensureSuccess($deleteProfileRolesResponse->toArray(), 'Failed to delete profile roles associated with the role.');
+                }
 
                 // Sync permissions to the role
                 $rolePermissionResponse = $this->rolePermission->updateMultipleRolePermissions($manageRoleDTO->permissionIds, $roleId);

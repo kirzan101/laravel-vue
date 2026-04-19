@@ -50,4 +50,12 @@ interface ProfileRoleInterface
      * @return StandardResponse
      */
     public function updateMultipleProfileRoles(int $profileId, array $roleIds): StandardResponse;
+
+    /**
+     * Delete profile roles associated with the given role id in the database.
+     *
+     * @param int $roleId
+     * @return StandardResponse
+     */
+    public function deleteProfileRolesByRoleId(int $roleId): StandardResponse;
 }

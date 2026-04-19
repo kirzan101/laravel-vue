@@ -11,7 +11,11 @@
         <v-divider></v-divider>
 
         <v-list nav>
-            <v-list-item title="Navigation drawer" link></v-list-item>
+            <v-list-item
+                prepend-icon="mdi-home"
+                title="Dashboard"
+                href="/"
+            ></v-list-item>
             <v-list-item
                 v-for="module in modules"
                 :key="module.id"
@@ -20,6 +24,7 @@
                 :active="isActiveUrl(module.route)"
                 color="primary"
                 :prepend-icon="module.icon"
+                :variant="isActiveUrl(module.route) ? 'elevated' : 'text'"
             >
                 <v-list-item-title>{{ module.name }}</v-list-item-title>
             </v-list-item>

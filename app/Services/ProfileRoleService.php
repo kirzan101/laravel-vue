@@ -143,6 +143,13 @@ class ProfileRoleService implements ProfileRoleInterface
         }
     }
 
+    /**
+     * Update multiple profile roles for a given profile in the database.
+     *
+     * @param int $profileId
+     * @param array $roleIds
+     * @return StandardResponse
+     */
     public function updateMultipleProfileRoles(int $profileId, array $roleIds = []): StandardResponse
     {
         try {
@@ -161,6 +168,35 @@ class ProfileRoleService implements ProfileRoleInterface
                 $this->ensureSuccess($storeNewRoleResponse->toArray(), 'Failed to update profile roles.');
 
                 return StandardResponse::success(200, Helper::SUCCESS, 'Profile roles updated successfully!');
+            });
+        } catch (\Throwable $th) {
+            $code = $this->httpCode($th);
+            return StandardResponse::error($code, Helper::ERROR, $th->getMessage());
+        }
+    }
+
+    /**
+     * Delete the given profile role in the database by role ID.
+     *
+     * @param integer $roleId
+     * @return StandardResponse
+     */
+    public function deleteProfileRolesByRoleId(int $roleId): StandardResponse
+    {
+        try {
+            return DB::transaction(function () use ($roleId) {
+
+                // We remove the role from the profiles if the role is deactivated/deleted.
+                $profileRoles = $this->fetch->indexQuery(ProfileRole::class)
+                    ->where('role_id', $roleId)
+                    ->pluck('id');
+
+                $deletedRows = $this->base->deleteMultiple(ProfileRole::class, $profileRoles->toArray());
+                if ($deletedRows === 0) {
+                    throw new \Exception('Failed to delete profile roles associated with the role.');
+                }
+
+                return StandardResponse::success(200, Helper::SUCCESS, 'Profile roles associated with the role deleted successfully!');
             });
         } catch (\Throwable $th) {
             $code = $this->httpCode($th);

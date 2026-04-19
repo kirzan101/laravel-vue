@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\ReturnModulePermissionTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
 
 class RolePermission extends Model
 {
+    use ReturnModulePermissionTrait;
+
     /**
      * Boot method to clear cache when permission is saved or deleted.
      *

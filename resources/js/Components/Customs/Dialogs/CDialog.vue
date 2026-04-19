@@ -17,6 +17,7 @@
                     Close
                 </c-btn-text>
                 <c-btn-submit
+                    v-if="submittable"
                     @click="$emit('submit')"
                     :disabled="btnDisabled"
                     :loading="btnDisabled"
@@ -52,6 +53,10 @@ defineProps({
     submitName: {
         type: String,
         default: "Submit",
+    },
+    submittable: {
+        type: Boolean,
+        default: true,
     },
 });
 

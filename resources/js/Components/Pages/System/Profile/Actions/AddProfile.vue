@@ -1,6 +1,6 @@
 <template>
     <c-btn-add
-        v-if="showBtn"
+        v-if="showBtn && hasAccess"
         class="mx-2"
         size="default"
         @click="toggleDialog"
@@ -13,6 +13,7 @@
         prependIcon="mdi-plus"
         persistent
         :btnDisabled="btnDisabled"
+        :submittable="hasAccess"
         @close="toggleDialog"
         @submit="handleSubmit"
     >
@@ -34,7 +35,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { router } from "@inertiajs/vue3";
 
 // Importing custom components
@@ -46,7 +47,7 @@ const toggleDialog = () => {
     dialog.value = !dialog.value;
 };
 
-defineProps({
+const props = defineProps({
     showBtn: {
         type: Boolean,
         default: true,
@@ -81,6 +82,10 @@ const toggleSnackBar = (message, color) => {
 
     snackBarRef.value.showNotification(message, color);
 };
+
+const hasAccess = computed(() => {
+    return props.can.includes("create-profiles");
+});
 
 // handle submission
 const btnDisabled = ref(false);

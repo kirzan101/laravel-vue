@@ -60,7 +60,8 @@ class UserGroupController extends Controller
         }
 
         return Inertia::render('System/UserGroups', [
-            'can' => $this->getModulePermissions(new UserGroup())
+            'can' => $this->getModulePermissions(new UserGroup()),
+            'user_group_types' => Helper::USER_GROUP_CODE_TYPES
         ]);
     }
 
