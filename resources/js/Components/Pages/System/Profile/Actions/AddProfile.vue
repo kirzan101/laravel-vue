@@ -1,6 +1,6 @@
 <template>
     <c-btn-add
-        v-if="showBtn"
+        v-if="showBtn && hasAccess"
         class="mx-2"
         size="default"
         @click="toggleDialog"
@@ -8,17 +8,19 @@
 
     <c-dialog
         v-model="dialog"
-        width="1000"
+        width="800"
         title="Add Profile"
         prependIcon="mdi-plus"
         persistent
         :btnDisabled="btnDisabled"
+        :submittable="hasAccess"
         @close="toggleDialog"
         @submit="handleSubmit"
     >
         <c-container>
             <FormProfile
                 :user_groups="user_groups"
+                :roles="roles"
                 :account_types="account_types"
                 :errors="errors"
                 :flash="flash"
@@ -33,7 +35,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { router } from "@inertiajs/vue3";
 
 // Importing custom components
@@ -45,12 +47,13 @@ const toggleDialog = () => {
     dialog.value = !dialog.value;
 };
 
-defineProps({
+const props = defineProps({
     showBtn: {
         type: Boolean,
         default: true,
     },
     user_groups: Array,
+    roles: Array,
     account_types: Array,
     errors: Object,
     flash: Object,
@@ -80,11 +83,15 @@ const toggleSnackBar = (message, color) => {
     snackBarRef.value.showNotification(message, color);
 };
 
+const hasAccess = computed(() => {
+    return props.can.includes("create-profiles");
+});
+
 // handle submission
 const btnDisabled = ref(false);
 const handleSubmit = () => {
     toggleFormProfileRef();
-    
+
     // submission here
     router.post("/profiles", form.value, {
         forceFormData: true,

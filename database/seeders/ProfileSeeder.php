@@ -4,7 +4,9 @@ namespace Database\Seeders;
 
 use App\Helpers\Helper;
 use App\Models\Profile;
+use App\Models\ProfileRole;
 use App\Models\ProfileUserGroup;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserGroup;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -33,7 +35,8 @@ class ProfileSeeder extends Seeder
                 ],
                 'created_by' => null,
                 'updated_by' => null,
-                'user_group_code' => Helper::USER_GROUP_CODE_ADMIN,
+                'role' => 'Admin',
+                'user_group_code' => 'ADMIN',
             ],
             [
                 'username' => 'user1',
@@ -50,7 +53,8 @@ class ProfileSeeder extends Seeder
                 ],
                 'created_by' => null,
                 'updated_by' => null,
-                'user_group_code' => Helper::USER_GROUP_CODE_USER,
+                'role' => 'System Analyst',
+                'user_group_code' => 'USER',
             ]
         ];
 
@@ -74,13 +78,23 @@ class ProfileSeeder extends Seeder
                 'updated_by' => $user['updated_by'],
             ]);
 
-            $userGroup = UserGroup::where('code', $user['user_group_code'])->first();
+            $userGroupId = UserGroup::where('code', $user['user_group_code'])->pluck('id')->first();
 
             // add user group to profile
-            if ($userGroup) {
+            if ($userGroupId) {
                 ProfileUserGroup::create([
                     'profile_id' => $createdProfile->id,
-                    'user_group_id' => $userGroup->id,
+                    'user_group_id' => $userGroupId,
+                ]);
+            }
+
+            $roleId = Role::where('name', $user['role'])->pluck('id')->first();
+
+            // add role to profile
+            if ($roleId) {
+                ProfileRole::create([
+                    'profile_id' => $createdProfile->id,
+                    'role_id' => $roleId,
                 ]);
             }
         }

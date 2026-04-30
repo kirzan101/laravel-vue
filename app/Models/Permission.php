@@ -31,13 +31,15 @@ class Permission extends Model
     {
         $module = $this->module;
 
-        foreach ($this->userGroupPermissions()->with('userGroup.profileUserGroups.profile')->get() as $ugp) {
-            foreach ($ugp->userGroup->profileUserGroups as $profileUserGroup) {
-                $profile = $profileUserGroup->profile;
-                if ($profile) {
-                    Cache::forget($this->getPermissionCacheKey($profile->id, $module));
-                }
-            }
+        // Clear cache for all profiles that have this permission
+        $profileIds = $this->rolePermissions()->with('role.profileRoles.profile')
+            ->get()
+            ->pluck('role.profileRoles.*.profile.id')
+            ->flatten()
+            ->unique();
+
+        foreach ($profileIds as $profileId) {
+            Cache::forget($this->getPermissionCacheKey($profileId, $module));
         }
     }
 
@@ -48,10 +50,10 @@ class Permission extends Model
     ];
 
     /**
-     * Get the user group permissions associated with the permission.
+     * Get the role permissions associated with the permission.
      */
-    public function userGroupPermissions(): HasMany
+    public function rolePermissions(): HasMany
     {
-        return $this->hasMany(UserGroupPermission::class, 'permission_id');
+        return $this->hasMany(RolePermission::class, 'permission_id');
     }
 }

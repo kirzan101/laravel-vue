@@ -42,7 +42,7 @@ class ProfileFormRequest extends FormRequest
             // If the route parameter is an instance of Profile, treat it as an existing model (update)
             return $user->can(Helper::ACTION_TYPE_UPDATE, $routeParam);
         }
-        
+
         // Otherwise, this is a create request
         return $user->can(Helper::ACTION_TYPE_CREATE, Profile::class);
     }
@@ -73,6 +73,8 @@ class ProfileFormRequest extends FormRequest
             'nickname' => 'nullable|string|max:50',
             'type' => 'required|in:' . implode(',', Helper::ACCOUNT_TYPES),
             'user_group_id' => 'required|exists:user_groups,id',
+            'role_ids' => 'nullable|array',
+            'role_ids.*' => 'exists:roles,id', // Each role ID must exist in the roles table
             'contact_numbers' => 'nullable|array',
             'contact_numbers.*' => 'nullable|string|max:20', // Each contact number should be a string with a max length
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Optional avatar image

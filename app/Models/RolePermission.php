@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Cache;
 
-class UserGroupPermission extends Model
+class RolePermission extends Model
 {
     use ReturnModulePermissionTrait;
 
@@ -18,8 +18,8 @@ class UserGroupPermission extends Model
      */
     protected static function booted()
     {
-        static::saved(fn($ugp) => $ugp->clearPermissionCache());
-        static::deleted(fn($ugp) => $ugp->clearPermissionCache());
+        static::saved(fn($rp) => $rp->clearPermissionCache());
+        static::deleted(fn($rp) => $rp->clearPermissionCache());
     }
 
     /**
@@ -29,16 +29,15 @@ class UserGroupPermission extends Model
      */
     public function clearPermissionCache()
     {
-        // Ensure permission + user group are loaded
-        $this->loadMissing('permission', 'userGroup.profileUserGroups.profile');
+        $this->loadMissing('permission', 'role.profileRoles.profile');
 
         $module = $this->permission?->module;
         if (!$module) {
             return;
         }
 
-        foreach ($this->userGroup->profileUserGroups as $profileUserGroup) {
-            $profile = $profileUserGroup->profile;
+        foreach ($this->role->profileRoles as $profileRole) {
+            $profile = $profileRole->profile;
             if ($profile) {
                 Cache::forget($this->getPermissionCacheKey($profile->id, $module));
             }
@@ -46,23 +45,23 @@ class UserGroupPermission extends Model
     }
 
     protected $fillable = [
-        'user_group_id',
+        'role_id',
         'permission_id',
         'is_active'
     ];
 
     /**
-     * associate user group permission to user group
+     * associate role permission to role
      *
      * @return BelongsTo
      */
-    public function userGroup(): BelongsTo
+    public function role(): BelongsTo
     {
-        return $this->belongsTo(UserGroup::class);
+        return $this->belongsTo(Role::class);
     }
 
     /**
-     * associate user group permission to permission
+     * associate role permission to permission
      *
      * @return BelongsTo
      */

@@ -40,11 +40,22 @@ class ProfileResource extends JsonResource
             'is_first_login' => (bool) $this->user->is_first_login,
             'status' => $this->user->status,
             'user_group_id' => $this->profileUserGroup->user_group_id ?? null,
+            'role_ids' => $this->getRoleIds(),
             'last_login_at' => $this->returnShortDateTime($this->user->last_login_at),
             'created_at' => $this->returnShortDateTime($this->created_at),
             'updated_at' => $this->returnShortDateTime($this->updated_at),
             'createdBy' => $this->created_by ? $this->createdBy->getFullName() : null,
             'updatedBy' => $this->updated_by ? $this->updatedBy->getFullName() : null,
         ];
+    }
+
+    /**
+     * Get the profile role_ids
+     *
+     * @return array
+     */
+    protected function getRoleIds(): array
+    {
+        return $this->profileRoles->pluck('role_id')->toArray();
     }
 }

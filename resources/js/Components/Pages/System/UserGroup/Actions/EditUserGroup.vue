@@ -21,19 +21,6 @@
                 @formValues="getFormUserGroupValue"
                 ref="formUserGroupRef"
             />
-
-            <hr class="mt-4 mb-2" />
-
-            <FormTablePermissions
-                :userGroupPermissions="userGroupPermissions"
-                :permissions="permissions"
-                :modules="modules"
-                :errors="errors"
-                :flash="flash"
-                :can="can"
-                @selectedPermissions="getSelectedPermissions"
-                ref="formTablePermissionsRef"
-            />
         </c-container>
     </c-dialog>
 
@@ -45,7 +32,6 @@ import { computed, ref } from "vue";
 import { router } from "@inertiajs/vue3";
 
 import FormUserGroup from "./Forms/FormUserGroup.vue";
-import FormTablePermissions from "./Forms/FormTablePermissions.vue";
 import SnackBar from "@/Components/Utilities/SnackBar.vue";
 
 const dialog = ref(false);
@@ -62,16 +48,10 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
-    permissions: Array,
     user_group_types: Array,
-    modules: Array,
     errors: Object,
     flash: Object,
     can: Array,
-});
-
-const userGroupPermissions = computed(() => {
-    return props.userGroup.userGroupPermissions || [];
 });
 
 const form = ref({
@@ -79,7 +59,6 @@ const form = ref({
     name: null,
     code: null,
     description: null,
-    permissionIds: [],
 });
 
 // User group form
@@ -100,18 +79,6 @@ const toggleFormUserGroupRef = () => {
     }
 };
 
-// permissions
-const getSelectedPermissions = (selectedPermissions) => {
-    form.value.permissionIds = [...selectedPermissions];
-};
-
-const formTablePermissionsRef = ref(null);
-const toggleFormTablePermissionsRef = () => {
-    if (formTablePermissionsRef.value) {
-        formTablePermissionsRef.value.emitPermissionsData();
-    }
-};
-
 // notification
 const snackBarRef = ref(null);
 const toggleSnackBar = (message, color) => {
@@ -126,7 +93,6 @@ const toggleSnackBar = (message, color) => {
 const btnDisabled = ref(false);
 const handleSubmit = () => {
     toggleFormUserGroupRef();
-    toggleFormTablePermissionsRef();
 
     // submission here
     router.post(
@@ -151,7 +117,7 @@ const handleSubmit = () => {
             onFinish: () => {
                 btnDisabled.value = false;
             },
-        }
+        },
     );
 };
 

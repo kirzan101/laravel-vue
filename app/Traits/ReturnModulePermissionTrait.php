@@ -5,19 +5,25 @@ namespace App\Traits;
 use App\Models\Profile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 trait ReturnModulePermissionTrait
 {
     /**
-     * Returns the permission types assigned to the user's profile for the given module.
+     * Get permission types for a given profile and module.
      *
-     * This method loads the user's profile along with its related user group and permissions.
-     * It then filters the permissions based on the module name (from the model's table) and active status.
+     * This method retrieves permissions assigned to the specified profile
+     * through its roles. It filters permissions by:
+     * - Module name (derived from the given model's table)
+     * - Active role-permissions and active permissions
      *
-     * @param \Illuminate\Database\Eloquent\Model $model The Eloquent model instance representing the target module (used to determine the table name).
-     * @param int $currentProfileId The ID of the profile for which permissions should be checked.
+     * Results are cached for 60 minutes using a profile + module-based key.
      *
-     * @return array An array of permission types (e.g., ['view', 'update', 'delete']) for the specified module.
+     * @param \Illuminate\Database\Eloquent\Model $model The model used to determine the module (via table name).
+     * @param int $currentProfileId The profile ID to evaluate.
+     *
+     * @return array List of unique permission types (e.g. ['view-profiles', 'update-profiles', 'delete-profiles']).
+     *               Returns an empty array if the profile is not found or has no permissions.
      */
     public function returnPermissions(Model $model, int $currentProfileId): array
     {
@@ -26,58 +32,78 @@ trait ReturnModulePermissionTrait
         $cacheKey = "permissions:profile:{$currentProfileId}:module:{$moduleName}";
 
         return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($model, $currentProfileId, $moduleName) {
-            // Load the profile with its associated user group and permissions
-            $profile = Profile::with('profileUserGroup.userGroup.userGroupPermissions.permission')
+            // Load the profile with its associated roles and permissions
+            $profile = Profile::with(['profileRoles.role.rolePermissions.permission'])
                 ->find($currentProfileId);
 
-            if (!$profile?->profileUserGroup?->userGroup) {
+            if (!$profile?->profileRoles) {
                 return [];
             }
 
-            return $profile->profileUserGroup->userGroup
-                ->userGroupPermissions
-                ->filter(fn($ugp) => $ugp->is_active)
-                ->map(fn($ugp) => $ugp->permission)
+            $permissionLists = $profile->profileRoles
+                ->map(fn($pr) => $pr->role)
+                ->filter()
+                ->map(fn($role) => $role->rolePermissions)
+                ->flatten()
+                ->filter(fn($rp) => $rp->is_active)
+                ->map(fn($rp) => $rp->permission)
                 ->filter()
                 ->filter(fn($perm) => $perm->module === $moduleName && $perm->is_active)
                 ->pluck('type')
+                ->unique()
                 ->toArray();
+
+            // add model name to the permission (e.g. 'view-profiles', 'update-profiles')
+            return array_map(fn($perm) => "{$perm}-{$moduleName}", $permissionLists);
         });
     }
 
     /**
-     * Returns the permission types assigned to the user's profile for a specific module.
+     * Get custom permissions for a given profile and module.
      *
-     * This method is similar to returnPermissions but allows specifying the module directly.
+     * This method is similar to returnPermissions but allows specifying the module name directly,
+     * rather than deriving it from a model. It retrieves permissions assigned to the specified profile
+     * through its roles, filtering by active role-permissions and active permissions.
+     *
+     * Results are cached for 60 minutes using a profile + module-based key.
      *
      * @param string $module The name of the module for which permissions should be checked.
-     * @param int $currentProfileId The ID of the profile for which permissions should be checked.
+     * @param int $currentProfileId The profile ID to evaluate.
      *
-     * @return array An array of permission types (e.g., ['view', 'update', 'delete']) for the specified module.
+     * @return array List of unique permission types (e.g. ['view-user_management', 'update-user_management', 'delete-user_management']).
+     *               Returns an empty array if the profile is not found or has no permissions.
      */
     public function returnCustomPermissions(string $module, int $currentProfileId): array
     {
+        // Ensure the module name is in snake_case format (e.g. 'user_management' instead of 'UserManagement')
+        $module = Str::snake(Str::plural(Str::lower($module))); // Convert to plural snake_case (e.g. 'user_management')
+
         $cacheKey = "permissions:profile:{$currentProfileId}:module:{$module}";
 
         return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($module, $currentProfileId) {
-            // Load the profile with its associated user group and permissions
-            $profile = Profile::with('profileUserGroup.userGroup.userGroupPermissions.permission')
+            // Load the profile with its associated roles and permissions
+            $profile = Profile::with(['profileRoles.role.rolePermissions.permission'])
                 ->find($currentProfileId);
 
-            // If the profile or its related user group is missing, return an empty array
-            if (!$profile?->profileUserGroup?->userGroup) {
+            if (!$profile?->profileRoles) {
                 return [];
             }
 
-            // Extract and filter permissions based on the module and active status
-            return $profile->profileUserGroup->userGroup
-                ->userGroupPermissions
-                ->filter(fn($ugp) => $ugp->is_active)
-                ->map(fn($ugp) => $ugp->permission)
+            $permissionLists = $profile->profileRoles
+                ->map(fn($pr) => $pr->role)
+                ->filter()
+                ->map(fn($role) => $role->rolePermissions)
+                ->flatten()
+                ->filter(fn($rp) => $rp->is_active)
+                ->map(fn($rp) => $rp->permission)
                 ->filter()
                 ->filter(fn($perm) => $perm->module === $module && $perm->is_active)
                 ->pluck('type')
+                ->unique()
                 ->toArray();
+
+            // add model name to the permission (e.g. 'view-user_management', 'update-user_management')
+            return array_map(fn($perm) => "{$perm}-{$module}", $permissionLists);
         });
     }
 

@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Helpers\Helper;
+use App\Models\Module;
 use App\Models\Permission;
-use App\Models\UserGroup;
-use App\Models\UserGroupPermission;
+use App\Models\Role;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -19,7 +19,7 @@ class GenerateModulePermissions extends Command
         {--update : Include update permission} 
         {--delete : Include delete permission}';
 
-    protected $description = 'Generate module CRUD permissions and assign them to all user groups';
+    protected $description = 'Generate module CRUD permissions and assign them to all roles';
 
     public function handle()
     {
@@ -61,21 +61,28 @@ class GenerateModulePermissions extends Command
                 $createdPermissions[] = $permission->id;
             }
 
-            foreach (UserGroup::all() as $userGroup) {
+            $roles = Role::all();
+            foreach ($roles as $role) {
                 foreach ($createdPermissions as $permissionId) {
-                    UserGroupPermission::firstOrCreate(
+                    $role->rolePermissions()->firstOrCreate(
                         [
-                            'user_group_id' => $userGroup->id,
                             'permission_id' => $permissionId,
+                            'role_id' => $role->id,
                         ],
-                        [
-                            'is_active' => false, // default to inactive, but can be updated later
-                        ]
+                        ['is_active' => false] // default to inactive, but can be updated later
                     );
                 }
             }
+
+            // Create the module entry
+            Module::create([
+                'name' => $modelName,
+                'icon' => 'mdi-home',
+                'route' => '/' . Str::kebab($modelName),
+                'category' => Helper::MODULE_CATEGORY_SYSTEM,
+            ]);
         });
 
-        $this->info('Permissions and user group links generated successfully.');
+        $this->info('Permissions and roles links generated successfully.');
     }
 }

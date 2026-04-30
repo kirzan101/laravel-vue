@@ -8,6 +8,7 @@
                         Profiles
                         <AddProfile
                             :user_groups="user_groups"
+                            :roles="roles"
                             :account_types="account_types"
                             :showBtn="showAddBtn"
                             :errors="errors"
@@ -28,6 +29,7 @@
             </c-row>
             <TableProfile
                 :user_groups="user_groups"
+                :roles="roles"
                 :account_types="account_types"
                 :errors="errors"
                 :flash="flash"
@@ -49,6 +51,7 @@ import AddProfile from "./Actions/AddProfile.vue";
 // Define props
 const props = defineProps({
     user_groups: Array,
+    roles: Array,
     account_types: Array,
     errors: Object,
     flash: Object,
@@ -74,7 +77,7 @@ useDebouncedWatch(
         toggleLoadData(value);
     },
     undefined,
-    { deep: true }
+    { deep: true },
 );
 
 // reload data when flash message changes
@@ -83,7 +86,7 @@ watch(
     () => {
         toggleLoadData(filters.value);
     },
-    { immediate: true }
+    { immediate: true },
 );
 
 const { mobile } = useDisplay();
@@ -95,7 +98,7 @@ watch(
     (newVal) => {
         showAddBtn.value = !newVal; // Hide the button on mobile
     },
-    { immediate: true }
+    { immediate: true },
 );
 
 const addProfileRef = ref(null);

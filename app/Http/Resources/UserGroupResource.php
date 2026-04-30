@@ -13,7 +13,7 @@ class UserGroupResource extends JsonResource
     /**
      * Define relationships this resource may need.
      */
-    public static array $relations = ['createdBy', 'updatedBy', 'userGroupPermissions'];
+    public static array $relations = ['createdBy', 'updatedBy'];
 
     /**
      * Transform the resource into an array.
@@ -30,8 +30,7 @@ class UserGroupResource extends JsonResource
             'createdBy' => $this->created_by ? $this->createdBy->getFullName() : null,
             'updatedBy' => $this->updated_by ? $this->updatedBy->getFullName() : null,
             'created_at' => $this->returnShortDateTime($this->created_at),
-            'updated_at' => $this->returnShortDateTime($this->updated_at),
-            'userGroupPermissions' => UserGroupPermissionResource::collection($this->userGroupPermissions),
+            'updated_at' => $this->returnShortDateTime($this->updated_at)
         ];
     }
 }

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Traits\ReturnModulePermissionTrait;
 use Illuminate\Auth\Access\Response;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class ProfilePolicy
 {
@@ -32,11 +33,26 @@ class ProfilePolicy
     }
 
     /**
+     * Get the concatenated permission string for a given action type and model.
+     *
+     * @param string $actionType The type of action (e.g. 'view', 'update').
+     * @param Model $model The Eloquent model instance to determine the module (via table name).
+     * @return string The concatenated permission string (e.g. 'view-profile').
+     */
+    protected function getConcatinatedPermission(string $actionType, Model $model): string
+    {
+        $tableName = $model->getTable(); // Get the table name of the model
+
+        return Str::kebab("{$actionType}-{$tableName}"); // Concatenate action type and table name (e.g. 'view-profiles')
+
+    }
+
+    /**
      * Determine whether the user can view the model.
      */
     public function view(User $user, Profile $profile): bool
     {
-        return in_array(Helper::ACTION_TYPE_VIEW, $this->getCan($user, $profile));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_VIEW, $profile), $this->getCan($user, $profile));
     }
 
     /**
@@ -44,7 +60,7 @@ class ProfilePolicy
      */
     public function create(User $user): bool
     {
-        return in_array(Helper::ACTION_TYPE_CREATE, $this->getCan($user, new Profile()));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_CREATE, new Profile()), $this->getCan($user, new Profile()));
     }
 
     /**
@@ -52,7 +68,7 @@ class ProfilePolicy
      */
     public function update(User $user, Profile $profile): bool
     {
-        return in_array(Helper::ACTION_TYPE_UPDATE, $this->getCan($user, $profile));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_UPDATE, $profile), $this->getCan($user, $profile));
     }
 
     /**
@@ -60,7 +76,7 @@ class ProfilePolicy
      */
     public function delete(User $user, Profile $profile): bool
     {
-        return in_array(Helper::ACTION_TYPE_DELETE, $this->getCan($user, $profile));
+        return in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_DELETE, $profile), $this->getCan($user, $profile));
     }
 
     /**
@@ -76,6 +92,6 @@ class ProfilePolicy
      */
     public function forceDelete(User $user, Profile $profile): bool
     {
-        return (bool) $user->is_admin && in_array(Helper::ACTION_TYPE_DELETE, $this->getCan($user, $profile));
+        return (bool) $user->is_admin && in_array($this->getConcatinatedPermission(Helper::ACTION_TYPE_DELETE, $profile), $this->getCan($user, $profile));
     }
 }

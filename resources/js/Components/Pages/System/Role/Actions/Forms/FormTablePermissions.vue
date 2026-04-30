@@ -1,6 +1,9 @@
 <template>
     <c-container>
-        <c-alert-error v-if="formErrors.permissions" :text="formErrors.permissions" />
+        <c-alert-error
+            v-if="formErrors.permissions"
+            :text="formErrors.permissions"
+        />
         <v-row class="mt-1 mb-2 text-h6" justify="space-between">
             Permissions
         </v-row>
@@ -16,7 +19,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="module in modules" :key="module">
+                <tr v-for="module in moduleLists" :key="module.id">
                     <td>
                         <TextModuleName :name="module" />
                     </td>
@@ -47,9 +50,9 @@ import { computed, ref, watch } from "vue";
 import TextModuleName from "./Components/TextModuleName.vue";
 
 const props = defineProps({
-    userGroupPermissions: Array,
+    rolePermissions: Array,
     permissions: Array,
-    modules: Array,
+    moduleLists: Array,
     errors: Object,
     flash: Object,
     can: Array,
@@ -62,7 +65,7 @@ watch(
     (newValue) => {
         formErrors.value = Object.assign({}, newValue);
     },
-    { deep: true }
+    { deep: true },
 );
 // set error end
 
@@ -80,27 +83,27 @@ const disabledPermissions = computed(() => {
 });
 
 watch(
-    () => props.userGroupPermissions,
-    (newUserGroupPermission) => {
-        if (newUserGroupPermission && newUserGroupPermission.length > 0) {
-            const activePermission = newUserGroupPermission
+    () => props.rolePermissions,
+    (newRolePermissions) => {
+        if (newRolePermissions && newRolePermissions.length > 0) {
+            const activePermission = newRolePermissions
                 .filter(
                     (permission) =>
                         permission.is_active === true ||
-                        permission.is_active === 1
+                        permission.is_active === 1,
                 )
                 .map((item) => item.permission_id);
 
             selectedPermissions.value = [...activePermission];
         }
     },
-    { immediate: true }
+    { immediate: true },
 );
 
-// Get the permission item for a specific module and type
+// Get the permission item for a specific module and typeus
 const permissionItem = (module, type) => {
     return props.permissions.find(
-        (item) => item.module === module && item.type === type
+        (item) => item.module === module && item.type === type,
     );
 };
 
@@ -123,7 +126,7 @@ const toggleAllPermissions = (module) => {
     if (allSelected) {
         // Deselect all if already selected
         selectedPermissions.value = selectedPermissions.value.filter(
-            (id) => !allPermissions.includes(id)
+            (id) => !allPermissions.includes(id),
         );
     } else {
         // Add permissions if not already selected
@@ -133,7 +136,7 @@ const toggleAllPermissions = (module) => {
 
         //  remove disabled permission id
         const filteredSelectedPermissions = selectedPermissions.value.filter(
-            (item) => !disabledPermissions.value.includes(item)
+            (item) => !disabledPermissions.value.includes(item),
         );
 
         selectedPermissions.value = [...filteredSelectedPermissions];
@@ -142,7 +145,7 @@ const toggleAllPermissions = (module) => {
 
 // Watch for changes to update the select-all checkbox state
 watch(selectedPermissions, () => {
-    props.modules.forEach((module) => {
+    props.moduleLists.forEach((module) => {
         isChecked(module);
     });
 });

@@ -8,7 +8,6 @@ use App\Interfaces\CurrentUserInterface;
 use App\Interfaces\BaseInterface;
 use App\Interfaces\FetchInterfaces\BaseFetchInterface;
 use App\Interfaces\PermissionInterface;
-use App\Interfaces\UserGroupPermissionInterface;
 use App\Models\UserGroup;
 use App\Services\UserGroupService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,9 +33,6 @@ class UserGroupServiceTest extends TestCase
     /** @var \Mockery\MockInterface&PermissionInterface */
     protected PermissionInterface $permission;
 
-    /** @var \Mockery\MockInterface&UserGroupPermissionInterface */
-    protected UserGroupPermissionInterface $userGroupPermission;
-
     /** @var \Mockery\MockInterface|UserGroupService */
     protected $service;
 
@@ -48,15 +44,13 @@ class UserGroupServiceTest extends TestCase
         $this->fetch = $this->mockBaseFetchInterface();
         $this->currentUser = $this->mockCurrentUserInterface();
         $this->permission = Mockery::mock(PermissionInterface::class);
-        $this->userGroupPermission = Mockery::mock(UserGroupPermissionInterface::class);
 
         // 👇 Use partial mock to allow mocking of trait methods
         $this->service = Mockery::mock(UserGroupService::class, [
             $this->base,
             $this->fetch,
             $this->currentUser,
-            $this->permission,
-            $this->userGroupPermission,
+            $this->permission
         ])->makePartial();
 
         $this->beforeApplicationDestroyed(function () {

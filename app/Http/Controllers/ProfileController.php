@@ -12,6 +12,7 @@ use App\Http\Resources\IndexResource\UserGroupIndexResource;
 use App\Http\Resources\ProfileResource;
 use App\Interfaces\ActivityLogInterface;
 use App\Interfaces\FetchInterfaces\ProfileFetchInterface;
+use App\Interfaces\FetchInterfaces\RoleFetchInterface;
 use App\Interfaces\FetchInterfaces\UserGroupFetchInterface;
 use App\Interfaces\ManageAccountInterface;
 use App\Interfaces\ProfileInterface;
@@ -30,6 +31,7 @@ class ProfileController extends Controller
 
     public function __construct(
         private UserGroupFetchInterface $userGroupFetch,
+        private RoleFetchInterface $roleFetch,
         private ManageAccountInterface $manageAccount,
         private ActivityLogInterface $activityLog
     ) {}
@@ -69,8 +71,14 @@ class ProfileController extends Controller
             return $result->data ?? [];
         });
 
+        $roles = Cache::remember('roles_list', 60, function () {
+            $result = $this->roleFetch->indexRoles();
+            return $result->data ?? [];
+        });
+
         return Inertia::render('System/Profiles', [
             'user_groups' => UserGroupIndexResource::collection($userGroups),
+            'roles' => $roles,
             'account_types' => Helper::ACCOUNT_TYPES,
             'can' => $this->getModulePermissions(new Profile()),
         ]);
@@ -88,6 +96,7 @@ class ProfileController extends Controller
             user: $userDTO,
             profile: $profileDTO,
             user_group_id: $request->input('user_group_id'),
+            role_ids: $request->input('role_ids', []),
         );
 
         $registerResult = $this->manageAccount->register($accountDTO);
@@ -124,6 +133,7 @@ class ProfileController extends Controller
             user: $userDTO,
             profile: $profileDTO,
             user_group_id: $request->input('user_group_id'),
+            role_ids: $request->input('role_ids', []),
         );
 
         $updateResult = $this->manageAccount->updateUserProfile($accountDTO, $id);

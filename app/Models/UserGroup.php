@@ -40,17 +40,6 @@ class UserGroup extends Model
     }
 
     /**
-     * Get the permissions associated with the user group.
-     *
-     * @return HasMany
-     */
-    public function userGroupPermissions(): HasMany
-    {
-        return $this->hasMany(UserGroupPermission::class);
-    }
-
-
-    /**
      * Get the profile user groups associated with the user group.
      *
      * @return HasMany
@@ -58,17 +47,5 @@ class UserGroup extends Model
     public function profileUserGroups(): HasMany
     {
         return $this->hasMany(ProfileUserGroup::class, 'user_group_id');
-    }
-
-    /**
-     * Get the permission list of the user group.
-     *
-     * @return array
-     */
-    public function getPermissions(): array
-    {
-        return $this->userGroupPermissions->map(function ($userGroupPermission) {
-            return $userGroupPermission->permission;
-        })->toArray();
     }
 }

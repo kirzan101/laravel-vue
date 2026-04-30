@@ -172,4 +172,13 @@ class Helper
     const USER_GROUP_CODE_TYPES = ['ADMIN', 'USER'];
     const USER_GROUP_CODE_ADMIN = 'ADMIN';
     const USER_GROUP_CODE_USER = 'USER';
+
+    /**
+     * module categories
+     */
+    const MODULE_CATEGORIES = [
+        'System',
+        // Add more categories as needed
+    ];
+    const MODULE_CATEGORY_SYSTEM = 'System';
 }

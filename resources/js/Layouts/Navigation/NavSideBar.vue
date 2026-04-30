@@ -11,11 +11,22 @@
         <v-divider></v-divider>
 
         <v-list nav>
-            <v-list-item title="Navigation drawer" link></v-list-item>
-            <v-list-item href="/user-groups" @click.prevent>
-                <v-list-item-title @click="router.visit('/user-groups')"
-                    >User group
-                </v-list-item-title>
+            <v-list-item
+                prepend-icon="mdi-home"
+                title="Dashboard"
+                href="/"
+            ></v-list-item>
+            <v-list-item
+                v-for="module in modules"
+                :key="module.id"
+                :href="`${module.route}`"
+                @click.prevent="router.visit(`${module.route}`)"
+                :active="isActiveUrl(module.route)"
+                color="primary"
+                :prepend-icon="module.icon"
+                :variant="isActiveUrl(module.route) ? 'elevated' : 'text'"
+            >
+                <v-list-item-title>{{ module.name }}</v-list-item-title>
             </v-list-item>
         </v-list>
 
@@ -80,5 +91,15 @@ const emailAddress = computed(() => {
 
 const profileIcon = computed(() => {
     return page.props.auth.user.isAdmin ? "mdi-account-star" : "mdi-account";
+});
+
+const modules = computed(() => {
+    return page.props.modules ?? [];
+});
+
+const isActiveUrl = computed(() => {
+    return (url) => {
+        return url === page.url;
+    };
 });
 </script>
