@@ -8,9 +8,9 @@ class RolePermissionDTO extends BaseDTO
      * Create a new RolePermissionDTO instance.
      */
     public function __construct(
-        public int $role_id,
-        public int $permission_id,
-        public bool $is_active = true,
+        public readonly int $role_id,
+        public readonly int $permission_id,
+        public readonly bool $is_active = true,
         ?int $id = null
     ) {
         parent::__construct($id);
